@@ -2,7 +2,7 @@
     <div class="col-12">
         <div class="col-12 mt-3 text-right">
             <button class="btn btn-primary add_user_btn"><span class="icon-add"></span>Add User Creation</button>
-            <button class="btn btn-primary back_to_userList_btn" style="display: none;"><span class="icon-arrow-left"></span>Back</button>
+            <button class="btn btn-primary back_to_userList_btn" style="display: none;"><span class="icon-arrow-left"></span>&nbsp;Back</button>
         </div></br>
         <!----------------------------- CARD START  USER CREATION TABLE ------------------------------>
         <div class="card user_creation_table_content">
@@ -16,9 +16,8 @@
                                     <th>Name</th>
                                     <th>User Name</th>
                                     <th>Role</th>
-                                    <th>Designation</th>
+                                    <th>Occupation Type</th>
                                     <th>Branch Name</th>
-                                    <th>Line Name</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -88,7 +87,7 @@
                                     </div>
                                     <div class="col-sm-1 col-md-1 col-lg-1 text-right" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="7" onclick="getDesignationTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="7" onclick="getPlaceTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-sm-4 col-md-4 col-lg-4">
@@ -114,7 +113,7 @@
                                     </div>
                                     <div class="col-sm-1 col-md-1 col-lg-1 text-right" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_occ_modal" tabindex="11" onclick="getDesignationTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_occ_modal" tabindex="11" onclick="getOccupationTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -267,7 +266,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Place</h5>
-                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getDesignationDropdown()">
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getPlaceDropdown()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -306,7 +305,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getDesignationDropdown()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getPlaceDropdown()">Close</button>
             </div>
         </div>
     </div>
@@ -318,7 +317,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Occupation Type</h5>
-                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getDesignationDropdown()">
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getOccupationDropdown()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -347,7 +346,7 @@
                             <thead>
                                 <tr>
                                     <th width="20">S.No.</th>
-                                    <th>Place</th>
+                                    <th>Occupation Type</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -357,7 +356,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getDesignationDropdown()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getOccupationDropdown()">Close</button>
             </div>
         </div>
     </div>

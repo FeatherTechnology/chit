@@ -7,19 +7,16 @@ $qry = $pdo->query("SELECT
     u.name, 
     u.user_name, 
     r.role, 
-    d.designation, 
-    GROUP_CONCAT(DISTINCT bc.branch_name ORDER BY bc.branch_name SEPARATOR ', ') AS branch_names,
-    GROUP_CONCAT(DISTINCT lnc.linename ORDER BY lnc.linename SEPARATOR ', ') AS line_names
+    o.occ_type, 
+    GROUP_CONCAT(DISTINCT bc.branch_name ORDER BY bc.branch_name SEPARATOR ', ') AS branch_names
 FROM 
     users u 
 LEFT JOIN 
     branch_creation bc ON FIND_IN_SET(bc.id, u.branch)
-LEFT JOIN 
-    line_name_creation lnc ON FIND_IN_SET(lnc.id, u.line)
 LEFT JOIN
 	role r ON u.role = r.id
 LEFT JOIN 
-	designation d ON u.designation = d.id
+	Occupation o ON u.occ_type = o.id
 GROUP BY 
     u.id");
 if ($qry->rowCount() > 0) {
