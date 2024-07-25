@@ -79,6 +79,7 @@
                                     <label for="qr_code"> UPI QR Code</label>
                                     <input type="file" class="form-control" id="qr_code" name="qr_code" tabindex="6">
                                     <input type="hidden" id="inserted_qr_code">
+                                    <div id="qr_code_filename"></div> 
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">

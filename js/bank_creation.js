@@ -77,10 +77,19 @@ $(document).ready(function () {
                 $('#inserted_qr_code').val(response[0].qr_code);
                 $('#gpay').val(response[0].gpay);
                 $('#branch_name2').val(response[0].under_branch);
+                
+                // Display the QR code file name and set up the click event
+                if (response[0].qr_code) {
+                    var qrCodeFileName = response[0].qr_code.split('/').pop(); // Get the file name
+                    $('#qr_code_filename').html('<a href="uploads/bank_creation/qr_code/' + response[0].qr_code + '" target="_blank">' + qrCodeFileName + '</a>');
+                } else {
+                    $('#qr_code_filename').html('');
+                }
             }
             getUnderBranchDropdown();
         }, 'json');
     });
+    
 
     $(document).on('click', '.bankDeleteBtn', function () {
         var id = $(this).attr('data-value');
@@ -186,6 +195,7 @@ function getStatusChange(id) {
 $('#back_btn').click(function (event) {
     // event.preventDefault();
     $('input, textarea').val('');
+    $('#qr_code_filename').html('');
     underBranchChoices.clearInput();
     getUnderBranchDropdown();
     $('#bank_name').css('border', '1px solid #cecece');
