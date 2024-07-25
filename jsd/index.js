@@ -11,7 +11,7 @@ $(document).ready(function () {
         let password = $('#lpassword').val();
         $.post('api/base_api/login.php', { user_name, password }, function (response) {
             if (response == 'Success') {
-                swalSuccess('Login Successful', 'Welcome to Finance Software');
+                swalSuccess('Login Successful', 'Welcome to Chit Software');
                 setTimeout(() => {
                     window.location.href = 'home.php';
                 }, 2000);
