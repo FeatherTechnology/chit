@@ -6,15 +6,13 @@
 	<!-- Sidebar brand start  -->
 	<div class="sidebar-brand" style="background-color: var(--primary-color)">
 		<a href="#" class="logo">
-			<h2 class="ml-4" style="color: white">FINANCE</h2>
+			<h2 class="ml-4" style="color: white">CHIT</h2>
 		</a>
 	</div>
 
 	<div class="sidebar-content">
-
 		<!-- sidebar menu start -->
 		<div class="sidebar-menu">
-			
 		</div>
 		<!-- sidebar menu end -->
 	</div>
