@@ -1,4 +1,4 @@
-# Finance Software
+# Chit Software
 
 Base of Admin template functionable with JavaScript
 
