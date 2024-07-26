@@ -66,7 +66,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="name_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="name">Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter Customer Name" tabindex="3">
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" tabindex="3">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="mobile_container" style="display:none;">
@@ -104,7 +104,7 @@
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="cus_id"> Customer ID</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control " id="cus_id" name="cus_id" data-type="adhaar-number" placeholder="Enter Customer ID" tabindex="7" maxlength="14">
+                                            <input type="text" class="form-control " id="cus_id" name="cus_id" readonly tabindex="7" >
                                             <input type="hidden" id="cus_id_upd" name="cus_id_upd">
                                         </div>
                                     </div>
@@ -137,7 +137,7 @@
                                     </div>
                                     <div class="col-sm-1 col-md-1 col-lg-1 text-right" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="12" onclick="getDesignationTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="12" onclick="getPlaceTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -221,7 +221,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="income">Income</label>
-                                    <input type="text" class="form-control" id="income" name="income" placeholder="Enter Income" tabindex="22">
+                                    <input type="number" class="form-control" id="income" name="income" placeholder="Enter Income" tabindex="22">
                                 </div>
                             </div>
                             <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
@@ -240,7 +240,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="chit_limit">Income</label><span class="text-danger">*</span>
+                                    <label for="chit_limit">Chit Limit</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="25">
                                 </div>
                             </div>
@@ -255,6 +255,21 @@
                                 </div>
                             </div>
                         </div>
+                        <table id="source_create" class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>S.NO</th>
+                                    <th>Occupation</th>
+                                    <th>Occupation Detail</th>
+                                    <th>Source</th>
+                                    <th>Income</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="card">
@@ -330,7 +345,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Place</h5>
-                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getDesignationDropdown()">
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getPlaceDropdown()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -369,7 +384,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getDesignationDropdown()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getPlaceDropdown()">Close</button>
             </div>
         </div>
     </div>
@@ -381,7 +396,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Family Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorName()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorRelationship()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -402,14 +417,14 @@
                                     <label for="fam_relationship">Relationship</label><span class="text-danger">*</span>
                                     <select type="text" class="form-control" id="fam_relationship" name="fam_relationship" tabindex="1">
                                         <option value=""> Select Relationship </option>
-                                        <option value="Father"> Father </option>
-                                        <option value="Mother"> Mother </option>
-                                        <option value="Spouse"> Spouse </option>
-                                        <option value="Son"> Son </option>
-                                        <option value="Daughter"> Daughter </option>
-                                        <option value="Brother"> Brother </option>
-                                        <option value="Sister"> Sister </option>
-                                        <option value="Other"> Other </option>
+                                        <option value="1"> Father </option>
+                                        <option value="2"> Mother </option>
+                                        <option value="3"> Spouse </option>
+                                        <option value="4"> Son </option>
+                                        <option value="5"> Daughter </option>
+                                        <option value="6"> Brother </option>
+                                        <option value="7"> Sister </option>
+                                        <option value="8"> Other </option>
                                     </select>
                                     <input type="hidden" id="addrelationship_id" value='0'>
                                 </div>
@@ -486,7 +501,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorName()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorRelationship()">Close</button>
             </div>
         </div>
     </div>
@@ -512,27 +527,19 @@
                                     <label for="gua_relationship">Relationship</label><span class="text-danger">*</span>
                                     <select class="form-control" id="gua_relationship" name="gua_relationship" tabindex="1">
                                         <option value="">Select Relationship</option>
-                                        <option value="Father">Father</option>
-                                        <option value="Mother">Mother</option>
-                                        <option value="Spouse">Spouse</option>
-                                        <option value="Son">Son</option>
-                                        <option value="Daughter">Daughter</option>
-                                        <option value="Brother">Brother</option>
-                                        <option value="Sister">Sister</option>
-                                        <option value="Customer">Customer</option>
-                                        <option value="Other">Other</option>
+                                        <option value="-1"> Existing Customer</option>
                                     </select>
                                     <input type="hidden" id="addgrelationship_id" value="0">
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name1_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="guarantor_name">Name</label><span class="text-danger">*</span>
                                     <input type="text" class="form-control" name="guarantor_name" id="guarantor_name" tabindex="1" placeholder="Enter Name">
                                     <input type="hidden" id="addgua_name_id" value="0">
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="existing_cus_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="existing_cus">Existing Customer</label><span class="text-danger">*</span>
                                     <select class="form-control" id="existing_cus" name="existing_cus" tabindex="1">
@@ -540,16 +547,16 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="details_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="details">Details</label>
                                     <textarea class="form-control" name="details" id="details" placeholder="Enter Details" tabindex="1"></textarea>
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="photo_container" style="display:none;">
                                 <div class="form-group">
-                                    <label for="pic"> Photo</label><br>
-                                    <img id='gur_imgshow' class="img_show" src='img\avatar.png' />
+                                    <label for="gu_pic">Photo</label><br>
+                                    <img id='gur_imgshow' class="img_show" src='img/avatar.png' />
                                     <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="12">
                                     <input type="hidden" id="gur_pic">
                                 </div>
@@ -585,4 +592,5 @@
         </div>
     </div>
 </div>
-<!--Family Modal End-->
+
+<!--Guarantor Modal End-->
