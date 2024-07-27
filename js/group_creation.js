@@ -83,19 +83,26 @@ $(document).ready(function () {
 
         if (cus_name != '' && groupid !='') {
             $.post('api/group_creation_files/submit_cus_mapping.php', { cus_name, groupid }, function (response) {
-                getDocNeedTable(groupid);
+                getCusMapTable(groupid);
             }, 'json');
-
             $('#cus_name').val('');
         }
+    });
 
+    $(document).on('click','.cusMapDeleteBtn', function(){
+        let id = $(this).attr('value');
+        swalConfirm('Delete','Do you want to remove this customer mapping?', removeCusMap, id,'');
     });
 
 }); //document END////
 
 $(function () {
-
+    getGroupCreationTable();
 });
+
+function getGroupCreationTable() {
+    serverSideTable('#group_creation_table', '', 'api/group_creation_files/get_grp_creation_list.php');
+}
 
 function swapTableAndCreation() {
     if ($('.group_table_content').is(':visible')) {
@@ -146,7 +153,7 @@ function getCustomerList() {
         let cusOptn = '';
         cusOptn = '<option value="">Select Customer Name</option>';
         response.forEach(val => {
-            cusOptn += '<option value="' + val.id + '">' + val.first_name +''+ val.last_name + '</option>';
+            cusOptn += '<option value="' + val.id + '">' + val.first_name +' '+ val.last_name + '</option>';
         });
         $('#cus_name').empty().append(cusOptn);
     }, 'json');
@@ -163,4 +170,31 @@ function isFormValid(formdata) {
     }
 
     return true;
+}
+
+function getCusMapTable(groupid) {
+    $.post('api/group_creation_files/get_cus_map_details.php', { groupid }, function (response) {
+        let cusMapColumn = [
+            "sno",
+            "cus_id",
+            "name",
+            "place",
+            "occ",
+            "action"
+        ]
+        appendDataToTable('#cus_mapping_table', response, cusMapColumn);
+        setdtable('#cus_mapping_table');
+    }, 'json');
+}
+
+function removeCusMap(id){
+    $.post('api/group_creation_files/delete_cus_mapping.php', { id }, function (response) {
+        if(response ==1){
+            swalSuccess('Success','Customer mapping removed successfully.')
+            let groupid = $('#groupid').val();
+            getCusMapTable(groupid);
+        }else{
+            swalError('Alert','Customer mapping remove failed.')
+        }
+    }, 'json');
 }
