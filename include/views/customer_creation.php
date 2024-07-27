@@ -57,9 +57,9 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cus_name_container" style="display:none;">
                                 <div class="form-group">
-                                    <label for="cus_name">Customer Name</label>
+                                    <label for="cus_name">Existing Customer</label>
                                     <select type="text" class="form-control" id="cus_name" name="cus_name" tabindex="2">
-                                        <option value="">Select Customer Name</option>
+                                        <option value="">Select Existing Customer</option>
                                     </select>
                                 </div>
                             </div>
@@ -78,7 +78,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cus_id_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="ref_cus_id"> Customer ID</label>
-                                    <input type="text" class="form-control " id="ref_cus_id" name="ref_cus_id" data-type="adhaar-number" disabled placeholder="Enter Customer ID" tabindex="5" maxlength="14">
+                                    <input type="text" class="form-control " id="ref_cus_id" name="ref_cus_id" disabled placeholder="Enter Customer ID" tabindex="5" maxlength="14">
                                     <input type="hidden" id="ref_cus_id_upd" name="ref_cus_id_upd">
                                 </div>
                             </div>
@@ -104,14 +104,14 @@
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="cus_id"> Customer ID</label><span class="text-danger">*</span>
-                                            <input type="text" class="form-control " id="cus_id" name="cus_id" readonly tabindex="7" >
+                                            <input type="text" class="form-control " id="cus_id" name="cus_id" readonly tabindex="7">
                                             <input type="hidden" id="cus_id_upd" name="cus_id_upd">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="aadhar_number">Aadhar Number</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="aadhar_number" name="aadhar_number" placeholder="Enter Aadhar Number" tabindex="8" maxlength="14">
+                                            <input type="text" class="form-control" name="aadhar_number" id="aadhar_number" tabindex="8" maxlength="14" data-type="adhaar-number" placeholder="Enter Aadhar Number">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -142,29 +142,36 @@
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
-                                            <label for="mobile1"> Mobile Number 1</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control " id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="13">
+                                            <label for="mobile1">Mobile Number 1</label><span class="text-danger">*</span>
+                                            <input type="number" class="form-control" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="13">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
-                                            <label for="mobile2"> Mobile Number 2</label>
+                                            <label for="mobile2">Mobile Number 2</label>
                                             <input type="number" class="form-control" id="mobile2" name="mobile2" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number 2" tabindex="14">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
+                                            <label>Choose Mobile Number for WhatsApp:</label><br>
                                             <label>
-                                                <input type="checkbox" id="whatsapp_checkbox" name="whatsapp_checkbox"> As Same for WhatsApp
+                                                <input type="radio" name="mobile_whatsapp" value="mobile1" id="mobile1_radio">
+                                                Mobile Number 1
+                                            </label><br>
+                                            <label>
+                                                <input type="radio" name="mobile_whatsapp" value="mobile2" id="mobile2_radio">
+                                                Mobile Number 2
                                             </label>
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
-                                            <label for="whatsapp">Whatsapp</label>
-                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Whatsapp Number " tabindex="15">
+                                            <label for="whatsapp">WhatsApp</label>
+                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter WhatsApp Number" tabindex="15">
                                         </div>
                                     </div>
+
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="address"> Address </label><span class="text-danger">*</span>
@@ -305,7 +312,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Guarantor Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='28'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorRelationship()" style="padding: 5px 35px; float: right;" tabindex='28'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -417,14 +424,14 @@
                                     <label for="fam_relationship">Relationship</label><span class="text-danger">*</span>
                                     <select type="text" class="form-control" id="fam_relationship" name="fam_relationship" tabindex="1">
                                         <option value=""> Select Relationship </option>
-                                        <option value="1"> Father </option>
-                                        <option value="2"> Mother </option>
-                                        <option value="3"> Spouse </option>
-                                        <option value="4"> Son </option>
-                                        <option value="5"> Daughter </option>
-                                        <option value="6"> Brother </option>
-                                        <option value="7"> Sister </option>
-                                        <option value="8"> Other </option>
+                                        <option value="Father"> Father </option>
+                                        <option value="Mother"> Mother </option>
+                                        <option value="Spouse"> Spouse </option>
+                                        <option value="Son"> Son </option>
+                                        <option value="Daughter"> Daughter </option>
+                                        <option value="Brother"> Brother </option>
+                                        <option value="Sister"> Sister </option>
+                                        <option value="Other"> Other </option>
                                     </select>
                                     <input type="hidden" id="addrelationship_id" value='0'>
                                 </div>
@@ -513,7 +520,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Guarantor Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorName()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();getGuarantorRelationship()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -535,7 +542,7 @@
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name1_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="guarantor_name">Name</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="guarantor_name" id="guarantor_name" tabindex="1" placeholder="Enter Name">
+                                    <input type="text" class="form-control" name="guarantor_name" id="guarantor_name" tabindex="1" readonly placeholder="Enter Name">
                                     <input type="hidden" id="addgua_name_id" value="0">
                                 </div>
                             </div>
@@ -587,7 +594,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorName()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getGuarantorInfoTable()">Close</button>
             </div>
         </div>
     </div>
