@@ -66,6 +66,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="name_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="name">Name</label>
+                                    <input type="hidden" id="custom_name_edit" name="custom_name_edit">
                                     <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" tabindex="3">
                                 </div>
                             </div>
@@ -529,26 +530,36 @@
                     <form id="guarantor_form">
                         <div class="row">
                             <input type="hidden" name="guarantor_id" id="guarantor_id">
+                            <input type="hidden" name="relationship_type" id="relationship_type">
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                 <div class="form-group">
-                                    <label for="gua_relationship">Relationship</label><span class="text-danger">*</span>
-                                    <select class="form-control" id="gua_relationship" name="gua_relationship" tabindex="1">
-                                        <option value="">Select Relationship</option>
+                                    <label for="gua_name">Guarantor Name</label><span class="text-danger">*</span>
+                                    <select class="form-control" id="gua_name" name="gua_name" tabindex="1">
+                                        <option value>Select Relationship</option>
                                         <option value="-1"> Existing Customer</option>
+                                        <option value="-2"> Others</option>
                                     </select>
                                     <input type="hidden" id="addgrelationship_id" value="0">
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name1_container" style="display:none;">
                                 <div class="form-group">
-                                    <label for="guarantor_name">Name</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="guarantor_name" id="guarantor_name" tabindex="1" readonly placeholder="Enter Name">
+                                    <label for="guarantor1_name">Relationship</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="guarantor1_name" id="guarantor1_name" tabindex="1" readonly placeholder="Enter Name">
+                                    <input type="hidden" id="addgua_name_id" value="0">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name2_container" style="display:none;">
+                                <div class="form-group">
+                                    <label for="other_name">Name</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="other_name" id="other_name" tabindex="1" placeholder="Enter Name">
                                     <input type="hidden" id="addgua_name_id" value="0">
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="existing_cus_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="existing_cus">Existing Customer</label><span class="text-danger">*</span>
+                                    <input type="hidden" id="customer_name_edit" value="0">
                                     <select class="form-control" id="existing_cus" name="existing_cus" tabindex="1">
                                         <option value="">Select Existing Customer</option>
                                     </select>
@@ -560,7 +571,7 @@
                                     <textarea class="form-control" name="details" id="details" placeholder="Enter Details" tabindex="1"></textarea>
                                 </div>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="photo_container" style="display:none;">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="photo_container">
                                 <div class="form-group">
                                     <label for="gu_pic">Photo</label><br>
                                     <img id='gur_imgshow' class="img_show" src='img/avatar.png' />
