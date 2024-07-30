@@ -366,11 +366,9 @@ $(document).ready(function () {
                 }
 
                 let paths = "uploads/customer_creation/gu_pic/";
-                if (gu_pic) {
-                    $('#gur_imgshow').attr('src', paths + gu_pic);
-                } else {
-                    $('#gur_imgshow').attr('src', 'img/avatar.png');
-                }
+                $('#gur_pic').val(response[0].gu_pic);
+                var img = $('#imgshow');
+                img.attr('src', paths + response[0].gu_pic);
             } else {
                 console.error('No data found for ID:', id);
             }
@@ -396,6 +394,7 @@ $(document).ready(function () {
         let reference_type = $('#reference_type').val();
         let cus_name = $('#cus_name').val();
         let name = $('#name').val();
+        let ref_cus_id = $('#ref_cus_id').val();
         let mobile = $('#mobile').val();
         let declaration = $('#declaration').val();
         let cus_id = $('#cus_id').val();
@@ -419,6 +418,7 @@ $(document).ready(function () {
         cusDetail.append('cus_id', cus_id);
         cusDetail.append('reference_type', reference_type);
         cusDetail.append('cus_name', cus_name);
+        cusDetail.append('ref_cus_id', ref_cus_id);
         cusDetail.append('name', name);
         cusDetail.append('mobile', mobile);
         cusDetail.append('declaration', declaration);
@@ -481,8 +481,8 @@ $(document).ready(function () {
                     } else {
                         swalSuccess('Success', 'Customer Info Updated Successfully!');
                     }
-                    // $('#customer_id').val('');
-                    // $('#customer_creation').trigger('reset');
+                     $('#customer_id').val('');
+                     $('#customer_creation').trigger('reset');
                     getCustomerEntryTable();
                     swapTableAndCreation()
 
@@ -907,6 +907,7 @@ function editCustomerCreation(id) {
             getFamilyInfoTable()
             getGuarantorInfoTable()
             getSourceTable()
+            getSelectedMobileNumber();
             getPlaceDropdown(response[0].place);
             $('#cus_name').trigger('change');
         }, 1000);
@@ -932,7 +933,7 @@ function editCustomerCreation(id) {
         $('#per_pic').val(response[0].pic);
         var img = $('#imgshow');
         img.attr('src', path + response[0].pic);
-        let selectedMobile = getSelectedMobileNumber();
+       // getSelectedMobileNumber();
         // let paths = "uploads/customer_creation/cus_pic/";
         // if (response[0].pic) {
         //     $('#per_pic').val(response[0].pic);
