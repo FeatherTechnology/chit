@@ -7,7 +7,7 @@ $qry = $pdo->query("SELECT
     u.name, 
     u.user_name, 
     r.role, 
-    o.occ_type, 
+    o.designation, 
     GROUP_CONCAT(DISTINCT bc.branch_name ORDER BY bc.branch_name SEPARATOR ', ') AS branch_names
 FROM 
     users u 
@@ -16,7 +16,7 @@ LEFT JOIN
 LEFT JOIN
 	role r ON u.role = r.id
 LEFT JOIN 
-	Occupation o ON u.occ_type = o.id
+	designation o ON u.designation = o.id
 GROUP BY 
     u.id");
 if ($qry->rowCount() > 0) {

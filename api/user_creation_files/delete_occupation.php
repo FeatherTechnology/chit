@@ -4,7 +4,7 @@ require "../../ajaxconfig.php";
 $id = $_POST['id'];
 
 try {
-    $qry = $pdo->prepare("DELETE FROM `occupation` WHERE id = :id");
+    $qry = $pdo->prepare("DELETE FROM `designation` WHERE id = :id");
     $qry->bindParam(':id', $id, PDO::PARAM_INT);
     $qry->execute();
     $result = 1; // Deleted.

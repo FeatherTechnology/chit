@@ -3,7 +3,7 @@ require '../../ajaxconfig.php';
 
 $id = $_POST['id'];
 
-$qry = $pdo->query("SELECT * FROM `occupation` WHERE id='$id'");
+$qry = $pdo->query("SELECT * FROM `designation` WHERE id='$id'");
 if ($qry->rowCount() > 0) {
     $result = $qry->fetchAll(PDO::FETCH_ASSOC);
 }

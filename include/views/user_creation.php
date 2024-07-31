@@ -16,7 +16,7 @@
                                     <th>Name</th>
                                     <th>User Name</th>
                                     <th>Role</th>
-                                    <th>Occupation Type</th>
+                                    <th>Designation</th>
                                     <th>Branch Name</th>
                                     <th>Action</th>
                                 </tr>
@@ -104,16 +104,16 @@
                                     </div>
                                     <div class="col-sm-3 col-md-3 col-lg-3">
                                         <div class="form-group">
-                                            <label for="occ_type">Occupation Type</label><span class="text-danger">*</span>
+                                            <label for="designation">Designation</label><span class="text-danger">*</span>
                                             <input type="hidden" id="occ_name_id">
-                                            <select class="form-control" id="occ_type" name="occ_type" tabindex="10">
-                                                <option value="">Select Occupation Type</option>
+                                            <select class="form-control" id="designation" name="designation" tabindex="10">
+                                                <option value="">Select Designation</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-1 col-md-1 col-lg-1 text-right" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_occ_modal" tabindex="11" onclick="getOccupationTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_occ_modal" tabindex="11" onclick="getDesignationTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -316,7 +316,7 @@
     <div class="modal-dialog modal-lg " role="document">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add Occupation Type</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Designation</h5>
                 <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getOccupationDropdown()">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -327,8 +327,8 @@
                         <div class="col-sm-3 col-md-3 col-lg-3"></div>
                         <div class="col-sm-4 col-md-4 col-lg-4">
                             <div class="form-group">
-                                <label for="add_occ">Occupation Type</label><span class="text-danger">*</span>
-                                <input class="form-control" name="add_occ" id="add_occ" tabindex="2" placeholder="Enter Occupation Type">
+                                <label for="add_occ">Designation</label><span class="text-danger">*</span>
+                                <input class="form-control" name="add_occ" id="add_occ" tabindex="2" placeholder="Enter Designation">
                                 <input type="hidden" id="add_occ_id" value='0'>
                             </div>
                         </div>
@@ -346,7 +346,7 @@
                             <thead>
                                 <tr>
                                     <th width="20">S.No.</th>
-                                    <th>Occupation Type</th>
+                                    <th>Designation</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

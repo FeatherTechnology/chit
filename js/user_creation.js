@@ -100,10 +100,10 @@ $(document).ready(function () {
         return;
     });
     /////////////////////////////////////////////////////////// Place Modal END ///////////////////////////////////////////////////////////////////////
-     /////////////////////////////////////////////////////////// Occupation Type Modal START ///////////////////////////////////////////////////////////////////////
+     /////////////////////////////////////////////////////////// Designation Modal START ///////////////////////////////////////////////////////////////////////
      $('#submit_occ').click(function (event) {
         event.preventDefault();
-        let occ_type = $('#add_occ').val(); let id = $('#add_occ_id').val();
+        let designation = $('#add_occ').val(); let id = $('#add_occ_id').val();
         var data = ['add_occ']
         var isValid = true;
         data.forEach(function (entry) {
@@ -112,20 +112,20 @@ $(document).ready(function () {
                 isValid = false;
             }
         });
-        if (occ_type != '') {
+        if (designation != '') {
             if (isValid) {
-                $.post('api/user_creation_files/submit_occupation.php', { occ_type, id }, function (response) {
+                $.post('api/user_creation_files/submit_occupation.php', { designation, id }, function (response) {
                     if (response == '0') {
-                        swalError('Warning', 'Occupation Type Already Exists!');
+                        swalError('Warning', 'Designation Already Exists!');
                     } else if (response == '1') {
-                        swalSuccess('Success', 'Occupation Type Updated Successfully!');
+                        swalSuccess('Success', 'Designation Updated Successfully!');
                     } else if (response == '2') {
-                        swalSuccess('Success', 'Occupation Type Added Successfully!');
+                        swalSuccess('Success', 'Designation Added Successfully!');
                     }
 
-                    getOccupationTable();
+                    getDesignationTable();
                 }, 'json');
-                clearOccupation(); //To Clear All Fields in Occupation creation.
+                clearDesignation(); //To Clear All Fields in Occupation creation.
             }
         }
     });
@@ -134,16 +134,16 @@ $(document).ready(function () {
         var id = $(this).attr('value'); // Get value attribute
         $.post('api/user_creation_files/get_occupation_data.php', { id }, function (response) {
             $('#add_occ_id').val(id);
-            $('#add_occ').val(response[0].occ_type);
+            $('#add_occ').val(response[0].designation);
         }, 'json');
     });
 
     $(document).on('click', '.occDeleteBtn', function () {
         var id = $(this).attr('value'); // Get value attribute
-        swalConfirm('Delete', 'Do you want to Delete the Occupation Type?', deleteOccupation, id);
+        swalConfirm('Delete', 'Do you want to Delete the Designation?', deleteDesignation, id);
         return;
     });
-    /////////////////////////////////////////////////////////// Occupation Type Modal END ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////// Designation Modal END ///////////////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////// User Creation START ///////////////////////////////////////////////////////////////////////
     $('#submit_user_creation').click(function (event) {
@@ -162,7 +162,7 @@ $(document).ready(function () {
             user_code: $('#user_id').val(),
             role: $('#role').val(),
             place: $('#place').val(),
-            occ_type: $('#occ_type').val(),
+            designation: $('#designation').val(),
             address: $('#address').val(),
             email: $('#email').val(),
             mobile_no: $('#mobile_no').val(),
@@ -174,7 +174,7 @@ $(document).ready(function () {
             submenus: selectedSubmenuIds,
             id: $('#user_creation_id').val()
         }
-        var data = ['name', 'user_id','role', 'user_name', 'password', 'confirm_password', 'place','occ_type']
+        var data = ['name', 'user_id','role', 'user_name', 'password', 'confirm_password', 'place','designation']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -233,7 +233,7 @@ $(document).ready(function () {
                 getUserID(id)
                 getRoleDropdown(response[0].role);
                 getPlaceDropdown(response[0].place);
-                getOccupationDropdown(response[0].occ_type);
+                getOccupationDropdown(response[0].designation);
                 getBranchName(response[0].branch);
             }, 1000);
 
@@ -314,7 +314,7 @@ $(document).ready(function () {
         $('#user_id').css('border', '1px solid #cecece');
         $('#role').css('border', '1px solid #cecece');
         $('#place').css('border', '1px solid #cecece');
-        $('#occ_type').css('border', '1px solid #cecece');
+        $('#designation').css('border', '1px solid #cecece');
         $('#user_name').css('border', '1px solid #cecece');
         $('#password').css('border', '1px solid #cecece');
         $('#confirm_password').css('border', '1px solid #cecece');
@@ -369,7 +369,7 @@ function getUserCreationTable() {
             'name',
             'user_name',
             'role',
-            'occ_type',
+            'designation',
             'branch_names',
             'action'
         ];
@@ -548,17 +548,17 @@ function getPlaceDropdown(place_name_id) {
     }, 'json');
 }
 
-function clearOccupation() {
+function clearDesignation() {
     $('#add_occ').val('');
     $('#add_occ_id').val('0');
     $('#add_occ').css('border', '1px solid #cecece');
 }
 
-function getOccupationTable() {
+function getDesignationTable() {
     $.post('api/user_creation_files/get_occupation_list.php', function (response) {
         let placeList = [
             "sno",
-            "occ_type",
+            "designation",
             "action"
         ]
         appendDataToTable('#occ_modal_table', response, placeList);
@@ -566,15 +566,15 @@ function getOccupationTable() {
     }, 'json');
 }
 
-function deleteOccupation(id) {
+function deleteDesignation(id) {
     $.post('api/user_creation_files/delete_occupation.php', { id }, function (response) {
         if (response == '1') {
-            swalSuccess('Success', 'Occupation Type Deleted Successfully.');
-            getOccupationTable();
+            swalSuccess('Success', 'Designation Deleted Successfully.');
+            getDesignationTable();
         } else if (response == '0') {
             swalError('Access Denied', 'Used in User Creation');
         } else {
-            swalError('Error', 'Occupation Type Delete Failed.');
+            swalError('Error', 'Designation Delete Failed.');
         }
     }, 'json');
 }
@@ -582,17 +582,17 @@ function deleteOccupation(id) {
 function getOccupationDropdown(occ_name_id) {
     $.post('api/user_creation_files/get_occupation_list.php', function (response) {
         let appendOccNameOption = '';
-        appendOccNameOption += '<option value="">Select Occupation Type</option>';
+        appendOccNameOption += '<option value="">Select Designation</option>';
         $.each(response, function (index, val) {
             let selected = '';
             if (val.id == occ_name_id) {
                 selected = 'selected';
             }
-            appendOccNameOption += '<option value="' + val.id + '" ' + selected + '>' + val.occ_type + '</option>';
+            appendOccNameOption += '<option value="' + val.id + '" ' + selected + '>' + val.designation + '</option>';
         });
-        $('#occ_type').empty().append(appendOccNameOption);
+        $('#designation').empty().append(appendOccNameOption);
 
-        clearOccupation()
+        clearDesignation()
     }, 'json');
 }
 
