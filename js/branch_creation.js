@@ -117,18 +117,18 @@ function getBranchTable() {
 function swapTableAndCreation() {
     if ($('.branch_table_content').is(':visible')) {
         $('.branch_table_content').hide();
-        $('.addbranchBtn').hide();
+        $('#add_branch').hide();
         $('#branch_creation_content').show();
-        $('.backBtn').show();
+        $('#back_btn').show();
 
         getCompanyName();
         getStateList();
 
     } else {
         $('.branch_table_content').show();
-        $('.addbranchBtn').show(); // Show the Add Branch button
+        $('#add_branch').show(); // Show the Add Branch button
         $('#branch_creation_content').hide();
-        $('.backBtn').hide();
+        $('#back_btn').hide();
     }
 }
 
