@@ -1,8 +1,8 @@
 <div class="text-right">
     <button type="button" class="btn btn-primary " id="add_customer"><span class="fa fa-plus"></span>&nbsp; Add Customer Creation</button>
-    <br><br>
+    <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
 </div>
-
+ <br>
 <div class="card customer_table_content">
     <div class="card-body">
         <div class="col-12">
@@ -29,10 +29,6 @@
     </div>
 </div>
 <div id="customer_creation_content" style="display:none;">
-    <div class="text-right">
-        <button type="button" class="btn btn-primary" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>
-        <br><br>
-    </div>
     <form id="customer_creation" name="customer_creation" action="" method="post" enctype="multipart/form-data">
         <input type="hidden" id="customer_id">
 

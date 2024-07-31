@@ -437,7 +437,7 @@ $(document).ready(function () {
         cusDetail.append('reference', reference);
         cusDetail.append('customer_id', customer_id);
 
-        var data = ['cus_id', 'first_name', 'last_name', 'aadhar_number', 'mobile1', 'address', 'chit_limit', 'reference']
+        var data = ['cus_id', 'first_name', 'last_name', 'aadhar_number', 'mobile1','place','address', 'chit_limit', 'reference']
 
         var isValid = true;
         data.forEach(function (entry) {
