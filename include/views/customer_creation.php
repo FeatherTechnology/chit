@@ -47,7 +47,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="reference_type">How To Know</label>
-                                    <select type="text" class="form-control" id="reference_type" name="reference_type" tabindex="1">
+                                    <select type="text" class="form-control knowData" id="reference_type" name="reference_type" tabindex="1">
                                         <option value="">Select Reference Type</option>
                                         <option value="1">Promotion</option>
                                         <option value="2">Customer</option>
@@ -55,39 +55,39 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cus_name_container" style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 toRefresh" id="cus_name_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="cus_name">Existing Customer</label>
-                                    <select type="text" class="form-control" id="cus_name" name="cus_name" tabindex="2">
+                                    <select type="text" class="form-control knowData" id="cus_name" name="cus_name" tabindex="2">
                                         <option value="">Select Existing Customer</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="name_container" style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 toRefresh" id="name_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="name">Name</label>
                                     <input type="hidden" id="custom_name_edit" name="custom_name_edit">
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" tabindex="3">
+                                    <input type="text" class="form-control knowData" id="name" name="name" placeholder="Enter Name" tabindex="3">
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="mobile_container" style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 toRefresh" id="mobile_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="mobile">Mobile Number</label>
-                                    <input type="text" class="form-control" id="mobile" name="mobile" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number" tabindex="4">
+                                    <input type="text" class="form-control knowData" id="mobile" name="mobile" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number" tabindex="4">
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cus_id_container" style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 toRefresh" id="cus_id_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="ref_cus_id"> Customer ID</label>
-                                    <input type="text" class="form-control " id="ref_cus_id" name="ref_cus_id" disabled placeholder="Enter Customer ID" tabindex="5" maxlength="14">
+                                    <input type="text" class="form-control knowData" id="ref_cus_id" name="ref_cus_id" disabled placeholder="Enter Customer ID" tabindex="5" maxlength="14">
                                     <input type="hidden" id="ref_cus_id_upd" name="ref_cus_id_upd">
                                 </div>
                             </div>
 
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="declaration_container" style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 toRefresh" id="declaration_container" style="display:none;">
                                 <div class="form-group">
                                     <label for="declaration">Declaration</label>
-                                    <textarea class="form-control" name="declaration" id="declaration" placeholder="Enter Declaration" tabindex="6"></textarea>
+                                    <textarea class="form-control knowData" name="declaration" id="declaration" placeholder="Enter Declaration" tabindex="6"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -164,6 +164,7 @@
                                                 <input type="radio" name="mobile_whatsapp" value="mobile2" id="mobile2_radio">
                                                 Mobile Number 2
                                             </label>
+                                            <input type="hidden" id="selected_mobile_radio">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">

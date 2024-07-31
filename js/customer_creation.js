@@ -1,11 +1,18 @@
 $(document).ready(function () {
     $(document).on('click', '#add_customer, #back_btn', function () {
+        $('#cus_id').val('');
         swapTableAndCreation();
         getSourceTable()
+        getGuarantorInfoTable()
+        getFamilyInfoTable()
+        $('#imgshow').attr('src', 'img/avatar.png');
+        $('.toRefresh').hide();
+        $('.knowData').val('');
+        $('#custom_name_edit').val('')
+
 
     });
     $(document).on('click', '#back_btn', function () {
-        getSourceTable()
         getCustomerEntryTable();
     });
 
@@ -36,17 +43,6 @@ $(document).ready(function () {
         }
     });
 
-    // $('#gua_relationship').on('change', function() {
-    //     const guarantorId = $(this).val();
-    //     if (guarantorId) {
-    //         getGrelationshipName(guarantorId);
-    //     } else {
-    //         $('#guarantor_name').val('');
-    //     }
-    //     updateFieldsVisibility(guarantorId);
-    // });
-
-
     $('#gua_name').on('change', function () {
         const famRelationship = $(this).find('option:selected').val(); // Get the text of the selected option
         const guarantorId = $(this).val();
@@ -54,7 +50,7 @@ $(document).ready(function () {
         if (guarantorId) {
             getGrelationshipName(guarantorId);
         } else {
-            $('#guarantor_name').val('');
+            $('#guarantor1_name').val('');
         }
         updateFieldsVisibility(famRelationship); // Pass the fam_relationship to the function
     });
@@ -297,7 +293,7 @@ $(document).ready(function () {
         guaDetail.append('guarantor1_name', guarantor1_name);
         guaDetail.append('existing_cus', existing_cus);
         guaDetail.append('other_name', other_name);
-    
+
 
         if (isFormDataValid(guaDetail)) {
             $.ajax({
@@ -334,9 +330,10 @@ $(document).ready(function () {
                 $('#guarantor_id').val(id);
                 $('#cus_id').val(data.cus_id);
                 $('#details').val(data.details);
-                $('#gur_pic').val(data.gu_pic);
+                //  $('#gur_pic').val(data.gu_pic);
                 $('#existing_cus').val(data.existing_cus);
                 let relationship_type = data.relationship_type;
+                let guarantor_relationship = data.guarantor_relationship
                 let gua_name_val = data.guarantor_name;
                 let existing_cus_id = data.existing_cus_id;
                 let family_id = data.family_id;
@@ -361,14 +358,16 @@ $(document).ready(function () {
                     $('#details_container').show();
                 } else {
                     $('#gua_name').val(family_id);
-                    $('#guarantor1_name').val(gua_name_val);
+                    $('#guarantor1_name').val(guarantor_relationship);
                     $('#name1_container').show();
                 }
-
                 let paths = "uploads/customer_creation/gu_pic/";
-                $('#gur_pic').val(response[0].gu_pic);
-                var img = $('#imgshow');
-                img.attr('src', paths + response[0].gu_pic);
+                if (data.gu_pic) {
+                    $('#gur_pic').val(data.gu_pic);
+                    $('#gur_imgshow').attr('src', paths + data.gu_pic);
+                } else {
+                    $('#gur_imgshow').attr('src', 'img/avatar.png');
+                }
             } else {
                 console.error('No data found for ID:', id);
             }
@@ -398,7 +397,7 @@ $(document).ready(function () {
         let mobile = $('#mobile').val();
         let declaration = $('#declaration').val();
         let cus_id = $('#cus_id').val();
-        let aadhar_number = $('#aadhar_number').val();
+        let aadhar_number = $('#aadhar_number').val().replace(/\s/g, '');
         let first_name = $("#first_name").val();
         let last_name = $('#last_name').val();
         let place = $('#place').val();
@@ -481,8 +480,8 @@ $(document).ready(function () {
                     } else {
                         swalSuccess('Success', 'Customer Info Updated Successfully!');
                     }
-                     $('#customer_id').val('');
-                     $('#customer_creation').trigger('reset');
+                    $('#customer_id').val('');
+                    $('#customer_creation').trigger('reset');
                     getCustomerEntryTable();
                     swapTableAndCreation()
 
@@ -497,7 +496,6 @@ $(document).ready(function () {
 
         swapTableAndCreation();
         editCustomerCreation(id)
-
 
     });
 
@@ -528,8 +526,6 @@ $(document).ready(function () {
 
 $(function () {
     getCustomerEntryTable();
-    // let customer_id = $('#customer_id').val();
-    // getAutoGenCusId(customer_id);
 });
 
 function swapTableAndCreation() {
@@ -692,7 +688,6 @@ function getExistingRefCustomer() {
 }
 
 function getExistingCustomer() {
-    // let cus_id = $('#cus_id').val();
     $.post('api/customer_creation_files/get_existing_customer.php', function (response) {
         let appendCustomerOption = '';
         appendCustomerOption += "<option value=''>Select Existing Customer</option>";
@@ -714,7 +709,7 @@ function isFormDataValid(formData) {
     $('#guarantor1_name').css('border', '1px solid #cecece');
     $('#existing_cus').css('border', '1px solid #cecece');
     $('#details').css('border', '1px solid #cecece');
-    if (formData.get('gua_name') == '' || formData.get('gua_name') == undefined || formData.get('gua_name') == null ) { //if Empty
+    if (formData.get('gua_name') == '' || formData.get('gua_name') == undefined || formData.get('gua_name') == null) { //if Empty
         if (!validateField(formData['gua_name'], 'gua_name')) {
             return false;
         }
@@ -723,7 +718,7 @@ function isFormDataValid(formData) {
         if (!validateField(formData.get('existing_cus'), 'existing_cus')) {
             return false;
         }
-    } else if (formData.get('gua_name')== '-2') { // Others
+    } else if (formData.get('gua_name') == '-2') { // Others
         if (!validateField(formData.get('other_name'), 'other_name') || !validateField(formData.get('details'), 'details')) {
             return false;
         }
@@ -735,8 +730,6 @@ function isFormDataValid(formData) {
 
     return true;
 }
-
-
 
 function getAutoGenCusId(id) {
     $.post('api/customer_creation_files/get_autoGen_cus_id.php', { id }, function (response) {
@@ -824,7 +817,7 @@ function getGuarantorTable() {
         $('#guarantor_form input').val('');
         $('#guarantor_form input').css('border', '1px solid #cecece');
         $('#guarantor_form select').css('border', '1px solid #cecece');
-        $('#gua_relationship').val('');
+        $('#gua_name').val('');
         $('#existing_customer').val('');
         $('#guarantor1_name').val('');
         $('#details').val('');
@@ -876,10 +869,7 @@ function getCustomerEntryTable() {
     serverSideTable('#customer_create', '', 'api/customer_creation_files/customer_creation_list.php');
     // setDropdownScripts();   
 }
-function getSelectedMobileNumber() {
-    let selectedValue = $('input[name="mobile_whatsapp"]:checked').val();
-    return selectedValue;
-}
+
 function editCustomerCreation(id) {
     $.post('api/customer_creation_files/customer_creation_data.php', { id: id }, function (response) {
         $('#customer_id').val(id);
@@ -900,14 +890,20 @@ function editCustomerCreation(id) {
         $('#native_address').val(response[0].native_address);
         $('#tot_income').val(response[0].tot_income);
         $('#chit_limit').val(response[0].chit_limit);
-        $('#reference').val(response[0].reference);   
-          getExistingRefCustomer()
+        $('#reference').val(response[0].reference);
+        if (response[0].whatsapp === response[0].mobile1) {
+            $('#mobile1_radio').prop('checked', true);
+            $('#selected_mobile_radio').val('mobile1');
+        } else if (response[0].whatsapp === response[0].mobile2) {
+            $('#mobile2_radio').prop('checked', true);
+            $('#selected_mobile_radio').val('mobile2');
+        }
+        // getExistingRefCustomer()
         setTimeout(() => {
             getAutoGenCusId(id)
             getFamilyInfoTable()
             getGuarantorInfoTable()
             getSourceTable()
-            getSelectedMobileNumber();
             getPlaceDropdown(response[0].place);
             $('#cus_name').trigger('change');
         }, 1000);
@@ -933,14 +929,6 @@ function editCustomerCreation(id) {
         $('#per_pic').val(response[0].pic);
         var img = $('#imgshow');
         img.attr('src', path + response[0].pic);
-       // getSelectedMobileNumber();
-        // let paths = "uploads/customer_creation/cus_pic/";
-        // if (response[0].pic) {
-        //     $('#per_pic').val(response[0].pic);
-        //     $('#per_imgshow').attr('src', paths + response[0].pic);
-        // } else {
-        //     $('#per_imgshow').attr('src', 'img/avatar.png');
-        // }
     }, 'json');
 
 }
@@ -960,7 +948,7 @@ $('button[type="reset"],#back_btn').click(function (event) {
     // event.preventDefault();
     $('input').each(function () {
         var id = $(this).attr('id');
-        if (id !== 'cus_id') {
+        if (id !== 'cus_id' && id !== 'add_src') {
             $(this).val('');
         }
     });
