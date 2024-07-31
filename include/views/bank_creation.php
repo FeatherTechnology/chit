@@ -1,9 +1,9 @@
 <!-- Bank Creation List Start -->
 <div class="text-right">
     <button type="button" class="btn btn-primary " id="add_bank"><span class="fa fa-plus"></span>&nbsp; Add Bank Creation</button>
-    <br><br>
+    <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>   
 </div>
-
+ <br>
 <div class="card bank_table_content">
     <div class="card-body">
         <div class="col-12">
@@ -29,10 +29,6 @@
 <!--Bank Creation List End-->
 <!-- Bank Creation-->
 <div id="bank_creation_content" style="display:none;">
-    <div class="text-right">
-        <button type="button" class="btn btn-primary" id="back_btn"><span class="icon-arrow-left"></span>&nbsp; Back </button>
-        <br><br>
-    </div>
     <form id="bank_creation" name="bank_creation" action="" method="post" enctype="multipart/form-data">
         <input type="hidden" id="bank_id">
 
