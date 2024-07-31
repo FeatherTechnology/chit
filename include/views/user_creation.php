@@ -1,6 +1,6 @@
 <div class="row gutters">
     <div class="col-12">
-        <div class="col-12 mt-3 text-right">
+        <div class="col-12 text-right">
             <button class="btn btn-primary add_user_btn"><span class="icon-add"></span>Add User Creation</button>
             <button class="btn btn-primary back_to_userList_btn" style="display: none;"><span class="icon-arrow-left"></span>&nbsp;Back</button>
         </div></br>
