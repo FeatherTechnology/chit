@@ -1,6 +1,6 @@
 <div class="row gutters">
     <div class="col-12">
-        <div class="col-12 mt-3 text-right">
+        <div class="col-12 text-right">
             <button class="btn btn-primary addcompanyBtn" id="add_company"><span class="icon-add"></span> Add Company Creation</button>
             <button class="btn btn-primary backBtn" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
         </div></br>
