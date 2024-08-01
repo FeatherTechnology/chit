@@ -10,8 +10,8 @@
 <script src="jsd/bootstrap.bundle.min.js"></script>
 <script src="jsd/moment.js"></script>
 
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script> -->
-<script src="vendor/cdn_jquery/jquery-3.7.1.min.map"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<!-- <script src="vendor/cdn_jquery/jquery-3.7.1.min.map"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
 <!-- Slimscroll JS -->
