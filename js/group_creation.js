@@ -4,23 +4,14 @@ $(document).ready(function () {
         swapTableAndCreation();
     });
 
-    // $('input[name="grp_info_add"]').click(function () {
-    //     if (this.value == 'cus_map') {
-    //         $('#cus_mapping_card').show();
-    //         $('#grp_details_card').hide();
-
-    //     } else if (this.value == 'grp_details') {
-    //         $('#cus_mapping_card').hide();
-    //         $('#grp_details_card').show();
-    //     }
-    // });
-    $('#start_month, #total_month').change(function () {
+    $('#grp_date,#start_month, #total_month').change(function () {
         //updateEndMonth();
         getModalAttr()
     });
     function getModalAttr() {
+        let grp_date = $('#grp_date').val();
         let start_month = $('#start_month').val();
-        if (start_month != '') {
+        if (grp_date!='' && start_month != '') {
             $('#auction_modal_btn')
                 .attr('data-toggle', 'modal')
                 .attr('data-target', '#add_auction_modal');
@@ -136,8 +127,13 @@ function swapTableAndCreation() {
         $('#customer_mapping').trigger('click');
     }
 }
-
+function getAutoGenGroupId(id) {
+    $.post('api/group_creation_files/get_autoGen_Group_id.php', { id }, function (response) {
+        $('#group_id').val(response);
+    }, 'json');
+}
 function callGrpFunctions() {
+    getAutoGenGroupId('')
     getDateDropDown('#grp_date', 'Select Date');
     getBranchList();
     getCustomerList();
@@ -214,29 +210,110 @@ function removeCusMap(id) {
     }, 'json');
 }
 
+// function updateEndMonth() {
+//     let grp_date = $('#grp_date').val();
+//     let startMonth = $('#start_month').val();
+//     let totalMonths = parseInt($('#total_month').val(), 10);
+//     if (grp_date && startMonth) {
+//         $('#add_auction_modal').show();
+//     } else {
+//         swalError('Warning', 'Kindly Select the Date and Start Month!');
+//     }
+  
+//     if (startMonth && totalMonths) {
+//         let startDate = new Date(startMonth + "-01");
+//         let endDate = new Date(startDate.setMonth(startDate.getMonth() + totalMonths - 1));
+//         let endMonth = endDate.toISOString().slice(0, 7); // Get YYYY-MM format
+
+//         $('#end_month').val(endMonth);
+
+//         populateAuctionDetailsTable(totalMonths, startMonth, endMonth);
+//     }
+// }
+
+
+
+  
+
+
+// function populateAuctionDetailsTable(totalMonths, startMonth, endMonth) {
+//     let tableBody = $('#grp_details_table tbody');
+//     tableBody.empty();
+
+//     let startDate = new Date(startMonth + "-01");
+
+//     for (let i = 0; i < totalMonths; i++) {
+//         let monthYear = new Date(startDate.setMonth(startDate.getMonth() + (i === 0 ? 0 : 1)));
+//         if (monthYear > new Date(endMonth + "-01")) break;
+
+//         let monthName = monthYear.toLocaleString('default', { month: 'short', year: 'numeric' });
+//         let formattedDate = `2-${monthName}`; // Format: 2-Aug-2024
+
+//         tableBody.append(`
+//             <tr>
+//                 <td>${i + 1}</td>
+//                 <td>${monthName}</td>
+//                 <td><input type="text" class="form-control low_value" placeholder="Enter Low Value"></td>
+//                 <td><input type="text" class="form-control high_value" placeholder="Enter High Value"></td>
+//             </tr>
+//         `);
+//     }
+
+//     $('#grp_details_card').show();
+// }
 function updateEndMonth() {
-    
+    let grp_date = $('#grp_date').val();
     let startMonth = $('#start_month').val();
     let totalMonths = parseInt($('#total_month').val(), 10);
-    if (startMonth == '') {
-        swalError('Warning', 'Kindly Select the Start Month!');
-    }
-    if (startMonth && totalMonths) {
-        let startDate = new Date(startMonth + "-01");
-        let endDate = new Date(startDate.setMonth(startDate.getMonth() + totalMonths - 1));
-        let endMonth = endDate.toISOString().slice(0, 7); // Get YYYY-MM format
+    let groupId = $('#group_id').val(); // Assuming you have a field with id `group_id` for the group ID
+    
+    if (grp_date && startMonth && groupId) {
+        $.post('api/group_creation_files/get_auction_details.php', {
+            grp_date: grp_date,
+            start_month: startMonth,
+            total_month: totalMonths,
+            group_id: groupId // Add group_id to the POST data
+        }, function(response) {
+            let result = JSON.parse(response);
 
-        $('#end_month').val(endMonth);
-        populateAuctionDetailsTable(totalMonths, startMonth, endMonth);
+            if (result.result === 1) {
+                // Data found in auction_details
+                populateAuctionDetailsTable(result.data);
+            } else if (result.result === 0) {
+                // Generate new rows based on start month and end month
+                $('#end_month').val(result.end_month);
+                populateAuctionDetailsTableWithInputs(totalMonths, startMonth, result.end_month);
+            } else {
+                swalError('Error', result.error_message || 'An error occurred.');
+            }
+        });
+    } else {
+        swalError('Warning', 'Kindly Select the Date, Start Month, and Group ID!');
     }
 }
 
 
-
-function populateAuctionDetailsTable(totalMonths, startMonth, endMonth) {
+function populateAuctionDetailsTable(data) {
     let tableBody = $('#grp_details_table tbody');
     tableBody.empty();
 
+    data.forEach(auction => {
+        tableBody.append(`
+            <tr>
+                <td>${auction.id}</td>
+                <td>${auction.auction_month}</td>
+                <td>${auction.low_value}</td>
+                <td>${auction.high_value}</td>
+            </tr>
+        `);
+    });
+
+    $('#grp_details_card').show();
+}
+
+function populateAuctionDetailsTableWithInputs(totalMonths, startMonth, endMonth) {
+    let tableBody = $('#grp_details_table tbody');
+    tableBody.empty();
     let startDate = new Date(startMonth + "-01");
 
     for (let i = 0; i < totalMonths; i++) {
