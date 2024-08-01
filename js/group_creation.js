@@ -4,16 +4,32 @@ $(document).ready(function () {
         swapTableAndCreation();
     });
 
-    $('input[name="grp_info_add"]').click(function () {
-        if (this.value == 'cus_map') {
-            $('#cus_mapping_card').show();
-            $('#grp_details_card').hide();
+    // $('input[name="grp_info_add"]').click(function () {
+    //     if (this.value == 'cus_map') {
+    //         $('#cus_mapping_card').show();
+    //         $('#grp_details_card').hide();
 
-        } else if (this.value == 'grp_details') {
-            $('#cus_mapping_card').hide();
-            $('#grp_details_card').show();
-        }
+    //     } else if (this.value == 'grp_details') {
+    //         $('#cus_mapping_card').hide();
+    //         $('#grp_details_card').show();
+    //     }
+    // });
+    $('#start_month, #total_month').change(function () {
+        //updateEndMonth();
+        getModalAttr()
     });
+    function getModalAttr() {
+        let start_month = $('#start_month').val();
+        if (start_month != '') {
+            $('#auction_modal_btn')
+                .attr('data-toggle', 'modal')
+                .attr('data-target', '#add_auction_modal');
+        } else {
+            $('#auction_modal_btn')
+                .removeAttr('data-toggle')
+                .removeAttr('data-target');
+        }
+    }
 
     document.getElementById('hours').addEventListener('input', function (e) {
         if (this.value.length > 2) this.value = this.value.slice(0, 2);
@@ -41,7 +57,7 @@ $(document).ready(function () {
         }
     });
 
-    $('#submit_group_info').click(function (event){
+    $('#submit_group_info').click(function (event) {
         event.preventDefault();
         let grpInfoData = {
             'groupid': $('#groupid').val(),
@@ -63,10 +79,10 @@ $(document).ready(function () {
 
         if (isFormValid(grpInfoData)) {
             $.post('api/group_creation_files/submit_group_info.php', grpInfoData, function (response) {
-                if(response.result =='1'){
+                if (response.result == '1') {
                     swalSuccess('Success', 'Group Info Submitted Successfully');
                     $('#groupid').val(response.last_id);
-                }else{
+                } else {
                     swalError('Error', 'Group Info Not Submitted');
                     $('#groupid').val('');
                 }
@@ -81,7 +97,7 @@ $(document).ready(function () {
         let cus_name = $('#cus_name').val();
         let groupid = $('#groupid').val();
 
-        if (cus_name != '' && groupid !='') {
+        if (cus_name != '' && groupid != '') {
             $.post('api/group_creation_files/submit_cus_mapping.php', { cus_name, groupid }, function (response) {
                 getCusMapTable(groupid);
             }, 'json');
@@ -89,9 +105,9 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click','.cusMapDeleteBtn', function(){
+    $(document).on('click', '.cusMapDeleteBtn', function () {
         let id = $(this).attr('value');
-        swalConfirm('Delete','Do you want to remove this customer mapping?', removeCusMap, id,'');
+        swalConfirm('Delete', 'Do you want to remove this customer mapping?', removeCusMap, id, '');
     });
 
 }); //document END////
@@ -123,7 +139,6 @@ function swapTableAndCreation() {
 
 function callGrpFunctions() {
     getDateDropDown('#grp_date', 'Select Date');
-    getDateDropDown('#grace_period', 'Select Grace Period');
     getBranchList();
     getCustomerList();
 }
@@ -153,7 +168,7 @@ function getCustomerList() {
         let cusOptn = '';
         cusOptn = '<option value="">Select Customer Name</option>';
         response.forEach(val => {
-            cusOptn += '<option value="' + val.id + '">' + val.first_name +' '+ val.last_name + '</option>';
+            cusOptn += '<option value="' + val.id + '">' + val.first_name + ' ' + val.last_name + '</option>';
         });
         $('#cus_name').empty().append(cusOptn);
     }, 'json');
@@ -187,14 +202,110 @@ function getCusMapTable(groupid) {
     }, 'json');
 }
 
-function removeCusMap(id){
+function removeCusMap(id) {
     $.post('api/group_creation_files/delete_cus_mapping.php', { id }, function (response) {
-        if(response ==1){
-            swalSuccess('Success','Customer mapping removed successfully.')
+        if (response == 1) {
+            swalSuccess('Success', 'Customer mapping removed successfully.')
             let groupid = $('#groupid').val();
             getCusMapTable(groupid);
-        }else{
-            swalError('Alert','Customer mapping remove failed.')
+        } else {
+            swalError('Alert', 'Customer mapping remove failed.')
         }
     }, 'json');
 }
+
+function updateEndMonth() {
+    
+    let startMonth = $('#start_month').val();
+    let totalMonths = parseInt($('#total_month').val(), 10);
+    if (startMonth == '') {
+        swalError('Warning', 'Kindly Select the Start Month!');
+    }
+    if (startMonth && totalMonths) {
+        let startDate = new Date(startMonth + "-01");
+        let endDate = new Date(startDate.setMonth(startDate.getMonth() + totalMonths - 1));
+        let endMonth = endDate.toISOString().slice(0, 7); // Get YYYY-MM format
+
+        $('#end_month').val(endMonth);
+        populateAuctionDetailsTable(totalMonths, startMonth, endMonth);
+    }
+}
+
+
+
+function populateAuctionDetailsTable(totalMonths, startMonth, endMonth) {
+    let tableBody = $('#grp_details_table tbody');
+    tableBody.empty();
+
+    let startDate = new Date(startMonth + "-01");
+
+    for (let i = 0; i < totalMonths; i++) {
+        let monthYear = new Date(startDate.setMonth(startDate.getMonth() + (i === 0 ? 0 : 1)));
+        if (monthYear > new Date(endMonth + "-01")) break;
+
+        let monthName = monthYear.toLocaleString('default', { month: 'short', year: 'numeric' });
+        let formattedDate = `2-${monthName}`; // Format: 2-Aug-2024
+
+        tableBody.append(`
+            <tr>
+                <td>${i + 1}</td>
+                <td>${monthName}</td>
+                <td><input type="text" class="form-control low_value" placeholder="Enter Low Value"></td>
+                <td><input type="text" class="form-control high_value" placeholder="Enter High Value"></td>
+            </tr>
+        `);
+    }
+
+    $('#grp_details_card').show();
+}
+
+$('#group_creation').submit(function(event) {
+    event.preventDefault();
+
+    let groupId = $('#group_id').val();
+    let groupDate = $('#grp_date').val(); // Assuming this is in the format YYYY-MM-DD
+    let startMonth = $('#start_month').val();
+    let totalMonths = parseInt($('#total_month').val(), 10);
+
+    let auctionDetails = [];
+    $('#grp_details_table tbody tr').each(function() {
+        let month = $(this).find('td').eq(1).text();
+        let lowValue = $(this).find('.low_value').val();
+        let highValue = $(this).find('.high_value').val();
+
+        auctionDetails.push({
+            date: groupDate,
+            auction_month: month,
+            low_value: lowValue,
+            high_value: highValue
+        });
+    });
+
+    $.ajax({
+        url: 'api/group_creation_files/submit_auction_details.php',
+        method: 'POST',
+        data: {
+            group_id: groupId,
+            auction_details: auctionDetails
+        },
+        success: function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Auction details have been saved successfully.',
+                confirmButtonColor: '#3085d6'
+            });
+            $('#group_creation')[0].reset();
+            $('#grp_details_table tbody').empty();
+            $('#grp_details_card').hide();
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while saving the auction details.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+});
