@@ -146,7 +146,7 @@
                                     </div>
                                     <div class="col-4 col-sm-4 col-md-4	col-lg-2 col-xl-2">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary" id="add_cus_map" name="add_cus_map" data-toggle="modal" data-target="#add_cus_map_modal" tabindex='16'><span class="icon-add"></span>&nbsp;Add Customer Mapping</button>
+                                            <button type="button" class="btn btn-primary" id="add_cus_map" name="add_cus_map"  onclick="getCusMapTable()"tabindex='16'><span class="icon-add"></span>&nbsp;Add Customer Mapping</button>
                                         </div>
                                     </div>
                                 </div>

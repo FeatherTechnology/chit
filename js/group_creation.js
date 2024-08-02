@@ -5,18 +5,33 @@ $(document).ready(function () {
     });
 
     $('#grp_date,#start_month, #total_month').change(function () {
-        //updateEndMonth();
         getModalAttr()
     });
     function getModalAttr() {
         let grp_date = $('#grp_date').val();
         let start_month = $('#start_month').val();
-        if (grp_date!='' && start_month != '') {
+        if (grp_date != '' && start_month != '') {
             $('#auction_modal_btn')
                 .attr('data-toggle', 'modal')
                 .attr('data-target', '#add_auction_modal');
         } else {
             $('#auction_modal_btn')
+                .removeAttr('data-toggle')
+                .removeAttr('data-target');
+        }
+    }
+
+    $('#total_members').change(function () {
+        getCusModal()
+    });
+    function getCusModal() {
+        let total_members = $('#total_members').val();
+        if (total_members != '') {
+            $('#add_cus_map')
+                .attr('data-toggle', 'modal')
+                .attr('data-target', '#add_cus_map_modal');
+        } else {
+            $('#add_cus_map')
                 .removeAttr('data-toggle')
                 .removeAttr('data-target');
         }
@@ -82,25 +97,107 @@ $(document).ready(function () {
             // swalError('Warning', 'Kindly fill the mandatory fields');
         }
     });
+    ////////////////////////////////////////////////////////////// Customer Mapping Start//////////////////////////////////////////////////////////////////
+    $('#submit_cus_map').click(function (event) {
+        event.preventDefault(); // Prevent the default form submission
 
-    $('#submit_cus_map').click(function () {
-        event.preventDefault();
         let cus_name = $('#cus_name').val();
-        let groupid = $('#groupid').val();
+        let group_id = $('#group_id').val();
+        let total_members = $('#total_members').val();
+        let total_months = $('#total_month').val();
 
-        if (cus_name != '' && groupid != '') {
-            $.post('api/group_creation_files/submit_cus_mapping.php', { cus_name, groupid }, function (response) {
-                getCusMapTable(groupid);
+        if (cus_name !== '' && group_id !== '') {
+            $.post('api/group_creation_files/submit_cus_mapping.php', {
+                cus_name: cus_name,
+                group_id: group_id,
+                total_members: total_members,
+                total_months: total_months
+            }, function (response) {
+                let result = response.result;
+
+                if (result === 1) {
+                    // Success
+                    getCusMapTable(); // Refresh the customer mapping table
+                    $('#cus_name').val(''); // Clear the input field
+                    if (response.message) {
+                        // If there is a message, show it (e.g., status not updated)
+                        swalInfo('Info', response.message);
+                    }
+                } else if (result === 2) {
+                    // Failure
+                    swalError('Error', 'An error occurred while inserting customer mapping.');
+                } else if (result === 3) {
+                    // Limit Exceeded
+                    swalError('Warning', response.message);
+                }
             }, 'json');
-            $('#cus_name').val('');
         }
     });
+
 
     $(document).on('click', '.cusMapDeleteBtn', function () {
         let id = $(this).attr('value');
         swalConfirm('Delete', 'Do you want to remove this customer mapping?', removeCusMap, id, '');
     });
-
+    ///////////////////////////////////////////////////////Customer Mapping End/////////////////////////////////////////
+    //////////////////////////////////////////////////////////////auction Details/////////////////////////////////////////////////////////
+    $('#submit_group_details').click(function (event) {
+        event.preventDefault();
+    
+        let groupId = $('#group_id').val();
+        let groupDate = $('#grp_date').val();
+    
+        // Initialize a flag to check validation
+        let isValid = true;
+        
+        // Collect table data
+        let auctionDetails = [];
+        $('#grp_details_table tbody tr').each(function () {
+            let auctionMonth = $(this).find('.auction_month').text();
+            let monthName = $(this).find('td').eq(2).text();
+            let lowValue = $(this).find('.low_value').val();
+            let highValue = $(this).find('.high_value').val();
+            
+            // Validate that low_value and high_value are filled
+            if (!lowValue || !highValue) {
+                isValid = false;
+                $(this).find('.low_value').css('border-color', !lowValue ? 'red' : '');
+                $(this).find('.high_value').css('border-color', !highValue ? 'red' : '');
+            } else {
+                $(this).find('.low_value').css('border-color', '');
+                $(this).find('.high_value').css('border-color', '');
+            }
+    
+            auctionDetails.push({
+                auction_month: auctionMonth,
+                month_name: monthName,
+                low_value: lowValue,
+                high_value: highValue
+            });
+        });
+    
+        // Show an alert if validation fails
+        if (!isValid) {
+            swalError('Validation Error', 'Please fill all Low Value and High Value fields.');
+            return; // Prevent further execution if validation fails
+        }
+    
+        // Send data to the PHP script if validation passes
+        $.post('api/group_creation_files/submit_auction_details.php', {
+            group_id: groupId,
+            grp_date: groupDate,
+            auction_details: auctionDetails
+        }, function (response) {
+            if (response.trim() === '1') { // Use .trim() to remove any extra whitespace
+                swalSuccess('Success', 'Auction Details have been Saved.');
+            } else {
+                swalError('Error', 'An error occurred while saving auction details.');
+            }
+        }).fail(function () {
+            swalError('Error', 'Failed to communicate with the server.');
+        });
+    });
+    ///////////////////////////////////////////////////////////////////auction details End//////////////////////////////////////////
 }); //document END////
 
 $(function () {
@@ -183,8 +280,14 @@ function isFormValid(formdata) {
     return true;
 }
 
-function getCusMapTable(groupid) {
-    $.post('api/group_creation_files/get_cus_map_details.php', { groupid }, function (response) {
+function getCusMapTable() {
+    let total_members = $('#total_members').val();
+    if (total_members === '') {
+        swalError('Alert', 'Kindly Select the Total Members!')
+        return;
+    }
+    let group_id = $('#group_id').val();
+    $.post('api/group_creation_files/get_cus_map_details.php', { group_id }, function (response) {
         let cusMapColumn = [
             "sno",
             "cus_id",
@@ -202,78 +305,47 @@ function removeCusMap(id) {
     $.post('api/group_creation_files/delete_cus_mapping.php', { id }, function (response) {
         if (response == 1) {
             swalSuccess('Success', 'Customer mapping removed successfully.')
-            let groupid = $('#groupid').val();
-            getCusMapTable(groupid);
+            // let group_id = $('#group_id').val();
+            getCusMapTable();
         } else {
             swalError('Alert', 'Customer mapping remove failed.')
         }
     }, 'json');
 }
 
-// function updateEndMonth() {
-//     let grp_date = $('#grp_date').val();
-//     let startMonth = $('#start_month').val();
-//     let totalMonths = parseInt($('#total_month').val(), 10);
-//     if (grp_date && startMonth) {
-//         $('#add_auction_modal').show();
-//     } else {
-//         swalError('Warning', 'Kindly Select the Date and Start Month!');
-//     }
-  
-//     if (startMonth && totalMonths) {
-//         let startDate = new Date(startMonth + "-01");
-//         let endDate = new Date(startDate.setMonth(startDate.getMonth() + totalMonths - 1));
-//         let endMonth = endDate.toISOString().slice(0, 7); // Get YYYY-MM format
 
-//         $('#end_month').val(endMonth);
+function checkMinMaxValue(lowValueClass, highValueClass) {
+    // Iterate over each row in the table
+    $('#grp_details_table tbody tr').each(function () {
+        let lowValue = $(this).find(lowValueClass).val();
+        let highValue = $(this).find(highValueClass).val();
 
-//         populateAuctionDetailsTable(totalMonths, startMonth, endMonth);
-//     }
-// }
+        if (lowValue && highValue && parseFloat(lowValue) > parseFloat(highValue)) {
+            // Handle invalid case where lowValue is greater than highValue
+            $(this).find(lowValueClass).css('border-color', 'red');
+            $(this).find(highValueClass).css('border-color', 'red');
+        } else {
+            // Reset border color if valid
+            $(this).find(lowValueClass).css('border-color', '');
+            $(this).find(highValueClass).css('border-color', '');
+        }
+    });
+}
 
 
-
-  
-
-
-// function populateAuctionDetailsTable(totalMonths, startMonth, endMonth) {
-//     let tableBody = $('#grp_details_table tbody');
-//     tableBody.empty();
-
-//     let startDate = new Date(startMonth + "-01");
-
-//     for (let i = 0; i < totalMonths; i++) {
-//         let monthYear = new Date(startDate.setMonth(startDate.getMonth() + (i === 0 ? 0 : 1)));
-//         if (monthYear > new Date(endMonth + "-01")) break;
-
-//         let monthName = monthYear.toLocaleString('default', { month: 'short', year: 'numeric' });
-//         let formattedDate = `2-${monthName}`; // Format: 2-Aug-2024
-
-//         tableBody.append(`
-//             <tr>
-//                 <td>${i + 1}</td>
-//                 <td>${monthName}</td>
-//                 <td><input type="text" class="form-control low_value" placeholder="Enter Low Value"></td>
-//                 <td><input type="text" class="form-control high_value" placeholder="Enter High Value"></td>
-//             </tr>
-//         `);
-//     }
-
-//     $('#grp_details_card').show();
-// }
 function updateEndMonth() {
     let grp_date = $('#grp_date').val();
     let startMonth = $('#start_month').val();
     let totalMonths = parseInt($('#total_month').val(), 10);
     let groupId = $('#group_id').val(); // Assuming you have a field with id `group_id` for the group ID
-    
+
     if (grp_date && startMonth && groupId) {
         $.post('api/group_creation_files/get_auction_details.php', {
             grp_date: grp_date,
             start_month: startMonth,
             total_month: totalMonths,
             group_id: groupId // Add group_id to the POST data
-        }, function(response) {
+        }, function (response) {
             let result = JSON.parse(response);
 
             if (result.result === 1) {
@@ -288,10 +360,9 @@ function updateEndMonth() {
             }
         });
     } else {
-        swalError('Warning', 'Kindly Select the Date, Start Month, and Group ID!');
+        swalError('Warning', 'Kindly Select the Date and Start Month!');
     }
 }
-
 
 function populateAuctionDetailsTable(data) {
     let tableBody = $('#grp_details_table tbody');
@@ -300,89 +371,55 @@ function populateAuctionDetailsTable(data) {
     data.forEach(auction => {
         tableBody.append(`
             <tr>
-                <td>${auction.id}</td>
                 <td>${auction.auction_month}</td>
-                <td>${auction.low_value}</td>
-                <td>${auction.high_value}</td>
+                <td>${auction.date}</td>
+                <td><input type="number" class="form-control low_value" value="${auction.low_value}" placeholder="Enter Low Value"></td>
+                <td><input type="number" class="form-control high_value" value="${auction.high_value}" placeholder="Enter High Value"></td>
             </tr>
         `);
+    });
+
+    // Ensure this is applied to all rows
+    $('.low_value, .high_value').change(function () {
+        checkMinMaxValue('.low_value', '.high_value');
     });
 
     $('#grp_details_card').show();
 }
 
+
+
 function populateAuctionDetailsTableWithInputs(totalMonths, startMonth, endMonth) {
     let tableBody = $('#grp_details_table tbody');
     tableBody.empty();
     let startDate = new Date(startMonth + "-01");
+    let endDate = new Date(endMonth + "-01");
 
     for (let i = 0; i < totalMonths; i++) {
         let monthYear = new Date(startDate.setMonth(startDate.getMonth() + (i === 0 ? 0 : 1)));
-        if (monthYear > new Date(endMonth + "-01")) break;
+        if (monthYear > endDate) break;
 
         let monthName = monthYear.toLocaleString('default', { month: 'short', year: 'numeric' });
+        let monthValue = i + 1; // Correctly calculate the month value based on loop iteration
+
         let formattedDate = `2-${monthName}`; // Format: 2-Aug-2024
 
         tableBody.append(`
             <tr>
                 <td>${i + 1}</td>
+                <td class="auction_month" style="display: none;">${monthValue}</td>
                 <td>${monthName}</td>
                 <td><input type="text" class="form-control low_value" placeholder="Enter Low Value"></td>
                 <td><input type="text" class="form-control high_value" placeholder="Enter High Value"></td>
             </tr>
         `);
     }
-
+    $('.low_value, .high_value').change(function () {
+        checkMinMaxValue('.low_value', '.high_value');
+    });
     $('#grp_details_card').show();
 }
 
-$('#group_creation').submit(function(event) {
-    event.preventDefault();
 
-    let groupId = $('#group_id').val();
-    let groupDate = $('#grp_date').val(); // Assuming this is in the format YYYY-MM-DD
-    let startMonth = $('#start_month').val();
-    let totalMonths = parseInt($('#total_month').val(), 10);
 
-    let auctionDetails = [];
-    $('#grp_details_table tbody tr').each(function() {
-        let month = $(this).find('td').eq(1).text();
-        let lowValue = $(this).find('.low_value').val();
-        let highValue = $(this).find('.high_value').val();
 
-        auctionDetails.push({
-            date: groupDate,
-            auction_month: month,
-            low_value: lowValue,
-            high_value: highValue
-        });
-    });
-
-    $.ajax({
-        url: 'api/group_creation_files/submit_auction_details.php',
-        method: 'POST',
-        data: {
-            group_id: groupId,
-            auction_details: auctionDetails
-        },
-        success: function(response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Auction details have been saved successfully.',
-                confirmButtonColor: '#3085d6'
-            });
-            $('#group_creation')[0].reset();
-            $('#grp_details_table tbody').empty();
-            $('#grp_details_card').hide();
-        },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while saving the auction details.',
-                confirmButtonColor: '#d33'
-            });
-        }
-    });
-});

@@ -1,42 +1,40 @@
 <?php
-require "../../ajaxconfig.php";
+require '../../ajaxconfig.php';
 @session_start();
-$user_id = $_SESSION['user_id'];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $group_id = $_POST['group_id'];
-    $auction_details = $_POST['auction_details'];
+$groupId = $_POST['group_id'];
+$grpDate = $_POST['grp_date'];
+$auctionDetails = $_POST['auction_details'];
 
-    try {
-        // Prepare the SQL statement
-        $sql = "INSERT INTO auction_details (date, auction_month, low_value, high_value, group_id) 
-                VALUES (:date, :auction_month, :low_value, :high_value, :group_id)";
-        $stmt = $pdo->prepare($sql);
+$result = 0;
 
-        foreach ($auction_details as $auction) {
-            // Ensure the date is correctly formatted
-            $date = $auction['date'] ?? '';
-            $auction_month = $auction['auction_month'] ?? '';
-            $formatted_date = $date . '-' . $auction_month; // Concatenate date and month
+try {
+    if ($groupId != '') {
+        // First delete existing records for this group
+        $deleteQry = $pdo->query("DELETE FROM auction_details WHERE group_id='$groupId'");
 
-            $stmt->execute([
-                ':date' => $formatted_date,
-                ':auction_month' => $auction_month,
-                ':low_value' => $auction['low_value'] ?? 0,
-                ':high_value' => $auction['high_value'] ?? 0,
-                ':group_id' => $group_id
-            ]);
+        // Insert new records
+        foreach ($auctionDetails as $detail) {
+            $auctionMonth = $detail['auction_month'];
+            $monthName = $detail['month_name'];
+            $lowValue = $detail['low_value'];
+            $highValue = $detail['high_value'];
+
+            // Format the date as "User-entered date-Month-Year"
+            $formattedDate = $grpDate . '-' . $monthName;
+            $formatDate = new DateTime($formattedDate);
+            $formattedDate = $formatDate->format('Y-m-d');
+
+            $insertQry = $pdo->prepare("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value) VALUES (?, ?, ?, ?, ?)");
+            $insertQry->execute([$groupId, $formattedDate, $auctionMonth, $lowValue, $highValue]);
         }
 
         $result = 1; // Success
-    } catch (Exception $e) {
-        $result = 2; // Failure
-        $error_message = $e->getMessage();
     }
-
-    echo json_encode([
-        'result' => $result,
-        'error_message' => $error_message ?? null
-    ]);
+} catch (Exception $e) {
+    error_log('Error in auction detail submission: ' . $e->getMessage());
 }
+
+echo json_encode($result);
 ?>
+
