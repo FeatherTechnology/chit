@@ -2,40 +2,25 @@ $(document).ready(function () {
     //Add Group creation & Back.
     $(document).on('click', '#add_group, #back_btn', function () {
         swapTableAndCreation();
+        getDateDropDown()
+        $('#branch_name_edit').val('')
+        $('#auction_modal_btn')
+        .removeAttr('data-toggle')
+        .removeAttr('data-target');
+        $('#add_cus_map')
+            .removeAttr('data-toggle')
+            .removeAttr('data-target');
     });
+
 
     $('#grp_date,#start_month, #total_month').change(function () {
         getModalAttr()
     });
-    function getModalAttr() {
-        let grp_date = $('#grp_date').val();
-        let start_month = $('#start_month').val();
-        if (grp_date != '' && start_month != '') {
-            $('#auction_modal_btn')
-                .attr('data-toggle', 'modal')
-                .attr('data-target', '#add_auction_modal');
-        } else {
-            $('#auction_modal_btn')
-                .removeAttr('data-toggle')
-                .removeAttr('data-target');
-        }
-    }
+
 
     $('#total_members').change(function () {
         getCusModal()
     });
-    function getCusModal() {
-        let total_members = $('#total_members').val();
-        if (total_members != '') {
-            $('#add_cus_map')
-                .attr('data-toggle', 'modal')
-                .attr('data-target', '#add_cus_map_modal');
-        } else {
-            $('#add_cus_map')
-                .removeAttr('data-toggle')
-                .removeAttr('data-target');
-        }
-    }
 
     document.getElementById('hours').addEventListener('input', function (e) {
         if (this.value.length > 2) this.value = this.value.slice(0, 2);
@@ -63,8 +48,11 @@ $(document).ready(function () {
         }
     });
 
+
     $('#submit_group_info').click(function (event) {
         event.preventDefault();
+
+        // Gather form data
         let grpInfoData = {
             'groupid': $('#groupid').val(),
             'group_id': $('#group_id').val(),
@@ -81,20 +69,48 @@ $(document).ready(function () {
             'end_month': $('#end_month').val(),
             'branch': $('#branch').val(),
             'grace_period': $('#grace_period').val()
-        }
+        };
 
-        if (isFormValid(grpInfoData)) {
+        // Validate fields
+        var fields = ['group_id', 'chit_value', 'grp_date', 'group_name', 'commission', 'hours', 'minutes', 'ampm', 'total_members', 'total_month', 'start_month', 'end_month', 'branch', 'grace_period'];
+        var isValid = true;
+
+        fields.forEach(function (field) {
+            var fieldIsValid = validateField($('#' + field).val(), field);
+            if (!fieldIsValid) {
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            // Perform AJAX POST request
             $.post('api/group_creation_files/submit_group_info.php', grpInfoData, function (response) {
-                if (response.result == '1') {
+                if (response.result == '4') {
+                    swalError('Warning', 'Fill the Auction Details');
+                } else if (response.result == '5') {
+                    swalError('Warning', 'Remove the Customer Mapping Details');
+                } else if (response.result == '1') {
                     swalSuccess('Success', 'Group Info Submitted Successfully');
                     $('#groupid').val(response.last_id);
+                    $('#groupid').val('');
+                    // Optionally, reset the form and update tables
+                    $('#group_creation').trigger('reset');
+                    getGroupCreationTable();
+                    swapTableAndCreation();
+
                 } else {
                     swalError('Error', 'Group Info Not Submitted');
                     $('#groupid').val('');
+                    $('#group_creation').trigger('reset');
+                    getGroupCreationTable();
+                    swapTableAndCreation();
+
                 }
-            }, 'json');
+            }, 'json').fail(function () {
+                swalError('Error', 'Request failed. Please try again.');
+            });
         } else {
-            // swalError('Warning', 'Kindly fill the mandatory fields');
+            swalError('Warning', 'Kindly fill the mandatory fields');
         }
     });
     ////////////////////////////////////////////////////////////// Customer Mapping Start//////////////////////////////////////////////////////////////////
@@ -104,14 +120,12 @@ $(document).ready(function () {
         let cus_name = $('#cus_name').val();
         let group_id = $('#group_id').val();
         let total_members = $('#total_members').val();
-        let total_months = $('#total_month').val();
 
         if (cus_name !== '' && group_id !== '') {
             $.post('api/group_creation_files/submit_cus_mapping.php', {
                 cus_name: cus_name,
                 group_id: group_id,
-                total_members: total_members,
-                total_months: total_months
+                total_members: total_members
             }, function (response) {
                 let result = response.result;
 
@@ -119,13 +133,9 @@ $(document).ready(function () {
                     // Success
                     getCusMapTable(); // Refresh the customer mapping table
                     $('#cus_name').val(''); // Clear the input field
-                    if (response.message) {
-                        // If there is a message, show it (e.g., status not updated)
-                        swalInfo('Info', response.message);
-                    }
                 } else if (result === 2) {
                     // Failure
-                    swalError('Error', 'An error occurred while inserting customer mapping.');
+                    swalError('Error', 'An error occurred while processing the request.');
                 } else if (result === 3) {
                     // Limit Exceeded
                     swalError('Warning', response.message);
@@ -133,6 +143,7 @@ $(document).ready(function () {
             }, 'json');
         }
     });
+
 
 
     $(document).on('click', '.cusMapDeleteBtn', function () {
@@ -143,13 +154,13 @@ $(document).ready(function () {
     //////////////////////////////////////////////////////////////auction Details/////////////////////////////////////////////////////////
     $('#submit_group_details').click(function (event) {
         event.preventDefault();
-    
+
         let groupId = $('#group_id').val();
         let groupDate = $('#grp_date').val();
-    
+
         // Initialize a flag to check validation
         let isValid = true;
-        
+
         // Collect table data
         let auctionDetails = [];
         $('#grp_details_table tbody tr').each(function () {
@@ -157,7 +168,7 @@ $(document).ready(function () {
             let monthName = $(this).find('td').eq(2).text();
             let lowValue = $(this).find('.low_value').val();
             let highValue = $(this).find('.high_value').val();
-            
+
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
                 isValid = false;
@@ -167,7 +178,7 @@ $(document).ready(function () {
                 $(this).find('.low_value').css('border-color', '');
                 $(this).find('.high_value').css('border-color', '');
             }
-    
+
             auctionDetails.push({
                 auction_month: auctionMonth,
                 month_name: monthName,
@@ -175,13 +186,13 @@ $(document).ready(function () {
                 high_value: highValue
             });
         });
-    
+
         // Show an alert if validation fails
         if (!isValid) {
             swalError('Validation Error', 'Please fill all Low Value and High Value fields.');
             return; // Prevent further execution if validation fails
         }
-    
+
         // Send data to the PHP script if validation passes
         $.post('api/group_creation_files/submit_auction_details.php', {
             group_id: groupId,
@@ -198,6 +209,14 @@ $(document).ready(function () {
         });
     });
     ///////////////////////////////////////////////////////////////////auction details End//////////////////////////////////////////
+    $(document).on('click', '.edit-group-creation', function () {
+        let id = $(this).attr('value');
+        $('#groupid').val(id);
+
+        swapTableAndCreation();
+        editGroupCreation(id)
+
+    });
 }); //document END////
 
 $(function () {
@@ -231,30 +250,26 @@ function getAutoGenGroupId(id) {
 }
 function callGrpFunctions() {
     getAutoGenGroupId('')
-    getDateDropDown('#grp_date', 'Select Date');
+    // getDateDropDown()
     getBranchList();
     getCustomerList();
 }
-
-function getDateDropDown(selector, selectOptn) {
-    let dateOption = '';
-    dateOption = "<option value=''>" + selectOptn + "</option>";
-    for (let i = 1; i <= 31; i++) {
-        dateOption += '<option value="' + i + '">' + i + '</option>';
-    }
-    $(selector).empty().append(dateOption);
-}
-
 function getBranchList() {
     $.post('api/common_files/get_branch_list.php', function (response) {
         let branchOptn = '';
         branchOptn = '<option value="">Select Branch</option>';
         response.forEach(val => {
-            branchOptn += '<option value="' + val.id + '">' + val.branch_name + '</option>';
+            let selected = '';
+            let editGId = $('#branch_name_edit').val();
+            if (val.id == editGId) {
+                selected = 'selected';
+            }
+            branchOptn += "<option value='" + val.id + "' " + selected + ">" + val.branch_name + "</option>";
         });
         $('#branch').empty().append(branchOptn);
     }, 'json');
 }
+
 
 function getCustomerList() {
     $.post('api/common_files/get_customer_list.php', function (response) {
@@ -267,18 +282,18 @@ function getCustomerList() {
     }, 'json');
 }
 
-function isFormValid(formdata) {
-    const excludedFields = ['groupid'];
+// function isFormValid(formdata) {
+//     const excludedFields = ['groupid'];
 
-    for (let key in formdata) {
-        if (excludedFields.includes(key)) continue;
-        if (!validateField(formdata[key], key)) {
-            return false;
-        }
-    }
+//     for (let key in formdata) {
+//         if (excludedFields.includes(key)) continue;
+//         if (!validateField(formdata[key], key)) {
+//             return false;
+//         }
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 function getCusMapTable() {
     let total_members = $('#total_members').val();
@@ -312,7 +327,32 @@ function removeCusMap(id) {
         }
     }, 'json');
 }
+function getModalAttr() {
+    let grp_date = $('#grp_date').val();
+    let start_month = $('#start_month').val();
+    if (grp_date != '' && start_month != '') {
+        $('#auction_modal_btn')
+            .attr('data-toggle', 'modal')
+            .attr('data-target', '#add_auction_modal');
+    } else {
+        $('#auction_modal_btn')
+            .removeAttr('data-toggle')
+            .removeAttr('data-target');
+    }
+}
 
+function getCusModal() {
+    let total_members = $('#total_members').val();
+    if (total_members != '') {
+        $('#add_cus_map')
+            .attr('data-toggle', 'modal')
+            .attr('data-target', '#add_cus_map_modal');
+    } else {
+        $('#add_cus_map')
+            .removeAttr('data-toggle')
+            .removeAttr('data-target');
+    }
+}
 
 function checkMinMaxValue(lowValueClass, highValueClass) {
     // Iterate over each row in the table
@@ -421,5 +461,110 @@ function populateAuctionDetailsTableWithInputs(totalMonths, startMonth, endMonth
 }
 
 
+function getDateDropDown(editDId) {
+    let dateOption = '<option value="">Select Date</option>';
+    for (let i = 1; i <= 31; i++) {
+        let selected = '';
+        if (i == editDId) {
+            selected = 'selected';
+        }
+        dateOption += '<option value="' + i + '" ' + selected + '>' + i + '</option>';
+    }
+    $('#grp_date').empty().append(dateOption);
+}
 
+// function hideBackButton() {
+//     $('#back_btn').hide();
+// }
+
+function editGroupCreation(id) {
+    $.post('api/group_creation_files/group_creation_data.php', { id: id }, function (response) {
+        // Populate form fields
+        $('#group_creation').addClass('edit-mode');
+        $('#groupid').val(id);
+        $('#group_id').val(response[0].group_id);
+        $('#chit_value').val(response[0].chit_value);
+        $('#group_name').val(response[0].grp_name);
+        $('#commission').val(response[0].commission);
+        $('#hours').val(response[0].hours);
+        $('#minutes').val(response[0].minutes);
+        $('#ampm').val(response[0].ampm);
+        $('#total_members').val(response[0].total_members);
+        $('#total_month').val(response[0].total_months);
+        $('#start_month').val(response[0].start_month);
+        $('#end_month').val(response[0].end_month);
+        $('#branch_name_edit').val(response[0].branch);
+        $('#grace_period').val(response[0].grace_period);
+
+        let editDId = response[0].date;
+        getDateDropDown(editDId);
+        callGrpFunctions();
+
+        setTimeout(() => {
+            getAutoGenGroupId(id);
+
+            $('#grp_date').trigger('change');
+            $('#branch').trigger('change');
+        }, 1000);
+        getModalAttr();
+        getCusModal();
+
+        $('#back_btn').show();
+
+        // Store original values for the specific group
+        let originalValues = {};
+        $('#group_creation').find('input, select, textarea').each(function() {
+            originalValues[$(this).attr('id')] = $(this).val();
+        });
+
+        // Flag to track if the form has changed
+        let formChanged = false;
+
+        // Attach the change event listener to all input, select, and textarea elements within the form
+        $('#group_creation').on('keyup.change paste', 'input, select, textarea', function() {
+            formChanged = true;
+            handleFormAction();
+        });
+
+        // Function to handle form submission or any other action
+        function handleFormAction() {
+            if (formChanged) {
+                $('#back_btn').hide();
+            } else {
+                $('#back_btn').show();
+            }
+        }
+
+        // Clean up event listeners when leaving edit mode
+        $('#submit_group_info').click(function() {
+            $('#group_creation').removeClass('edit-mode');
+            $('#group_creation').off('keyup.change paste');
+        });
+
+    }, 'json');
+}
+$('button[type="reset"],#back_btn').click(function (event) {
+    // event.preventDefault();
+    $('input').each(function () {
+        var id = $(this).attr('id');
+        if (id !== 'group_id' && id !== 'submit_cus_map') {
+            $(this).val('');
+        }
+    });
+    // Reset all select fields within the specific form
+    $('#group_creation').find('select').each(function () {
+        $(this).val($(this).find('option:first').val());
+
+    });
+    $('#auction_modal_btn')
+    .removeAttr('data-toggle')
+    .removeAttr('data-target');
+    $('#customer_creation').find('input[type="radio"]').prop('checked', false);
+    //Reset all  images within the form
+    $('#imgshow').attr('src', 'img/avatar.png');
+    $('#group_creation input').css('border', '1px solid #cecece');
+    $('#group_creation select').css('border', '1px solid #cecece');
+    $('#customer_creation textarea').css('border', '1px solid #cecece');
+
+});
 
