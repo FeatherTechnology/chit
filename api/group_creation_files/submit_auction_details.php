@@ -1,7 +1,7 @@
 <?php
 require '../../ajaxconfig.php';
 @session_start();
-
+$user_id = $_SESSION['user_id'];
 $groupId = $_POST['group_id'];
 $grpDate = $_POST['grp_date'];
 $auctionDetails = $_POST['auction_details'];
@@ -25,8 +25,8 @@ try {
             $formatDate = new DateTime($formattedDate);
             $formattedDate = $formatDate->format('Y-m-d');
 
-            $insertQry = $pdo->prepare("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value) VALUES (?, ?, ?, ?, ?)");
-            $insertQry->execute([$groupId, $formattedDate, $auctionMonth, $lowValue, $highValue]);
+            $insertQry = $pdo->prepare("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value,status,insert_login_id) VALUES (?, ?, ?, ?, ?,?,?)");
+            $insertQry->execute([$groupId, $formattedDate, $auctionMonth, $lowValue, $highValue,1,$user_id]);
         }
 
         $result = 1; // Success

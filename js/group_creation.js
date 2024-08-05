@@ -217,6 +217,7 @@ $(document).ready(function () {
         editGroupCreation(id)
 
     });
+    
 }); //document END////
 
 $(function () {
@@ -473,16 +474,38 @@ function getDateDropDown(editDId) {
     $('#grp_date').empty().append(dateOption);
 }
 
-// function hideBackButton() {
-//     $('#back_btn').hide();
+// function hideSubmitButton(groupId) {
+//     if (groupId) {
+//         $.post('api/group_creation_files/fetch_group_status.php', { group_id: groupId }, function(response) {
+//             var status = parseInt(response, 10);
+
+//             if (status === 3) {
+//                 $('#submit_group_info').hide();
+//                 $('#submit_group_details').hide();
+//                 $('#submit_cus_map').hide();
+//             }
+//         }, 'json')
+//     }
 // }
+function hideSubmitButton(status) {
+    if (status === 3) {
+        $('#submit_group_info').hide();
+        $('#submit_group_details').hide();
+        $('#submit_cus_map').hide();
+    } else {
+        $('#submit_group_info').show();
+        $('#submit_group_details').show();
+        $('#submit_cus_map').show();
+    }
+}
+
 
 function editGroupCreation(id) {
     $.post('api/group_creation_files/group_creation_data.php', { id: id }, function (response) {
         // Populate form fields
         $('#group_creation').addClass('edit-mode');
         $('#groupid').val(id);
-        $('#group_id').val(response[0].group_id);
+        $('#group_id').val(response[0].grp_id);
         $('#chit_value').val(response[0].chit_value);
         $('#group_name').val(response[0].grp_name);
         $('#commission').val(response[0].commission);
@@ -496,6 +519,16 @@ function editGroupCreation(id) {
         $('#branch_name_edit').val(response[0].branch);
         $('#grace_period').val(response[0].grace_period);
 
+        if (status === 3) {
+            $('#submit_group_info').hide();
+            $('#submit_group_details').hide();
+            $('#submit_cus_map').hide();
+        } else {
+            $('#submit_group_info').show();
+            $('#submit_group_details').show();
+            $('#submit_cus_map').show();
+        }
+    
         let editDId = response[0].date;
         getDateDropDown(editDId);
         callGrpFunctions();
@@ -504,10 +537,17 @@ function editGroupCreation(id) {
             getAutoGenGroupId(id);
 
             $('#grp_date').trigger('change');
-            $('#branch').trigger('change');
+            $('#branch').trigger('change');   
+            $.post('api/group_creation_files/fetch_group_status.php', { group_id: response[0].grp_id }, function(statusResponse) {
+            let status = parseInt(statusResponse, 10);
+            hideSubmitButton(status);
+        }, 'json')
+            
         }, 1000);
         getModalAttr();
         getCusModal();
+
+     
 
         $('#back_btn').show();
 
@@ -540,7 +580,10 @@ function editGroupCreation(id) {
             $('#group_creation').removeClass('edit-mode');
             $('#group_creation').off('keyup.change paste');
         });
-
+        // setTimeout(() => {
+        //     hideSubmitButton(response[0].grp_id);
+        // }, 500);
+      
     }, 'json');
 }
 $('button[type="reset"],#back_btn').click(function (event) {
