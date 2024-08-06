@@ -50,15 +50,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td><button class="btn btn-primary mx-4 text-center" data-toggle="modal" data-target="#add_view_modal">&nbsp;Auction</button><button class="btn btn-primary mx-4 text-center" data-toggle="modal" data-target="#add_Calculation_modal">&nbsp;Postpone</button></td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -68,11 +59,11 @@
 <!-----------------------------CARD END - Auction Detail TABLE --------------------------------->
 <!--------------------------------------Auction Modal Start------------------------------------------->
 <div class="modal fade" id="add_cus_map_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-lg " role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Auction</h5>
-                <button type="button" class="close" data-dismiss="modal" tabindex="1" onclick="closeChartsModal()" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" onclick="closeChartsModal()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -84,7 +75,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="cus_name">Customer Name<span class="text-danger">*</span></label>
-                                    <input type="hidden" id="customer_edit_it"
+                                    <input type="hidden" id="customer_edit_it">
                                     <select class="form-control" id="cus_name" name="cus_name" tabindex="17" multiple>
                                         <option value="">Select Customer</option>
                                     </select>
@@ -92,7 +83,9 @@
                             </div>
                             <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12 align-self-end">
                                 <div class="form-group">
-                                    <button name="submit_cus_map" id="submit_cus_map" class="btn btn-primary" tabindex="3" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Add</button>
+                                    <button name="submit_cus_map" id="submit_cus_map" class="btn btn-primary" tabindex="3" style="margin-top: 18px;">
+                                        <span class="icon-check"></span>&nbsp;Add
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -112,13 +105,17 @@
                         </table>
                     </div>
                 </div>
+                <div class="col-12 text-right">
+                    <button class="btn btn-primary auction_close">&nbsp; Auction Close</button>
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()" tabindex="1">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()">Close</button>
             </div>
         </div>
     </div>
 </div>
+
 <!--- --------------------------------------Auction Modal END ------------------------------- -->
 <!------------------------------------------Postpone Modal start---------------------------------->
 <div class="modal fade" id="add_pos_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -209,7 +206,7 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
-                <button name="print_cal" id="print_cal" class="btn btn-primary" tabindex="1" style="margin-left: 690px;">&nbsp;Print</button>
+                    <button name="print_cal" id="print_cal" class="btn btn-primary" tabindex="1" style="margin-left: 690px;">&nbsp;Print</button>
                     <form id="Calculation_form">
                         <div class="row">
                             <input type="hidden" name="bank_id" id='bank_id'>
@@ -237,7 +234,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="chit_value">Chit Value</label>
-                                    <input type="number" class="form-control" name="chit_value" id="chit_value" tabindex="1"readonly>
+                                    <input type="number" class="form-control" name="chit_value" id="chit_value" tabindex="1" readonly>
                                     <input type="hidden" id="addchit_value" value='0'>
                                 </div>
                             </div>

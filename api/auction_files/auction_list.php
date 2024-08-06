@@ -2,7 +2,7 @@
 require '../../ajaxconfig.php';
 @session_start();
 $user_id = $_SESSION['user_id'];
-$auction_status = [1 =>'In Auction', 2 => 'Auction Finished'];
+$auction_status = [1 =>'In Auction', 2 => 'Finished'];
 
 $column = array(
     'gc.id',
@@ -11,7 +11,7 @@ $column = array(
     'gc.chit_value',
     'gc.total_months',
     'gc.date',
-    'auction_date',
+    'ad.auction_month',
     'bc.branch_name',
     'ad.status',
     'gc.id'
@@ -24,7 +24,7 @@ $query = "SELECT
             gc.chit_value,
             gc.total_months,
             gc.date,
-            DATE_FORMAT(ad.date, '%c') as auction_date,
+            ad.auction_month,
             bc.branch_name,
             ad.status
         FROM 
@@ -44,7 +44,7 @@ if (isset($_POST['search'])) {
                       OR gc.chit_value LIKE '%" . $search . "%'
                       OR gc.total_months LIKE '%" . $search . "%'
                       OR gc.date LIKE '%" . $search . "%'
-                      OR DATE_FORMAT(ad.date, '%c') LIKE '%" . $search . "%'
+                      OR ad.auction_month LIKE '%" . $search . "%'
                       OR bc.branch_name LIKE '%" . $search . "%'
                       OR ad.status LIKE '%" . $search . "%')";
     }
@@ -79,7 +79,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['chit_value']) ? $row['chit_value'] : '';
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
     $sub_array[] = isset($row['date']) ? $row['date'] : '';
-    $sub_array[] = isset($row['auction_date']) ? $row['auction_date'] : '';
+    $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
     $sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
     $sub_array[] = isset($row['status']) ? $auction_status[$row['status']] : '';
     
