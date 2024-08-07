@@ -488,17 +488,24 @@ function getDateDropDown(editDId) {
 //     }
 // }
 function hideSubmitButton(status) {
-    if (status === 3) {
+    if (status >2) {
+        // Hide the reset button and submit buttons
+        $('#reset_clear').hide();
+        $('#group_clear').hide(); // Hide reset button
         $('#submit_group_info').hide();
         $('#submit_group_details').hide();
         $('#submit_cus_map').hide();
+      
+
     } else {
+        // Show the reset button and submit buttons
+        $('#reset_clear').show();
+        $('#group_clear').show(); // Show reset button
         $('#submit_group_info').show();
         $('#submit_group_details').show();
         $('#submit_cus_map').show();
     }
 }
-
 
 function editGroupCreation(id) {
     $.post('api/group_creation_files/group_creation_data.php', { id: id }, function (response) {
@@ -519,16 +526,6 @@ function editGroupCreation(id) {
         $('#branch_name_edit').val(response[0].branch);
         $('#grace_period').val(response[0].grace_period);
 
-        if (status === 3) {
-            $('#submit_group_info').hide();
-            $('#submit_group_details').hide();
-            $('#submit_cus_map').hide();
-        } else {
-            $('#submit_group_info').show();
-            $('#submit_group_details').show();
-            $('#submit_cus_map').show();
-        }
-    
         let editDId = response[0].date;
         getDateDropDown(editDId);
         callGrpFunctions();
@@ -539,51 +536,49 @@ function editGroupCreation(id) {
             $('#grp_date').trigger('change');
             $('#branch').trigger('change');   
             $.post('api/group_creation_files/fetch_group_status.php', { group_id: response[0].grp_id }, function(statusResponse) {
-            let status = parseInt(statusResponse, 10);
-            hideSubmitButton(status);
-        }, 'json')
-            
+                let status = parseInt(statusResponse, 10);
+                hideSubmitButton(status);
+
+                // Only attach the change event listener if status is less than or equal to 2
+                if (status <= 2) {
+                    $('#back_btn').show();
+
+                    // Store original values for the specific group
+                    let originalValues = {};
+                    $('#group_creation').find('input, select, textarea').each(function() {
+                        originalValues[$(this).attr('id')] = $(this).val();
+                    });
+
+                    // Flag to track if the form has changed
+                    let formChanged = false;
+
+                    // Attach the change event listener to all input, select, and textarea elements within the form
+                    $('#group_creation').on('keyup.change paste', 'input, select, textarea', function() {
+                        formChanged = true;
+                        handleFormAction();
+                    });
+
+                    // Function to handle form submission or any other action
+                    function handleFormAction() {
+                        if (formChanged) {
+                            $('#back_btn').hide();
+                        } else {
+                            $('#back_btn').show();
+                        }
+                    }
+
+                    // Clean up event listeners when leaving edit mode
+                    $('#submit_group_info').click(function() {
+                        $('#group_creation').removeClass('edit-mode');
+                        $('#group_creation').off('keyup.change paste');
+                    });
+                } else {
+                    $('#back_btn').show();
+                }
+            }, 'json');
         }, 1000);
         getModalAttr();
         getCusModal();
-
-     
-
-        $('#back_btn').show();
-
-        // Store original values for the specific group
-        let originalValues = {};
-        $('#group_creation').find('input, select, textarea').each(function() {
-            originalValues[$(this).attr('id')] = $(this).val();
-        });
-
-        // Flag to track if the form has changed
-        let formChanged = false;
-
-        // Attach the change event listener to all input, select, and textarea elements within the form
-        $('#group_creation').on('keyup.change paste', 'input, select, textarea', function() {
-            formChanged = true;
-            handleFormAction();
-        });
-
-        // Function to handle form submission or any other action
-        function handleFormAction() {
-            if (formChanged) {
-                $('#back_btn').hide();
-            } else {
-                $('#back_btn').show();
-            }
-        }
-
-        // Clean up event listeners when leaving edit mode
-        $('#submit_group_info').click(function() {
-            $('#group_creation').removeClass('edit-mode');
-            $('#group_creation').off('keyup.change paste');
-        });
-        // setTimeout(() => {
-        //     hideSubmitButton(response[0].grp_id);
-        // }, 500);
-      
     }, 'json');
 }
 $('button[type="reset"],#back_btn').click(function (event) {

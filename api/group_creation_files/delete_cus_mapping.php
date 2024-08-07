@@ -8,6 +8,17 @@ $groupIdQuery = $pdo->query("SELECT grp_creation_id FROM `group_cus_mapping` WHE
 $groupIdResult = $groupIdQuery->fetch(PDO::FETCH_ASSOC);
 $group_id = $groupIdResult['grp_creation_id'];
 
+// Check the current status of the group
+$statusQuery = $pdo->query("SELECT status FROM `group_creation` WHERE grp_id = '$group_id'");
+$statusResult = $statusQuery->fetch(PDO::FETCH_ASSOC);
+$status = $statusResult['status'];
+
+if ($status == '3') {
+    // Return error if status is 3
+    echo json_encode(2); // Indicate that deletion is not allowed
+    exit;
+}
+
 // Delete customer mapping
 $qry = $pdo->query("DELETE FROM `group_cus_mapping` WHERE `id` = '$id'");
 
@@ -40,3 +51,4 @@ if ($qry) {
 }
 
 echo json_encode($result);
+?>

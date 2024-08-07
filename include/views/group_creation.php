@@ -160,7 +160,7 @@
                 </div>
                 <div class="col-12 mt-3 text-right">
                     <button name="submit_group_info" id="submit_group_info" class="btn btn-primary" tabindex="19"><span class="icon-check"></span>&nbsp;Submit</button>
-                    <button type="reset" class="btn btn-outline-secondary" tabindex="20">Clear</button>
+                    <button type="reset"id="reset_clear" class="btn btn-outline-secondary" tabindex="20">Clear</button>
                 </div>
             </form>
         </div>
@@ -197,7 +197,7 @@
                     </div>
                     <div class="col-12 mt-3 text-right">
                         <button name="submit_group_details" id="submit_group_details" class="btn btn-primary" tabindex="19"><span class="icon-check"></span>&nbsp;Submit</button>
-                        <button type="reset" class="btn btn-outline-secondary" tabindex="20">Clear</button>
+                        <button type="reset" id="group_clear"class="btn btn-outline-secondary" tabindex="20">Clear</button>
                     </div>
                 </div>
             </div>
