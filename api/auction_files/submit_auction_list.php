@@ -9,24 +9,41 @@ $user_id = $_SESSION['user_id'];
 $response = ['status' => 'error', 'message' => ''];
 
 try {
-    // Prepare the SQL statement
-    $sql = "INSERT INTO auction_list (group_id, date, cus_name, inserted_login_id) VALUES (:group_id, :date, :cus_name, :insert_login_id)";
+    // Fetch the auction_id from auction_details
+    $date = date('Y-m-d', strtotime($date));
+    $sql = "SELECT id FROM auction_details WHERE group_id = :group_id AND date = :date";
     $stmt = $pdo->prepare($sql);
-    
-    // Execute the SQL statement
     $stmt->execute([
         ':group_id' => $group_id,
-        ':date' => $date,
-        ':cus_name' => $cus_name,
-        ':insert_login_id' => $user_id // Adjusted parameter name
+        ':date' => $date
     ]);
 
-    // Check if the insertion was successful
-    if ($stmt->rowCount() > 0) {
-        $response['status'] = 'success';
-        $response['message'] = 'Customer mapping inserted successfully.';
+    $auction = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($auction) {
+        $auction_id = $auction['id'];
+
+        // Prepare the SQL statement to insert into auction_modal
+        $sql = "INSERT INTO auction_modal (auction_id, group_id, date, cus_name, inserted_login_id) VALUES (:auction_id, :group_id, :date, :cus_name, :insert_login_id)";
+        $stmt = $pdo->prepare($sql);
+        
+        // Execute the SQL statement
+        $stmt->execute([
+            ':auction_id' => $auction_id,
+            ':group_id' => $group_id,
+            ':date' => $date,
+            ':cus_name' => $cus_name,
+            ':insert_login_id' => $user_id // Adjusted parameter name
+        ]);
+
+        // Check if the insertion was successful
+        if ($stmt->rowCount() > 0) {
+            $response['status'] = 'success';
+            $response['message'] = 'Customer mapping inserted successfully.';
+        } else {
+            $response['message'] = 'Failed to insert customer mapping.';
+        }
     } else {
-        $response['message'] = 'Failed to insert customer mapping.';
+        $response['message'] = 'No matching auction found.';
     }
 } catch (PDOException $e) {
     $response['message'] = $e->getMessage();

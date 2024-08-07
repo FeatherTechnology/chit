@@ -39,13 +39,13 @@ try {
         while ($auctionInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
             // Concatenate group_id and date to form unique value
             $uniqueValue = $auctionInfo['group_id'] . '_' . $auctionInfo['date'];
-            
+            $uniqueMonth = $auctionInfo['group_id'] . '_' . $auctionInfo['auction_month'];
             // Initialize 'action' key with an empty string
             $auctionInfo['action'] = '';
             
             if ($auctionInfo['status'] == '1') {
                 $auctionInfo['action'] .= "<button class='btn btn-primary auctionBtn' data-value='".$uniqueValue."' >&nbsp;Auction</button>
-                                            <button class='btn btn-primary postponeBtn' data-value='".$uniqueValue."'>&nbsp;Postpone</button>";
+                                            <button class='btn btn-primary postponeBtn' data-value='".$uniqueMonth."'>&nbsp;Postpone</button>";
             }
 
             if ($auctionInfo['status'] == '2') {

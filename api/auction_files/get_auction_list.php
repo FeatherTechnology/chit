@@ -9,12 +9,13 @@ $response = array();
 
 try {
     // Prepare the SQL statement
+    $date = date('Y-m-d', strtotime($date));
     $qry = "SELECT 
                 cc.first_name, 
                 cc.last_name, 
                 al.value
             FROM 
-                auction_list al 
+                auction_modal al 
             JOIN 
                 customer_creation cc 
             ON 

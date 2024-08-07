@@ -71,7 +71,7 @@
                 <div class="container-fluid">
                     <form id="mapping_form">
                         <div class="row justify-content-center">
-                            <input type="hidden" name="mapping_id" id="mapping_id">
+                            <input type="hidden" name="mapp_id" id="mapp_id">
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="cus_name">Customer Name<span class="text-danger">*</span></label>
@@ -143,7 +143,7 @@
                             </div>
                             <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12 align-self-end">
                                 <div class="form-group">
-                                    <button name="submit_cus_map" id="submit_cus_map" class="btn btn-primary" tabindex="3" style="margin-top: 18px;">&nbsp;Submit</button>
+                                    <button name="submit_postpone" id="submit_postpone" class="btn btn-primary" tabindex="3" style="margin-top: 18px;">&nbsp;Submit</button>
                                 </div>
                             </div>
                         </div>
