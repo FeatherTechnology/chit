@@ -20,6 +20,7 @@
                                     <th>Date</th>
                                     <th>Commission(%)</th>
                                     <th>Branch</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
