@@ -170,19 +170,19 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <table id="view_table" class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th width="20">S.No.</th>
-                                    <th>Customer Name</th>
-                                    <th>Value</th>
-                                </tr>
-                            </thead>
-                            <tbody> </tbody>
-                        </table>
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="view_table" class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>Customer Name</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody> </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

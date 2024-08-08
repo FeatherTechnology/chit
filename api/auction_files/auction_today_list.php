@@ -35,7 +35,7 @@ $query = "SELECT
         JOIN 
             branch_creation bc ON gc.branch = bc.id
         WHERE 
-            ad.date = CURDATE() AND gc.status = 2"; // Filter for current date only
+            ad.date = CURDATE() AND gc.status >= 2"; // Filter for current date only
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {

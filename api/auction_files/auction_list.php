@@ -35,7 +35,7 @@ $query = "SELECT
             branch_creation bc ON gc.branch = bc.id
         WHERE 
             ad.date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
-            AND gc.status = 2"; // Add condition to filter by status = 2
+            AND gc.status >= 2"; // Add condition to filter by status = 2
 
 if (isset($_POST['search'])) {
     if ($_POST['search'] != "") {

@@ -35,7 +35,7 @@ JOIN
     branch_creation bc ON gc.branch = bc.id
 WHERE 
     MONTH(ad.date) = MONTH(CURDATE()) AND
-    YEAR(ad.date) = YEAR(CURDATE())  AND gc.status = 2";
+    YEAR(ad.date) = YEAR(CURDATE())  AND gc.status >= 2";
 
 if (isset($_POST['search'])) {
     if ($_POST['search'] != "") {

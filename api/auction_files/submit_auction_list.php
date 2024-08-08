@@ -23,7 +23,7 @@ try {
         $auction_id = $auction['id'];
 
         // Prepare the SQL statement to insert into auction_modal
-        $sql = "INSERT INTO auction_modal (auction_id, group_id, date, cus_name, inserted_login_id) VALUES (:auction_id, :group_id, :date, :cus_name, :insert_login_id)";
+        $sql = "INSERT INTO auction_modal (auction_id, group_id, date, cus_name, inserted_login_id,created_on) VALUES (:auction_id, :group_id, :date, :cus_name, :insert_login_id,now())";
         $stmt = $pdo->prepare($sql);
         
         // Execute the SQL statement
