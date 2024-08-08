@@ -17,9 +17,10 @@ $sql = "SELECT
     ad.low_value,
     ad.high_value,
     ad.status,
-    ad.cus_name,
+    CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name, -- Concatenate first and last name
     ad.auction_value
 FROM auction_details ad
+JOIN customer_creation cc ON ad.cus_name = cc.id -- Join with customer_creation table
 WHERE ad.group_id = :group_id 
 AND (
     YEAR(ad.date) < :currentYear

@@ -1,9 +1,10 @@
 <?php
 require '../../ajaxconfig.php';
+@session_start();
 $user_id = $_SESSION['user_id'];
 $group_id = $_POST['group_id'];
 $date = $_POST['date'];
-$values = $_POST['values'] ?? null; // Use null coalescing operator to set default value
+$values = $_POST['values'] ?? null;
 $date = date('Y-m-d', strtotime($date));
 
 if (!$values || !is_array($values)) {
@@ -13,27 +14,28 @@ if (!$values || !is_array($values)) {
 
 try {
     // Update the value column in auction_modal table
-    $updateQuery = "UPDATE auction_modal SET value = ?, update_login_id=$user_id,updated_on=now() WHERE id = ?";
+    $updateQuery = "UPDATE auction_modal SET value = ?, updated_login_id = ?, updated_on = NOW() WHERE id = ? AND group_id = ? AND date = ?";
     $stmt = $pdo->prepare($updateQuery);
     
-    // Iterate over each value and update the auction_modal table
     foreach ($values as $valueData) {
         $id = $valueData['id'];
         $value = $valueData['value'];
 
         if ($id) {
-            $stmt->execute([$value, $id]);
+            $stmt->execute([$value, $user_id, $id, $group_id, $date]);
+        } else {
+            error_log("Invalid ID for update: " . json_encode($valueData));
         }
     }
 
-    // Find the maximum value and corresponding cus_name
-    $maxQuery = "SELECT cus_name, MAX(value) as max_value FROM auction_modal WHERE group_id = ? AND date = ? ";
+    // Find the maximum value and its corresponding cus_name
+    $maxQuery = "SELECT id, cus_name, value FROM auction_modal WHERE group_id = ? AND date = ? ORDER BY value DESC LIMIT 1";
     $stmt = $pdo->prepare($maxQuery);
     $stmt->execute([$group_id, $date]);
     $maxResult = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($maxResult) {
-        $max_value = $maxResult['max_value'];
+        $max_value = $maxResult['value'];
         $cus_name = $maxResult['cus_name'];
 
         // Update the auction_details table

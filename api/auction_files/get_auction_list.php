@@ -10,16 +10,17 @@ $response = array();
 try {
     // Prepare the SQL statement
     $date = date('Y-m-d', strtotime($date));
-    $qry = "SELECT 
-                cc.first_name, 
-                cc.last_name, 
+    $qry = "SELECT
+                al.id,
+                cc.first_name,
+                cc.last_name,
                 al.value
             FROM 
                 auction_modal al 
             JOIN 
                 customer_creation cc 
             ON 
-                FIND_IN_SET(cc.id, al.cus_name) > 0 
+                cc.id = al.cus_name
             WHERE 
                 al.group_id = :group_id
                 AND al.date = :date";
