@@ -37,13 +37,14 @@ $(document).ready(function () {
         event.preventDefault();
         $('#add_cus_map_modal').modal('show');
         var uniqueValue = $(this).data('value');
-        var [groupId, date] = uniqueValue.split('_');
-        $('#submit_cus_map').attr('data-group-id', groupId);
-        $('#submit_cus_map').attr('data-date', date);
-        $('.auction_close').attr('data-date', date);
-        $('.auction_close').attr('data-group-id', groupId);
-        getCusName(groupId);
-        getCusNameTable(groupId, date);
+        var [groupId, date, id] = uniqueValue.split('_'); // Split to get groupId, date, and id
+        $('#submit_cus_map').attr('data-groupId', groupId); 
+        $('#submit_cus_map').attr('data-id', id); // Store id in data-id attribute
+        $('#submit_cus_map').attr('data-date', date); // Store date
+        $('.auction_close').attr('data-date', date); // Store date in auction close button
+        $('.auction_close').attr('data-id', id); // Store id in auction close button
+        getCusName(id); // Fetch customer names based on id
+        getCusNameTable(id, date); // Fetch customer name table based on id and date
     });
 
     $('#submit_cus_map').click(function (event) {
@@ -76,7 +77,7 @@ $(document).ready(function () {
             });
 
             if (allSuccessful) {
-                
+                cus_name.removeActiveItems();
                 getCusNameTable(group_id, date);
             }
         });
@@ -93,8 +94,6 @@ $(document).ready(function () {
         }, function (response) {
             if (response.status === 'success') {
                 let existingValues = response.data;
-                console.log('Existing Values:', existingValues); // Debugging
-
                 let updatedValues = [];
 
                 $('#cus_mapping_table tbody tr').each(function () {
@@ -111,9 +110,6 @@ $(document).ready(function () {
                         // Handle as required if no match found
                         updatedValues.push({ id: cusId, value: value });
                     }
-                    console.log('cusId:', cusId); // Debugging
-                    console.log('Value:', value); // Debugging
-                    console.log('Updated Values:', updatedValues); // Debugging
                 });
 
                 // Ensure there are values to update
@@ -237,8 +233,9 @@ $(document).ready(function () {
     });
     $(document).on('click', '#print_cal', function () {
         const content = `
-            <div id="print_content">
-                <h2>Calculation Details</h2>
+            <div id="print_content" style="text-align: center;">
+                <h2 style="margin-bottom: 20px;">Chit Company</h2>
+                <img src="img/auction.png" width="50" height="50" style="display: block; margin: 0 auto 20px;">
                 <p><strong>Group Name:</strong> ${$('#group_name').val()}</p>
                 <p><strong>Auction Month:</strong> ${$('#auction_month').val()}</p>
                 <p><strong>Date:</strong> ${$('#cal_date').val()}</p>
@@ -249,15 +246,22 @@ $(document).ready(function () {
                 <p><strong>Chit Amount:</strong> ${$('#chit_amount').val()}</p>
             </div>
         `;
-
+    
         const tempDiv = $('<div>').html(content).css({
             position: 'absolute',
             top: '-500px',
-            left: '-500px'
+            left: '-500px',
+            width: '800px',  // Adjust width
+            height: 'auto',  // Adjust height or set a specific height like '600px'
+            padding: '20px', // Optional: add padding for better layout in the image
+            backgroundColor: '#fff', // Ensure background is white (or any color you prefer)
+            textAlign: 'center' // Center-aligns the content
         }).appendTo('body');
-
+    
         html2canvas(tempDiv[0], {
-            scale: 2  // Increase the scale factor to improve the resolution
+            scale: 2,  // Increase the scale factor to improve the resolution
+            width: tempDiv.outerWidth(), // Set canvas width to the width of the div
+            height: tempDiv.outerHeight() // Set canvas height to the height of the div
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const link = document.createElement('a');
@@ -269,7 +273,8 @@ $(document).ready(function () {
             console.error('Error generating image:', err);
         });
     });
-
+    
+    
     ////////////////////////////////////////////////////////////////////CalCulation Modal End///////////////////////////////////////////////
 });
 
@@ -324,9 +329,7 @@ function fetchAuctionDetails(groupId) {
                 });
 
                 $('.auction_detail_content').show(); // Show the card after data is loaded
-            } else {
-                alert('No auction details found.');
-            }
+            } 
         },
         error: function (xhr, status, error) {
             console.error('AJAX Error: ' + status + error);
@@ -542,92 +545,123 @@ function getCusName(groupId) {
 //         }
 //     }, 'json');
 // }
+// function getCusNameTable(groupId, date) {
+//     $.post('api/auction_files/get_auction_list.php', { group_id: groupId, date: date }, function (response) {
+//         if (response.status === 'success') {
+//             let tableBody = $('#cus_mapping_table tbody');
+//             tableBody.empty(); // Clear any existing rows
+
+//             $.each(response.data, function (index, row) {
+//                 let customerName = `${row.first_name} ${row.last_name}`;
+//                 let rowHtml = `<tr data-cus-id="${row.id}" data-cus-name="${customerName}">
+//                     <td>${index + 1}</td>
+//                     <td class="customer-name" style="cursor: pointer;">${customerName}</td>
+//                     <td><input type="text" class="form-control" name="value_${index}" value=""></td>
+//                 </tr>`;
+//                 tableBody.append(rowHtml);
+//             });
+
+//             tableBody.find('input').on('change', function () {
+//                 $(this).prop('readonly', true);
+//             });
+
+//             // Add click event to customer names
+//             tableBody.find('.customer-name').on('click', function () {
+//                 let tr = $(this).closest('tr');
+//                 let customerName = tr.data('cus-name');
+
+//                 // Fetch cus_id using customer name
+//                 $.post('api/auction_files/get_cus_id.php', {
+//                     group_id: groupId,
+//                     customer_name: customerName // Pass customer_name instead of customer_id
+//                 }, function (response) {
+//                     if (response.status === 'success') {
+//                         let cusId = response.cus_id;
+//                         let value = tr.find('input').val();
+//                         insertIntoAuctionDetail(groupId, date, cusId, customerName, value);
+//                     }
+//                 }, 'json');
+//             });
+//         }
+//     }, 'json');
+// }
+
+// function insertIntoAuctionDetail(groupId, date, cusId, customerName, value) {
+//     $.post('api/auction_files/insert_auction_list.php', {
+//         group_id: groupId,
+//         date: date,
+//         cus_id: cusId,
+//         customer_name: customerName, // Pass customer_name if needed
+//         value: value
+//     }, function (response) {
+//         if (response.status === 'success') {
+//             // Append the new row to the table
+//             let tableBody = $('#cus_mapping_table tbody');
+//             let newIndex = tableBody.find('tr').length; // Get the new index
+//             let newRowHtml = `<tr data-cus-id="${cusId}" data-cus-name="${customerName}">
+//                 <td>${newIndex + 1}</td>
+//                 <td class="customer-name" style="cursor: pointer;">${customerName}</td>
+//                 <td><input type="text" class="form-control" name="value_${newIndex}" value="${value}"></td>
+//             </tr>`;
+//             tableBody.append(newRowHtml);
+
+//             tableBody.find('input').on('change', function () {
+//                 $(this).prop('readonly', true);
+//             });
+
+//             // Add click event to the new customer name
+//             tableBody.find('.customer-name:last').on('click', function () {
+//                 let tr = $(this).closest('tr');
+//                 let customerName = tr.data('cus-name');
+//                 let value = tr.find('input').val();
+
+//                 // Fetch cus_id using customer name
+//                 $.post('api/auction_files/get_cus_id.php', {
+//                     group_id: groupId,
+//                     customer_name: customerName // Pass customer_name
+//                 }, function (response) {
+//                     if (response.status === 'success') {
+//                         let cusId = response.cus_id;
+//                         insertIntoAuctionDetail(groupId, date, cusId, customerName, value);
+//                     }
+//                 }, 'json');
+//             });
+//         }
+//     }, 'json');
+// }
+
 function getCusNameTable(groupId, date) {
-    $.post('api/auction_files/get_auction_list.php', { group_id: groupId, date: date }, function (response) {
-        if (response.status === 'success') {
-            let tableBody = $('#cus_mapping_table tbody');
-            tableBody.empty(); // Clear any existing rows
+        $.post('api/auction_files/get_auction_list.php', { group_id: groupId, date: date }, function (response) {
+            if (response.status === 'success') {
+                let tableBody = $('#cus_mapping_table tbody');
+                tableBody.empty(); // Clear any existing rows
+    
+                $.each(response.data, function (index, row) {
+                    let customerName = `${row.first_name} ${row.last_name}`;
+                    let rowHtml = `<tr data-cus-id="${row.id}" data-cus-name="${customerName}">
+                        <td>${index + 1}</td>
+                        <td class="customer-name" style="cursor: pointer;">${customerName}</td>
+                        <td><input type="text" class="form-control" name="value_${index}" value=""></td>
+                    </tr>`;
+                    tableBody.append(rowHtml);
+                });
+    
+                tableBody.find('input').on('change', function () {
+                    $(this).prop('readonly', true);
+                });
+    
+                // Add click event to customer names
+                tableBody.find('.customer-name').on('click', function () {
+                    let tr = $(this).closest('tr');
+                    let customerName = tr.data('cus-name');
 
-            $.each(response.data, function (index, row) {
-                let customerName = `${row.first_name} ${row.last_name}`;
-                let rowHtml = `<tr data-cus-id="${row.id}" data-cus-name="${customerName}">
-                    <td>${index + 1}</td>
-                    <td class="customer-name" style="cursor: pointer;">${customerName}</td>
-                    <td><input type="text" class="form-control" name="value_${index}" value=""></td>
-                </tr>`;
-                tableBody.append(rowHtml);
-            });
-
-            tableBody.find('input').on('change', function () {
-                $(this).prop('readonly', true);
-            });
-
-            // Add click event to customer names
-            tableBody.find('.customer-name').on('click', function () {
-                let tr = $(this).closest('tr');
-                let customerName = tr.data('cus-name');
-
-                // Fetch cus_id using customer name
-                $.post('api/auction_files/get_cus_id.php', {
-                    group_id: groupId,
-                    customer_name: customerName // Pass customer_name instead of customer_id
-                }, function (response) {
-                    if (response.status === 'success') {
-                        let cusId = response.cus_id;
-                        let value = tr.find('input').val();
-                        insertIntoAuctionDetail(groupId, date, cusId, customerName, value);
-                    }
-                }, 'json');
-            });
-        }
-    }, 'json');
-}
-
-function insertIntoAuctionDetail(groupId, date, cusId, customerName, value) {
-    $.post('api/auction_files/insert_auction_list.php', {
-        group_id: groupId,
-        date: date,
-        cus_id: cusId,
-        customer_name: customerName, // Pass customer_name if needed
-        value: value
-    }, function (response) {
-        if (response.status === 'success') {
-            // Append the new row to the table
-            let tableBody = $('#cus_mapping_table tbody');
-            let newIndex = tableBody.find('tr').length; // Get the new index
-            let newRowHtml = `<tr data-cus-id="${cusId}" data-cus-name="${customerName}">
-                <td>${newIndex + 1}</td>
-                <td class="customer-name" style="cursor: pointer;">${customerName}</td>
-                <td><input type="text" class="form-control" name="value_${newIndex}" value="${value}"></td>
-            </tr>`;
-            tableBody.append(newRowHtml);
-
-            tableBody.find('input').on('change', function () {
-                $(this).prop('readonly', true);
-            });
-
-            // Add click event to the new customer name
-            tableBody.find('.customer-name:last').on('click', function () {
-                let tr = $(this).closest('tr');
-                let customerName = tr.data('cus-name');
-                let value = tr.find('input').val();
-
-                // Fetch cus_id using customer name
-                $.post('api/auction_files/get_cus_id.php', {
-                    group_id: groupId,
-                    customer_name: customerName // Pass customer_name
-                }, function (response) {
-                    if (response.status === 'success') {
-                        let cusId = response.cus_id;
-                        insertIntoAuctionDetail(groupId, date, cusId, customerName, value);
-                    }
-                }, 'json');
-            });
-        }
-    }, 'json');
-}
-
-
+                            let value = tr.find('input').val();
+                            insertIntoAuctionDetail(id);
+                    
+                });
+            }
+        }, 'json');
+    }
 function populateDates() {
     var $grpDateSelect = $('#grp_date');
     var today = new Date();

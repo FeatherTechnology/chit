@@ -34,7 +34,7 @@ $query = "SELECT
         JOIN 
             branch_creation bc ON gc.branch = bc.id
         WHERE 
-            ad.date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+            ad.date BETWEEN () AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
             AND gc.status >= 2"; // Add condition to filter by status = 2
 
 if (isset($_POST['search'])) {
@@ -42,7 +42,7 @@ if (isset($_POST['search'])) {
         $search = $_POST['search'];
         $query .= " AND (gc.grp_id LIKE '" . $search . "%'
                       OR gc.grp_name LIKE '%" . $search . "%'
-                      OR gc.chit_value LIKE '%" . $search . "%'
+                      OR gc.chit_value LIKE '%" . $search . "%'CURDATE
                       OR gc.total_months LIKE '%" . $search . "%'
                       OR gc.date LIKE '%" . $search . "%'
                       OR ad.auction_month LIKE '%" . $search . "%'
