@@ -347,7 +347,7 @@ function getCustomerName(cusId) {
     });
     $(document).on('click', '#print_cal', function () {
         // Function to format date from yyyy-mm-dd to dd-mm-yyyy
-        function formatDate(dateString) {
+        function forDate(dateString) {
             const [year, month, day] = dateString.split('-');
             return `${day}-${month}-${year}`;
         }
@@ -356,7 +356,7 @@ function getCustomerName(cusId) {
         const rawDate = $('#cal_date').val();
 
         // Format the date
-        const formattedDate = formatDate(rawDate);
+        const formattedDate = forDate(rawDate);
         const chitValue = $('#chit_value').val().replace(/,/g, ''); // Ensure no extra commas
         const commission = $('#Commission').val().replace(/,/g, '');
         const auctionValue = $('#auction_value').val().replace(/,/g, '');

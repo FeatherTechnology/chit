@@ -9,8 +9,6 @@ if (isset($_POST['group_id']) && isset($_POST['date'])) {
     $date = date('Y-m-d', strtotime($date)); // Convert the date to 'Y-m-d' format
 
     try {
-   
-
         // Prepare the SQL query
         $query = "SELECT 
                     gc.grp_name AS group_name,
@@ -19,8 +17,8 @@ if (isset($_POST['group_id']) && isset($_POST['date'])) {
                     gc.chit_value,
                     ad.auction_value,
                     (gc.chit_value * (gc.commission / 100)) AS commission,
-                    (ad.auction_value + gc.chit_value * (gc.commission / 100)) AS total_value,
-                    (ad.auction_value + gc.chit_value * (gc.commission / 100)) / gc.total_members AS chit_amount
+                    (gc.chit_value + (gc.chit_value * (gc.commission / 100)) - ad.auction_value) AS total_value,
+                    (gc.chit_value + (gc.chit_value * (gc.commission / 100)) - ad.auction_value) / gc.total_members AS chit_amount
                   FROM auction_details ad
                   JOIN group_creation gc ON ad.group_id = gc.grp_id
                   WHERE ad.group_id = :group_id AND ad.date = :date";
