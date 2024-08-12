@@ -3,65 +3,71 @@ require '../../ajaxconfig.php';
 @session_start();
 
 $response = array();
+$user_id = $_SESSION['user_id'];
 
-if (isset($_POST['group_id']) && isset($_POST['date']) && isset($_POST['cus_id']) && isset($_POST['value'])) {
-    $group_id = $_POST['group_id'];
-    $date = $_POST['date'];
-    $cus_id = $_POST['cus_id'];
-    $value = $_POST['value'];
-    $user_id = $_SESSION['user_id'];
+// Retrieve data from request
+$data = json_decode(file_get_contents('php://input'), true);
 
-    try {
-        // Convert date to yyyy-mm-dd format
-        $formattedDate = date('Y-m-d', strtotime($date));
+// Check if data is valid
+if (isset($data['data']) && is_array($data['data'])) {
+    $tableData = $data['data'];
 
-        // Fetch the auction_id from auction_details
-        $sql = "SELECT id FROM auction_details WHERE group_id = :group_id AND date = :date";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':group_id' => $group_id,
-            ':date' => $formattedDate
-        ]);
+    // Prepare SQL statement with corrected syntax
+    $stmt = $pdo->prepare("INSERT INTO auction_modal (auction_id, group_id, date, cus_name, value, inserted_login_id, created_on) VALUES (:auction_id, :group_id, :date, :cus_name, :value, :user_id, NOW())");
 
-        $auction = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($auction) {
-            $auction_id = $auction['id'];
+    foreach ($tableData as $entry) {
+        // Format date
+        $formattedDate = date('Y-m-d', strtotime($entry['date']));
+        
+        // Use cus_id as cus_name
+        $cusName = $entry['cus_id']; // Store cus_id in cus_name
+        
+        // Bind values and execute
+        $stmt->bindValue(':auction_id', $entry['id']); // Ensure 'id' is your auction_id
+        $stmt->bindValue(':group_id', $entry['group_id']);
+        $stmt->bindValue(':date', $formattedDate);
+        $stmt->bindValue(':cus_name', $cusName);
+        $stmt->bindValue(':value', $entry['value']);
+        $stmt->bindValue(':user_id', $user_id);
 
-            // Prepare SQL statement to insert into auction_modal
-            $sql = "INSERT INTO auction_modal (auction_id, group_id, date, cus_name, value, inserted_login_id) 
-                    VALUES (:auction_id, :group_id, :date, :cus_id, :value, :insert_login_id)";
-            $stmt = $pdo->prepare($sql);
-
-            // Execute the SQL statement
-            $stmt->execute([
-                ':auction_id' => $auction_id,
-                ':group_id' => $group_id,
-                ':date' => $formattedDate,
-                ':cus_id' => $cus_id,
-                ':value' => $value,
-                ':insert_login_id' => $user_id
-            ]);
-
-            if ($stmt->rowCount() > 0) {
-                $response['status'] = 'success';
-                $response['message'] = 'Row inserted successfully.';
-            } else {
-                $response['status'] = 'error';
-                $response['message'] = 'Failed to insert row.';
-            }
-        } else {
-            $response['status'] = 'error';
-            $response['message'] = 'No auction found for the provided group and date.';
+        if (!$stmt->execute()) {
+            echo json_encode(['success' => false, 'message' => 'Failed to insert data into auction_modal.']);
+            exit;
         }
-    } catch (PDOException $e) {
-        $response['status'] = 'error';
-        $response['message'] = 'Database error: ' . $e->getMessage();
     }
-} else {
-    $response['status'] = 'error';
-    $response['message'] = 'Required parameters are missing.';
-}
 
-$pdo = null; // Close Connection
-echo json_encode($response);
+    // Find the maximum value and its corresponding cus_name
+    $group_id = $tableData[0]['group_id']; // Assuming all entries have the same group_id
+    $date = $formattedDate; // Assuming all entries have the same date
+
+    $maxQuery = "SELECT cus_name, value FROM auction_modal WHERE group_id = ? AND date = ? ORDER BY value DESC LIMIT 1";
+    $stmt = $pdo->prepare($maxQuery);
+    $stmt->execute([$group_id, $date]);
+    $maxResult = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($maxResult) {
+        $max_value = $maxResult['value'];
+        $cus_name = $maxResult['cus_name'];
+
+        // Update the auction_details table
+        $updateDetailsQuery = "UPDATE auction_details SET auction_value = ?, cus_name = ?, status = 2 WHERE group_id = ? AND date = ?";
+        $stmt = $pdo->prepare($updateDetailsQuery);
+        if (!$stmt->execute([$max_value, $cus_name, $group_id, $date])) {
+            echo json_encode(['success' => false, 'message' => 'Failed to update auction_details table.']);
+            exit;
+        }
+
+        // Update status to 3 in group_creation table
+        $updateGroupQuery = "UPDATE group_creation SET status = 3 WHERE grp_id = ?";
+        $stmt = $pdo->prepare($updateGroupQuery);
+        if (!$stmt->execute([$group_id])) {
+            echo json_encode(['success' => false, 'message' => 'Failed to update group_creation table.']);
+            exit;
+        }
+    }
+
+    echo json_encode(['success' => true]);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid input data.']);
+}
 ?>

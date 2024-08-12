@@ -17,6 +17,7 @@ $column = array(
     'gc.id'
 );
 
+// Adjusted the query to remove the date condition and only filter by gc.status
 $query = "SELECT 
             gc.id,
             gc.grp_id,
@@ -34,28 +35,27 @@ $query = "SELECT
         JOIN 
             branch_creation bc ON gc.branch = bc.id
         WHERE 
-            ad.date BETWEEN () AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
-            AND gc.status >= 2"; // Add condition to filter by status = 2
+            gc.status BETWEEN 2 AND 3";
 
-if (isset($_POST['search'])) {
-    if ($_POST['search'] != "") {
-        $search = $_POST['search'];
-        $query .= " AND (gc.grp_id LIKE '" . $search . "%'
+if (isset($_POST['search']) && $_POST['search'] != "") {
+    $search = $_POST['search'];
+    $query .= " AND (gc.grp_id LIKE '%" . $search . "%'
                       OR gc.grp_name LIKE '%" . $search . "%'
-                      OR gc.chit_value LIKE '%" . $search . "%'CURDATE
+                      OR gc.chit_value LIKE '%" . $search . "%'
                       OR gc.total_months LIKE '%" . $search . "%'
                       OR gc.date LIKE '%" . $search . "%'
                       OR ad.auction_month LIKE '%" . $search . "%'
                       OR bc.branch_name LIKE '%" . $search . "%'
                       OR ad.status LIKE '%" . $search . "%')";
-    }
 }
-
-if (isset($_POST['order'])) {
-    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
-} else {
-    $query .= ' ';
-}
+$query .= " GROUP BY gc.grp_id ";
+$query .= " ORDER BY 
+    CASE 
+        WHEN ad.status = 1 THEN 0
+        WHEN ad.status = 2 THEN 1
+        ELSE 2
+    END, 
+    " . $column[$_POST['order']['0']['column']] . " " . $_POST['order']['0']['dir'];
 
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
@@ -77,7 +77,7 @@ foreach ($result as $row) {
     $sub_array[] = $sno++;
     $sub_array[] = isset($row['grp_id']) ? $row['grp_id'] : '';
     $sub_array[] = isset($row['grp_name']) ? $row['grp_name'] : '';
-    $sub_array[] = isset($row['chit_value']) ? $row['chit_value'] : '';
+    $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
     $sub_array[] = isset($row['date']) ? $row['date'] : '';
     $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
@@ -91,7 +91,9 @@ foreach ($result as $row) {
 
 function count_all_data($pdo)
 {
-    $query = "SELECT COUNT(*) FROM group_creation WHERE status = 2"; // Add condition to count only records with status = 2
+    // Adjusted the count query to remove the date condition and only filter by gc.status
+    $query = "SELECT COUNT(*) 
+              FROM group_creation";
     $statement = $pdo->prepare($query);
     $statement->execute();
     return $statement->fetchColumn();
@@ -105,4 +107,26 @@ $output = array(
 );
 
 echo json_encode($output);
+
+function moneyFormatIndia($num) {
+    $explrestunits = "" ;
+    if(strlen($num)>3){
+        $lastthree = substr($num, strlen($num)-3, strlen($num));
+        $restunits = substr($num, 0, strlen($num)-3); // extracts the last three digits
+        $restunits = (strlen($restunits)%2 == 1) ? "0".$restunits : $restunits; 
+        $expunit = str_split($restunits, 2);
+        for($i=0; $i < sizeof($expunit); $i++){
+            // creates each of the 2 unit pairs, adds a comma
+            if($i==0){
+                $explrestunits .= (int)$expunit[$i].","; // if first value , convert into integer
+            }else{
+                $explrestunits .= $expunit[$i].",";
+            }
+        }
+        $thecash = $explrestunits.$lastthree;
+    } else {
+        $thecash = $num;
+    }
+    return $thecash;
+}
 ?>

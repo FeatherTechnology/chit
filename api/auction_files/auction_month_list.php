@@ -35,27 +35,30 @@ JOIN
     branch_creation bc ON gc.branch = bc.id
 WHERE 
     MONTH(ad.date) = MONTH(CURDATE()) AND
-    YEAR(ad.date) = YEAR(CURDATE())  AND gc.status >= 2";
+    YEAR(ad.date) = YEAR(CURDATE()) AND
+    gc.status BETWEEN 2 AND 3";
 
-if (isset($_POST['search'])) {
-    if ($_POST['search'] != "") {
-        $search = $_POST['search'];
-        $query .= " AND (gc.grp_id LIKE '" . $search . "%'
-                      OR gc.grp_name LIKE '%" . $search . "%'
-                      OR gc.chit_value LIKE '%" . $search . "%'
-                      OR gc.total_months LIKE '%" . $search . "%'
-                      OR gc.date LIKE '%" . $search . "%'
-                      OR ad.auction_month LIKE '%" . $search . "%'
-                      OR bc.branch_name LIKE '%" . $search . "%'
-                      OR ad.status LIKE '%" . $search . "%')";
-    }
+// Add search functionality
+if (isset($_POST['search']) && $_POST['search'] != "") {
+    $search = $_POST['search'];
+    $query .= " AND (gc.grp_id LIKE '%" . $search . "%'
+                  OR gc.grp_name LIKE '%" . $search . "%'
+                  OR gc.chit_value LIKE '%" . $search . "%'
+                  OR gc.total_months LIKE '%" . $search . "%'
+                  OR gc.date LIKE '%" . $search . "%'
+                  OR ad.auction_month LIKE '%" . $search . "%'
+                  OR bc.branch_name LIKE '%" . $search . "%'
+                  OR ad.status LIKE '%" . $search . "%')";
 }
 
-if (isset($_POST['order'])) {
-    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
-} else {
-    $query .= ' ';
-}
+// Modify ordering logic to sort status `1` first and `2` last
+$query .= " ORDER BY 
+    CASE 
+        WHEN ad.status = 1 THEN 0
+        WHEN ad.status = 2 THEN 1
+        ELSE 2
+    END, 
+    " . $column[$_POST['order']['0']['column']] . " " . $_POST['order']['0']['dir'];
 
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
@@ -72,25 +75,48 @@ $result = $statement->fetchAll();
 
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];
+
+// Function to format number in Indian format
+function moneyFormatIndia($num) {
+    $explrestunits = "";
+    if(strlen($num) > 3) {
+        $lastthree = substr($num, strlen($num)-3, strlen($num));
+        $restunits = substr($num, 0, strlen($num)-3); // extracts the last three digits
+        $restunits = (strlen($restunits)%2 == 1) ? "0".$restunits : $restunits; 
+        $expunit = str_split($restunits, 2);
+        for($i = 0; $i < sizeof($expunit); $i++) {
+            // creates each of the 2 unit pairs, adds a comma
+            if($i == 0) {
+                $explrestunits .= (int)$expunit[$i] . ","; // if first value , convert into integer
+            } else {
+                $explrestunits .= $expunit[$i] . ",";
+            }
+        }
+        $thecash = $explrestunits . $lastthree;
+    } else {
+        $thecash = $num;
+    }
+    return $thecash;
+}
+
 foreach ($result as $row) {
     $sub_array = array();
     $sub_array[] = $sno++;
     $sub_array[] = isset($row['grp_id']) ? $row['grp_id'] : '';
     $sub_array[] = isset($row['grp_name']) ? $row['grp_name'] : '';
-    $sub_array[] = isset($row['chit_value']) ? $row['chit_value'] : '';
+    $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
     $sub_array[] = isset($row['date']) ? $row['date'] : '';
     $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
     $sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
     $sub_array[] = isset($row['status']) ? $auction_status[$row['status']] : '';
 
-    $action = " <button class='btn btn-primary auctionListBtn' value='" .  $row['grp_id'] . "'>&nbsp;View</button>";
+    $action = "<button class='btn btn-primary auctionListBtn' value='" . $row['grp_id'] . "'>&nbsp;View</button>";
     $sub_array[] = $action;
     $data[] = $sub_array;
 }
 
-function count_all_data($pdo)
-{
+function count_all_data($pdo) {
     $query = "SELECT COUNT(*) FROM group_creation";
     $statement = $pdo->prepare($query);
     $statement->execute();
@@ -105,3 +131,4 @@ $output = array(
 );
 
 echo json_encode($output);
+?>

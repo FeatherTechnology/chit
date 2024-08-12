@@ -234,7 +234,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="chit_value">Chit Value</label>
-                                    <input type="number" class="form-control" name="chit_value" id="chit_value" tabindex="1" readonly>
+                                    <input class="form-control" name="chit_value" id="chit_value" tabindex="1" readonly>
                                     <input type="hidden" id="addchit_value" value='0'>
                                 </div>
                             </div>

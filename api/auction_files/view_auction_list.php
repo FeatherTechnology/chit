@@ -18,17 +18,16 @@ $sql = "SELECT
     ad.low_value,
     ad.high_value,
     ad.status,
-   ad.cus_name, -- Concatenate first and last name
+    COALESCE(CONCAT(cc.first_name, ' ', cc.last_name), '') AS cus_name,
     ad.auction_value
 FROM auction_details ad
-
+LEFT JOIN customer_creation cc ON ad.cus_name = cc.id
 WHERE ad.group_id = :group_id 
 AND (
     YEAR(ad.date) < :currentYear
     OR (YEAR(ad.date) = :currentYear AND MONTH(ad.date) <= :currentMonth)
 )
 ORDER BY ad.auction_month DESC";
-
 try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
@@ -41,7 +40,7 @@ try {
         while ($auctionInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
             // Concatenate group_id, date, and id to form uniqueDetail
             $uniqueDetail = $auctionInfo['group_id'] . '_' . $auctionInfo['date'] . '_' . $auctionInfo['id'];
-            $uniqueValue = $auctionInfo['group_id'] . '_' . $auctionInfo['date'] ;
+            $uniqueValue = $auctionInfo['group_id'] . '_' . $auctionInfo['date'];
             $uniqueMonth = $auctionInfo['group_id'] . '_' . $auctionInfo['auction_month'];
 
             // Initialize 'action' key with an empty string
@@ -66,3 +65,4 @@ try {
 }
 
 $pdo = null; // Close Connection.
+?>
