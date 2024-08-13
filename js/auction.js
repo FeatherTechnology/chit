@@ -33,12 +33,6 @@ $(document).ready(function () {
         let groupName = values[1]; // Second part is group name
         let chitValue = values[2]; // Third part is chit value
 
-        // Ensure chitValue is a number or a string that can be converted to a number
-        if (chitValue === undefined || chitValue === null) {
-            console.error('Chit value is undefined or null');
-            return; // Stop execution if chitValue is not available
-        }
-
         // Convert chitValue to a string before formatting
         const formattedChitValue = moneyFormatIndia(chitValue.toString());
 
@@ -144,33 +138,12 @@ $(document).ready(function () {
         var formattedHighValue = moneyFormatIndia(highValue);
     
         if (inputValue < lowValue || inputValue > highValue) {
-            swalError('Error', `Please enter a value between ${formattedLowValue} and ${formattedHighValue}.`);
+            swalError('Warning', `Please enter a value between ${formattedLowValue} and ${formattedHighValue}.`);
             $(this).val(''); // Clear the invalid value
         } else {
             $(this).prop('readonly', true); // Make the input readonly if the value is valid
         }
     });
-
-    // $(document).on('change', '#cus_mapping_table tbody input[type="number"]', function () {
-    //         $(this).prop('readonly', true); // Make the input readonly if the value is valid
-    // });
-    
-    // $(document).on('keyup', '#cus_mapping_table tbody input[type="number"]', function () {
-    //     var inputValue = parseFloat($(this).val());
-    //     var submitBtn = $('#submit_cus_map');
-    //     var lowValue = parseFloat(submitBtn.attr('data-low_value'));
-    //     var highValue = parseFloat(submitBtn.attr('data-high_value'));
-    
-    //     // Format lowValue and highValue using moneyFormatIndia
-    //     var formattedLowValue = moneyFormatIndia(lowValue);
-    //     var formattedHighValue = moneyFormatIndia(highValue);
-    
-    //     if (inputValue < lowValue || inputValue > highValue) {
-    //         swalError('Error', `Please enter a value between ${formattedLowValue} and ${formattedHighValue}.`);
-    //         $(this).val(''); // Clear the invalid value
-    //     } 
-    // });
-
 
     $(document).on('click', '.auction_close', function () {
         let group_id = $(this).attr('data-group_id');
@@ -277,7 +250,8 @@ $(document).ready(function () {
                 auction_month: auctionMonth
             },
             success: function (response) {
-                swalSuccess('Success', "Date Postponed successfully");
+                swalSuccess('Success', "Date Postponed Successfully");
+                $('#add_pos_modal').modal('hide');
                 fetchAuctionDetails(groupId)
             },
 

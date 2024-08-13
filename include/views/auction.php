@@ -212,7 +212,7 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
-                    <button name="print_cal" id="print_cal" class="btn btn-primary" tabindex="1" style="margin-left: 650px;">&nbsp;Download</button>
+                    <button name="print_cal" id="print_cal" class="btn btn-primary" tabindex="1" style="margin-left: 650px;"><span class="icon-download"></span>&nbsp;Download</button>
                     <form id="Calculation_form">
                         <div class="row">
                             <input type="hidden" name="bank_id" id='bank_id'>
@@ -282,5 +282,5 @@
         </div>
     </div>
 </div>
-<!--Bank Info Modal End-->
+
 <!------------------------------------------------------------Calculation Modal End------------------------------------------------------------------------>
