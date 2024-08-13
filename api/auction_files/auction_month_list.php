@@ -110,8 +110,8 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
     $sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
     $sub_array[] = isset($row['status']) ? $auction_status[$row['status']] : '';
-
-    $action = "<button class='btn btn-primary auctionListBtn' value='" . $row['grp_id'] . "'>&nbsp;View</button>";
+    $unique = $row['grp_id'] . '_' . $row['grp_name'] . '_' . $row['chit_value'];
+    $action = "<button class='btn btn-primary auctionListBtn'  data-value='" . $unique. "'>&nbsp;View</button>";
     $sub_array[] = $action;
     $data[] = $sub_array;
 }

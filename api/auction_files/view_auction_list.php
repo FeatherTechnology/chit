@@ -39,7 +39,7 @@ try {
     if ($stmt->rowCount() > 0) {
         while ($auctionInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
             // Concatenate group_id, date, and id to form uniqueDetail
-            $uniqueDetail = $auctionInfo['group_id'] . '_' . $auctionInfo['date'] . '_' . $auctionInfo['id'];
+            $uniqueDetail = $auctionInfo['group_id'] . '_' . $auctionInfo['date'] . '_' . $auctionInfo['id']. '_' . $auctionInfo['low_value']. '_' . $auctionInfo['high_value'];
             $uniqueValue = $auctionInfo['group_id'] . '_' . $auctionInfo['date'];
             $uniqueMonth = $auctionInfo['group_id'] . '_' . $auctionInfo['auction_month'];
 
