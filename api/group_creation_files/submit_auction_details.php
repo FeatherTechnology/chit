@@ -25,7 +25,7 @@ try {
             $formatDate = new DateTime($formattedDate);
             $formattedDate = $formatDate->format('Y-m-d');
 
-            $insertQry = $pdo->prepare("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value,status,insert_login_id) VALUES (?, ?, ?, ?, ?,?,?)");
+            $insertQry = $pdo->prepare("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value, status, insert_login_id, created_on) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
             $insertQry->execute([$groupId, $formattedDate, $auctionMonth, $lowValue, $highValue,1,$user_id]);
         }
 
