@@ -6,8 +6,9 @@ $(document).ready(function () {
         'branch_creation': 'master',
         'customer_creation': 'master',
         'group_creation': 'master',
-        'bank_creation': 'master',
-        'user_creation': 'master'
+        'bank_creation': 'admin',
+        'user_creation': 'admin',
+        'auction': 'auction'
     };
 
     const current_page = localStorage.getItem('currentPage');
