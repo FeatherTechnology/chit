@@ -31,7 +31,7 @@
     </div>
 </div>
 <!----------------------------- CARD END-Settlement TABLE ------------------------------>
-<div id="settlement_content"><!--- style="display: none;"-->
+<div id="settlement_content" style="display: none;">
     <form id="settlement_screen" name="settlement_screen" method="post" enctype="multipart/form-data">
         <input type="hidden" id="groupid">
         <!-- Row start -->
@@ -47,49 +47,49 @@
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="group_id">Group ID</label>
-                                    <input type="text" class="form-control" id="group_id" name="group_id" readonly placeholder="Enter Group ID" tabindex="1" readonly>
+                                    <input type="text" class="form-control" id="group_id" name="group_id" readonly tabindex="1" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="group_name">Group Name</label>
-                                    <input type="text" class="form-control" id="group_name" name="group_name" placeholder="Enter Group Name" tabindex="2" readonly>
+                                    <input type="text" class="form-control" id="group_name" name="group_name"  tabindex="2" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="chit_value">Chit Value</label>
-                                    <input type="number" class="form-control" id="chit_value" name="chit_value" placeholder="Enter Chit Value" tabindex="3" readonly>
+                                    <input type="text" class="form-control" id="chit_value" name="chit_value" tabindex="3" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="commission">Commission</label>
-                                    <input type="number" class="form-control" id="commission" name="commission" placeholder="Enter Commission" tabindex="4" readonly>
+                                    <input type="text" class="form-control" id="commission" name="commission" tabindex="4" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="total_members">Total Members</label>
-                                    <input type="number" class="form-control" id="total_members" name="total_members" placeholder="Enter Total Members" tabindex="5" readonly>
+                                    <input type="number" class="form-control" id="total_members" name="total_members"  tabindex="5" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="total_month">Total Month</label>
-                                    <input type="number" class="form-control" id="total_month" name="total_month" placeholder="Enter Total Month" tabindex="6" readonly>
+                                    <input type="number" class="form-control" id="total_month" name="total_month" tabindex="6" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="start_month">Start Month</label>
-                                    <input type="month" class="form-control" id="start_month" name="start_month" placeholder="Enter Start Month" tabindex="7" readonly>
+                                    <input type="month" class="form-control" id="start_month" name="start_month" tabindex="7" readonly>
                                 </div>
                             </div>
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
                                     <label for="end_month">End Month</label>
-                                    <input type="month" class="form-control" id="end_month" name="end_month" placeholder="Enter End Month" tabindex="8" readonly>
+                                    <input type="month" class="form-control" id="end_month" name="end_month"  tabindex="8" readonly>
                                 </div>
                             </div>
                         </div>
@@ -165,7 +165,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Fields -->
                             <div class="col-4">
                                 <div class="form-group">
                                     <label for="settle_date">Settlement Date</label>
@@ -181,7 +180,7 @@
                             <div class="col-4">
                                 <div class="form-group">
                                     <label for="settle_balance">Settlement Balance</label>
-                                    <input type="number" class="form-control" id="settle_balance" name="settle_balance" tabindex="17" readonly>
+                                    <input type="text" class="form-control" id="settle_balance" name="settle_balance" tabindex="17" readonly>
                                 </div>
                             </div>
                             <div class="col-4">
@@ -205,7 +204,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-4" id="bank_container" style="display: none;">
+                        </div>
+                        <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="bank_container" style="display: none;">
                                 <div class="form-group">
                                     <label for="bank_name">Bank Name</label>
                                     <select class="form-control" id="bank_name" name="bank_name" tabindex="20">
@@ -214,8 +215,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Row for Cash -->
                         <div class="row">
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cash_container" style="display: none;">
                                 <div class="form-group">
@@ -224,8 +223,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Other fields -->
                         <div class="row">
                             <div class="col-4" id="cheque_no_container" style="display: none;">
                                 <div class="form-group">
@@ -266,7 +263,7 @@
                             <div class="col-4" id="balance_remark_container" style="display: none;">
                                 <div class="form-group">
                                     <label for="balance_amount">Balance Amount</label>
-                                    <input type="number" class="form-control" id="balance_amount" name="balance_amount" readonly tabindex="27">
+                                    <input type="text" class="form-control" id="balance_amount" name="balance_amount" readonly tabindex="27">
                                 </div>
                             </div>
                         </div>
