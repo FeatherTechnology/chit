@@ -116,6 +116,8 @@ $(document).ready(function () {
                     $('.settlement_table_content').show();
                     $('#settlement_content,.back_btn').hide();
                     getSettlementTable();
+                    $('#groupid').val('');
+                $('#settlement_screen').trigger('reset');
                 } else {
                     swalError('Warning', 'Settlement Failed.');
                 }
@@ -298,9 +300,8 @@ function calculateBalance() {
 function isFormDataValid(settleInfo) {
     let isValid = true;
     // Validate common fields
-    isValid = validateField(settleInfo.payment_type, 'payment_type') && isValid;
     isValid = validateField(settleInfo.gua_name, 'gua_name') && isValid;
-
+    isValid = validateField(settleInfo.payment_type, 'payment_type') && isValid;
     if (settleInfo.payment_type == "1") {
         // Check if at least one of the fields is filled
         let isCashFilled = validateField(settleInfo.settle_cash, 'settle_cash');
@@ -312,7 +313,6 @@ function isFormDataValid(settleInfo) {
             resetFieldBorders(['settle_cash', 'cheque_val', 'transaction_val']);
         } else {
             isValid = false;
-            swalError('Warning', 'Please fill out at least one of the payment fields (cash, cheque, or transaction).');
         }
     } else if (settleInfo.payment_type == "2") {
         isValid = validateField(settleInfo.settle_type, 'settle_type') && isValid;
