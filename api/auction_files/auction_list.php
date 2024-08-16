@@ -2,7 +2,7 @@
 require '../../ajaxconfig.php';
 @session_start();
 $user_id = $_SESSION['user_id'];
-$auction_status = [1 => 'In Auction', 2 => 'Finished'];
+$auction_status = [1 => 'In Auction', 2 => 'Finished',3 =>'Finished'];
 
 $column = array(
     'gc.id',
