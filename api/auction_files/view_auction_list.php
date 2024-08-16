@@ -50,7 +50,7 @@ try {
                 $auctionInfo['action'] .= "<button class='btn btn-primary auctionBtn' data-value='" . $uniqueDetail . "' >&nbsp;Auction</button>
                                 <button class='btn btn-primary postponeBtn' data-value='" . $uniqueMonth . "'>&nbsp;Postpone</button>";
             }
-            if ($auctionInfo['status'] == '2') {
+            if ($auctionInfo['status'] >= '2') {
                 $auctionInfo['action'] .= "<button class='btn btn-primary viewBtn' data-value='" . $uniqueValue . "'>&nbsp;View</button>
                                             <button class='btn btn-primary calculateBtn' data-value='" . $uniqueValue . "'>&nbsp;Calculation</button>";
             }

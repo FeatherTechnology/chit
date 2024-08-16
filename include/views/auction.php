@@ -200,7 +200,6 @@
 </div>
 <!---------------------------------------------------------View Modal End----------------------------------------------------------------------------------------->
 <!---------------------------------------------------------CalCulation Modal Start--------------------------------------------------------------------------->
-<!--Bank Info Modal Start-->
 <div class="modal fade" id="add_Calculation_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
         <div class="modal-content" style="background-color: white">

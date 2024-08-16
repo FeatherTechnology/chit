@@ -542,7 +542,7 @@ function calculationModal(groupId, date) {
     // Split the uniqueValue into parts
 
     $.ajax({
-        url: 'api/auction_files/fetch_calculation_data.php', // URL to the server-side script that fetches the data
+        url: 'api/auction_files/close_fetch_data.php', // URL to the server-side script that fetches the data
         type: 'POST',
         data: {
             group_id: groupId, // Send the group_id part
