@@ -12,6 +12,7 @@
                             <thead>
                                 <tr>
                                     <th>S.No.</th>
+                                    <th>Group ID</th>
                                     <th>Customer ID</th>
                                     <th>Customer Name</th>
                                     <th>Mobile No</th>
@@ -134,7 +135,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <td></td>
+                                            <!-- <td></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
@@ -142,7 +143,7 @@
                                             <td></td>
                                             <td></td>
                                             <td><button type="button" class="btn btn-primary" id="add_due" name="add_due" data-toggle="modal" data-target="#due_chart_model" tabindex='16'>&nbsp;Due</button><button type="button" class="btn btn-primary" id="commitment_chart" name="commitment_chart" data-toggle="modal" data-target="#commitment_chart_model" tabindex='16'><span class="icon-add"></span>&nbsp;Commitment</button></td>
-                                            <td><button type="button" class="btn btn-primary" id="add_pay" name="add_pay" tabindex='16'>&nbsp;Pay</button><button type="button" class="btn btn-primary" id="add_commitment" name="add_commitment" data-toggle="modal" data-target="#add_commitment_modal" tabindex='16'><span class="icon-add"></span>&nbsp;Commitment</button></td>
+                                            <td><button type="button" class="btn btn-primary" id="add_pay" name="add_pay" tabindex='16'>&nbsp;Pay</button><button type="button" class="btn btn-primary" id="add_commitment" name="add_commitment" data-toggle="modal" data-target="#add_commitment_modal" tabindex='16'><span class="icon-add"></span>&nbsp;Commitment</button></td> -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -266,7 +267,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="myLargeModalLabel">Add Commitment</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeFineChartModal()">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeChartsModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -306,7 +307,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeFineChartModal()">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()">Close</button>
             </div>
         </div>
     </div>

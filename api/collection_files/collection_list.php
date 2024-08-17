@@ -7,7 +7,8 @@ include 'collectionStatus.php';
 $collectionSts = new CollectionStsClass($pdo);
 
 $column = array(
-    'ad.id',
+    'cc.id',
+    'ad.group_id',
     'cc.cus_id',
     'cus_name',
     'cc.mobile1',
@@ -15,36 +16,52 @@ $column = array(
     'occupations',
     'status',
     'gc.grace_period',
-    'ad.id'
+    'cc.id'
 );
 
 $query = "SELECT 
-            ad.id,
-            ad.group_id,
-            cc.cus_id,
-            CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
-            cc.mobile1, 
-            pl.place,
-            (SELECT GROUP_CONCAT(sc.occupation SEPARATOR ', ')
-                FROM source sc 
-                WHERE sc.cus_id = cc.cus_id
-            ) AS occupations,
-            gc.grace_period,
-            ad.date,              -- Add date column
-            ad.chit_amount
-        FROM 
-            auction_details ad
-         LEFT JOIN 
-         group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
-       LEFT JOIN 
-            customer_creation cc ON gcm.cus_id= cc.id 
-       LEFT JOIN 
-            place pl ON cc.place = pl.id
-        LEFT JOIN
-             group_creation gc ON ad.group_id = gc.grp_id      
-        WHERE 
-            ad.status BETWEEN 2 AND 3";
-
+    cc.id,
+    ad.group_id,
+    cc.cus_id,
+    CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
+    cc.mobile1, 
+    pl.place,
+    (SELECT GROUP_CONCAT(sc.occupation SEPARATOR ', ') 
+     FROM source sc 
+     WHERE sc.cus_id = cc.cus_id) AS occupations,
+    gc.chit_value,
+    gc.grace_period,
+    ad.date,              
+    ad.chit_amount
+FROM 
+    auction_details ad
+LEFT JOIN 
+    group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
+LEFT JOIN 
+    customer_creation cc ON gcm.cus_id = cc.id 
+LEFT JOIN 
+    place pl ON cc.place = pl.id
+LEFT JOIN
+    group_creation gc ON ad.group_id = gc.grp_id
+INNER JOIN (
+    SELECT 
+        cc.id AS cus_id,
+        MAX(gc.chit_value) AS max_chit_value
+    FROM 
+        auction_details ad
+    LEFT JOIN 
+        group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
+    LEFT JOIN 
+        customer_creation cc ON gcm.cus_id = cc.id
+    LEFT JOIN 
+        group_creation gc ON ad.group_id = gc.grp_id
+    WHERE 
+        ad.status IN (2, 3)
+    GROUP BY 
+        cc.id
+) AS subquery ON cc.id = subquery.cus_id AND gc.chit_value = subquery.max_chit_value
+WHERE 
+    ad.status IN (2, 3)";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
@@ -55,17 +72,13 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
                       OR (SELECT GROUP_CONCAT(sc.occupation SEPARATOR ', ') 
                           FROM source sc 
                           WHERE sc.cus_id = cc.cus_id
-                      ) LIKE '%" . $search . "%'
-                      OR cl.coll_status LIKE '%" . $search . "%')";
+                      ) LIKE '%" . $search . "%')";
 }
 
-if (isset($_POST['order'])) {
-    $column_index = $_POST['order']['0']['column'];
-    $column_direction = $_POST['order']['0']['dir'];
-    $query .= " ORDER BY " . $column[$column_index] . ' ' . $column_direction;
-} else {
-    $query .= " ORDER BY ad.id DESC";
-}
+$query .= " GROUP BY 
+    cc.cus_id, ad.group_id
+ORDER BY 
+    max_chit_value DESC, ad.group_id, cc.cus_id";
 
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
@@ -85,24 +98,26 @@ $data = [];
 foreach ($result as $row) {
     $sub_array = array();
     $sub_array[] = $sno++;
+    $sub_array[] = isset($row['group_id']) ? $row['group_id'] : '';
     $sub_array[] = isset($row['cus_id']) ? $row['cus_id'] : '';
     $sub_array[] = isset($row['cus_name']) ? $row['cus_name'] : '';
     $sub_array[] = isset($row['mobile1']) ? $row['mobile1'] : '';
     $sub_array[] = isset($row['place']) ? $row['place'] : '';
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
-    
+
     // Fetch status using the updated method
-    $chit_amount = isset($row['chit_amount']) ? $row['chit_amount'] : 0; // Default to 0 if not set
-    $auction_month = isset($row['auction_month']) ? $row['auction_month'] :0;
+    $chit_amount = isset($row['chit_amount']) ? $row['chit_amount'] : 0;
+    $auction_month = isset($row['auction_month']) ? $row['auction_month'] : 0;
     $status = $collectionSts->updateCollectionStatus($row['id'], $row['group_id'], $row['cus_id'], $auction_month, $chit_amount);
     $sub_array[] = $status;
 
-    $sub_array[] = isset($row['grace_period']) ? $row['grace_period'] : '';
+    $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0; 
+    $date = isset($row['date']) ? $row['date'] : ''; 
+    
     $due_date = date('Y-m-d', strtotime($date));
+    $grace_start_date = $due_date; 
     $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
-    $grace_start_date = $due_date; // Grace period starts from the due date
 
-    // Fetch payment date from the collection table
     $payment_query = "SELECT collection_date FROM collection 
                       WHERE auction_id = :auction_id AND group_id = :group_id AND cus_id = :cus_id 
                       AND auction_month = :auction_month";
@@ -120,31 +135,29 @@ foreach ($result as $row) {
     if ($collection_date) {
         $collection_date = date('Y-m-d', strtotime($collection_date));
         if ($collection_date < $due_date) {
-            $status_color = 'green'; // Paid before grace period
+            $status_color = 'green';
         } elseif ($collection_date > $grace_end_date) {
-            $status_color = 'red'; // Paid after grace period
+            $status_color = 'red'; 
         } else {
-            $status_color = 'orange'; // Paid during grace period
+            $status_color = 'orange'; 
         }
     } else {
         $current_date = date('Y-m-d');
         if ($current_date > $grace_end_date) {
-            $status_color = 'red'; // No payment and grace period is over
+            $status_color = 'red'; 
         } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-            $status_color = 'orange'; // Grace period is active
+            $status_color = 'orange'; 
         } else {
-            $status_color = 'red'; // Grace period is not active
+            $status_color = 'red'; 
         }
     }
 
-    // Place status color in the grace period column
     $sub_array[] = "<span style='display: inline-block; width: 10px; height: 10px; background-color: $status_color;'></span>";
 
     $action = "<button class='btn btn-primary collectionListBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
     $sub_array[] = $action;
     $data[] = $sub_array;
 }
-
 
 function count_all_data($pdo)
 {
