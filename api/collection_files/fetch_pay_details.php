@@ -60,11 +60,11 @@ if ($current_statement->rowCount() > 0) {
         'group_name' => $current_row['grp_name'],
         'auction_month' => $current_row['auction_month'],
         'date' => date('d-m-Y', strtotime($current_row['date'])),
-        'chit_value' => moneyFormatIndia($current_row['chit_value']),
-        'chit_amount' => moneyFormatIndia($current_row['chit_amount']),
-        'pending_amt' => moneyFormatIndia($next_collection_amount), // Show pending amount for the next auction
+        'chit_value' => ($current_row['chit_value']),
+        'chit_amount' => ($current_row['chit_amount']),
+        'pending_amt' => ($next_collection_amount), // Show pending amount for the next auction
         'pend_amt' => $next_collection_amount, // Hidden field value
-        'payable_amnt' => moneyFormatIndia($payable_amnt),
+        'payable_amnt' => ($payable_amnt),
         'payableAmount' => $payable_amnt // Hidden field value
     ];
 } else {

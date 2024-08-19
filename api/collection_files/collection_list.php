@@ -1,10 +1,11 @@
 <?php
-require '../../ajaxconfig.php';
 @session_start();
-$user_id = $_SESSION['user_id'];
-include 'collectionStatus.php';
+require '../../ajaxconfig.php';
 
-$collectionSts = new CollectionStsClass($pdo);
+$user_id = $_SESSION['user_id'];
+include './collection_list_sts.php';
+
+$collectionSts = new CollectStsClass($pdo);
 
 $column = array(
     'cc.id',
@@ -20,7 +21,9 @@ $column = array(
 );
 
 $query = "SELECT 
+ad.id,
     cc.id,
+    ad.id as auction_id,
     ad.group_id,
     cc.cus_id,
     CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
@@ -29,10 +32,12 @@ $query = "SELECT
     (SELECT GROUP_CONCAT(sc.occupation SEPARATOR ', ') 
      FROM source sc 
      WHERE sc.cus_id = cc.cus_id) AS occupations,
+     gcm.id as cus_mapping_id,
     gc.chit_value,
     gc.grace_period,
     ad.date,              
-    ad.chit_amount
+    ad.chit_amount,
+    ad.auction_month
 FROM 
     auction_details ad
 LEFT JOIN 
@@ -105,10 +110,8 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['place']) ? $row['place'] : '';
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
 
-    // Fetch status using the updated method
-    $chit_amount = isset($row['chit_amount']) ? $row['chit_amount'] : 0;
-    $auction_month = isset($row['auction_month']) ? $row['auction_month'] : 0;
-    $status = $collectionSts->updateCollectionStatus($row['id'], $row['group_id'], $row['cus_id'], $auction_month, $chit_amount);
+    // Fetch status using the correct method call
+    $status = $collectionSts->updateCollectStatus($row['auction_id'], $row['group_id'], $row['cus_id'], $row['auction_month'], $row['chit_amount']);
     $sub_array[] = $status;
 
     $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0; 
@@ -123,10 +126,10 @@ foreach ($result as $row) {
                       AND auction_month = :auction_month";
     $payment_stmt = $pdo->prepare($payment_query);
     $payment_stmt->execute([
-        ':auction_id' => $row['id'],
+        ':auction_id' => $row['auction_id'],
         ':group_id' => $row['group_id'],
         ':cus_id' => $row['cus_id'],
-        ':auction_month' => $date
+        ':auction_month' => $row['auction_month']
     ]);
 
     $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
@@ -151,8 +154,8 @@ foreach ($result as $row) {
             $status_color = 'red'; 
         }
     }
+    $sub_array[] = "<span style='display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: $status_color;'></span>";
 
-    $sub_array[] = "<span style='display: inline-block; width: 10px; height: 10px; background-color: $status_color;'></span>";
 
     $action = "<button class='btn btn-primary collectionListBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
     $sub_array[] = $action;

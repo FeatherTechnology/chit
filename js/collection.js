@@ -9,7 +9,7 @@ $(document).ready(function () {
         event.preventDefault();
         $('.colls-cntnr,#back_to_coll_list').show();
         $('.coll_details,#back_to_pay_list').hide();
-        
+
 
     })
 
@@ -20,27 +20,44 @@ $(document).ready(function () {
         $('#coll_main_container,#back_to_coll_list').show();
         let id = $(this).attr('value');
         $('#group_id').val(id);
-       // editGroupCreation(id)
-       viewCustomerGroups(id);
+        // editGroupCreation(id)
+        viewCustomerGroups(id);
         editCustomerCreation(id)
     })
     /////////////////////////////////////////////////////Pay Start//////////////////////////////////////////////////////////
     $(document).on('click', '.add_pay', function (event) {
         event.preventDefault();
-    
+       
         // Hide and show the appropriate sections
         $('.colls-cntnr, #back_to_coll_list').hide();
         $('.coll_details, #back_to_pay_list').show();
-    
+        collectDate();
+        
         // Extract the group and customer ID from the data attribute
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
+        
+        // Log the dataParts array to verify its content
+        console.log('Data Parts:', dataParts);
+        
         let groupId = dataParts[0];
         let customerId = dataParts[1];
-    
+        let auctionId = dataParts[2];
+        let cusMappingID = dataParts[3]; // Extract cus_mapping_id from data attribute
+        
+        console.log('Group ID:', groupId);
+        console.log('Customer ID:', customerId);
+        console.log('Auction ID:', auctionId);
+        console.log('Customer Mapping ID:', cusMappingID); // Log cusMappingID to verify
+        
+        // Check if cusMappingID is empty
+        if (!cusMappingID) {
+            console.error('Customer Mapping ID is empty');
+        }
+        
         // Make an AJAX call to fetch the details
         $.ajax({
-            url: 'api/collection_files/fetch_pay_details.php', // Create a PHP script to handle this request
+            url: 'api/collection_files/fetch_pay_details.php',
             type: 'POST',
             data: {
                 group_id: groupId,
@@ -56,20 +73,18 @@ $(document).ready(function () {
                     $('#chit_value').val(response.chit_value);
                     $('#chit_amt').val(response.chit_amount);
                     $('#pending_amt').val(response.pending_amt);
-                    $('#pend_amt').val(response.pend_amt); // Hidden field
                     $('#payable_amnt').val(response.payable_amnt);
-                    $('#payableAmount').val(response.payableAmount); // Hidden field
+                    $('#collection_amount').val('');
                 } else {
-                    alert('Failed to fetch the details. Please try again.');
+                    swalError('Warning', 'Failed to save the collection details');
                 }
             },
-            error: function () {
-                alert('An error occurred while fetching the details. Please try again.');
-            }
+           
         });
+    
         $('#submit_collection').click(function (event) {
             event.preventDefault();
-            let collectionDate =$('#collection_date').val();
+            let collectionDate = $('#collection_date').val();
             let collectionAmount = $('#collection_amount').val(); // Get the collection amount
     
             // Send the data to the server using AJAX
@@ -79,32 +94,38 @@ $(document).ready(function () {
                 data: {
                     group_id: groupId,
                     cus_id: customerId,
-                    auction_id: $('#auction_id').val(), // Pass auction_id
-                    auction_month: $('#auction_month').val(), // Pass auction_month
-                    chit_value: $('#chit_value').val(), // Pass chit_value
-                    chit_amount: $('#chit_amt').val(), // Pass chit_amount
-                    pending_amt: $('#pending_amt').val(), // Pass pending_amt
-                    payable_amnt: $('#payable_amnt').val(), // Pass payable_amnt
+                    id: auctionId,
+                    cus_mapping_id: cusMappingID, // Pass cus_mapping_id
+                    pending_sts: $('#pending_sts').val(),
+                    auction_month: $('#auction_month').val(),
+                    chit_value: $('#chit_value').val(),
+                    chit_amount: $('#chit_amt').val(),
+                    pending_amt: $('#pending_amt').val(),
+                    payable_amnt: $('#payable_amnt').val(),
                     collection_amount: collectionAmount,
-                    collection_date:collectionDate// Pass collection_amount
+                    collection_date: collectionDate
                 },
                 success: function (response) {
+                    // Ensure response is parsed correctly
+                    if (typeof response === 'string') {
+                        response = JSON.parse(response);
+                    } 
                     if (response.success) {
                         swalSuccess('Success', "Collected Successfully");
+                        // Optionally clear the form fields
+                        $('#collection_amount').val('');
                     } else {
-                        swalError('Error', 'Failed to save the collection details. Please try again.');
+                        swalError('Warning', 'Failed to save the collection details');
                     }
                 },
-                error: function () {
-                    swalError('Error', 'An error occurred while saving the collection details. Please try again.');
-                }
             });
         });
     });
     
+
     ////////////////////////////////////////////////Payy End/////////////////////////////////////////////////
-     ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////
-     $(document).on('click', '.add_commitment', function (event) {
+    ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////
+    $(document).on('click', '.add_commitment', function (event) {
         event.preventDefault();
         $('#add_commitment_modal').modal('show');
     });
@@ -121,7 +142,7 @@ $(document).ready(function () {
         $('#commitment_chart_model').modal('show');
     });
     ///////////////////////////////////////////////////////Commitement Chart End/////////////////////////////////////////////////
-/////////////////////////////////////Document End//////////////////////////////////////////////////////////////////    
+    /////////////////////////////////////Document End//////////////////////////////////////////////////////////////////    
 })
 function closeChartsModal() {
     $('#due_chart_model').modal('hide');
@@ -136,7 +157,7 @@ function getCollectionTable() {
     serverSideTable('#collection_list_table', '', 'api/collection_files/collection_list.php');
 }
 function editCustomerCreation(id) {
-    $.post('api/collection_files/collection_customer_data.php', { id: id }, function (response) {     
+    $.post('api/collection_files/collection_customer_data.php', { id: id }, function (response) {
         if (Array.isArray(response) && response.length > 0) {
             $('#group_id').val(id);
             $('#cus_id').val(response[0].cus_id);
@@ -154,12 +175,12 @@ function editCustomerCreation(id) {
         } else {
             alert("No data found for this customer.");
         }
-    }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
+    }, 'json').fail(function (jqXHR, textStatus, errorThrown) {
         console.error("AJAX request failed:", textStatus, errorThrown);
     });
 }
-function viewCustomerGroups(id){
-    $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {     
+function viewCustomerGroups(id) {
+    $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {
         let cashList = [
             "sno",
             "grp_id",
@@ -174,6 +195,15 @@ function viewCustomerGroups(id){
 
         appendDataToTable('#group_list_table', response, cashList);
         setdtable('#group_list_table');
+        setDropdownScripts();
     }, 'json');
 }
+function collectDate() {
+    var today = new Date();
+    var day = String(today.getDate()).padStart(2, '0');
+    var month = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
+    var year = today.getFullYear();
 
+    var currentDate = day + '-' + month + '-' + year;
+    $('#collection_date').val(currentDate);
+}

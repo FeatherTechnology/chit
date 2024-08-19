@@ -2,7 +2,7 @@
 require '../../ajaxconfig.php';
 @session_start();
 
-class CollectionStsClass
+class CollectStsClass
 {
     private $pdo;
 
@@ -11,18 +11,18 @@ class CollectionStsClass
         $this->pdo = $pdo;
     }
 
-    public function updateCollectionStatus($cus_mapping_id, $auction_id, $group_id, $cus_id, $auction_month, $chit_amount)
+    public function updateCollectStatus($auction_id, $group_id, $cus_id, $auction_month, $chit_amount)
 {
     // Initialize status to 'Payable'
     $coll_status = 'Payable';
 
     // Query to check if a payment exists for the auction month
     $query = "SELECT collection_amount FROM collection 
-              WHERE cus_mapping_id = :cus_mapping_id AND auction_id = :auction_id AND group_id = :group_id 
+              WHERE auction_id = :auction_id AND group_id = :group_id 
               AND cus_id = :cus_id AND auction_month = :auction_month";
     $stmt = $this->pdo->prepare($query);
     $stmt->execute([
-        ':cus_mapping_id' => $cus_mapping_id,
+       
         ':auction_id' => $auction_id,
         ':group_id' => $group_id,
         ':cus_id' => $cus_id,
@@ -55,13 +55,12 @@ class CollectionStsClass
 
     // Update the collection status in the database
     $update_query = "UPDATE collection 
-                     SET coll_status = :coll_status 
-                     WHERE cus_mapping_id = :cus_mapping_id AND auction_id = :auction_id AND group_id = :group_id 
+                     SET coll_status = :coll_status WHERE
+                     auction_id = :auction_id AND group_id = :group_id 
                      AND cus_id = :cus_id AND auction_month = :auction_month";
     $update_stmt = $this->pdo->prepare($update_query);
     $update_stmt->execute([
         ':coll_status' => $coll_status,
-        ':cus_mapping_id' => $cus_mapping_id,
         ':auction_id' => $auction_id,
         ':group_id' => $group_id,
         ':cus_id' => $cus_id,

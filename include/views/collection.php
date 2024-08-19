@@ -159,7 +159,7 @@
                 </div>
 
                 <input type="hidden" name="auction_id" id="auction_id">
-                <input type="hidden" name="cp_id" id="cp_id">
+                <input type="hidden" name="cus_mapping_id" id="cus_mapping_id">
                 <input type="hidden" name="status" id="status">
                 <input type="hidden" name="sub_status" id="sub_status">
 
@@ -232,7 +232,7 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="collection_date">Collection Date</label>&nbsp;<span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="collection_date" name="collection_date" tabindex='8'>
+                                        <input type="text" class="form-control" id="collection_date" name="collection_date"  readonly tabindex='8'>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 intLoanDiv">
@@ -241,7 +241,7 @@
                                         <input type="number" class="form-control clearFields" id="collection_amount" name="collection_amount" value='' placeholder='Enter Collection Amount' tabindex='9'>
                                     </div>
                                 </div>
-                            </div>
+                            </div> 
 
                         </div>
                     </div>
