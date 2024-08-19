@@ -185,7 +185,7 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="payment_type">Payment Type</label>
+                                    <label for="payment_type">Payment Type</label><span class="text-danger">*</span>
                                     <select class="form-control" id="payment_type" name="payment_type" tabindex="18">
                                         <option value="">Select Payment Type</option>
                                         <option value="1">Split Payment</option>
@@ -195,7 +195,7 @@
                             </div>
                             <div class="col-4" id="settle_type_container">
                                 <div class="form-group">
-                                    <label for="settle_type">Settlement Type</label>
+                                    <label for="settle_type">Settlement Type</label><span class="text-danger">*</span>
                                     <select class="form-control" id="settle_type" name="settle_type" tabindex="19">
                                         <option value="">Select Settlement Type</option>
                                         <option value="1">Cash</option>
@@ -208,7 +208,7 @@
                         <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="bank_container" style="display: none;">
                                 <div class="form-group">
-                                    <label for="bank_name">Bank Name</label>
+                                    <label for="bank_name">Bank Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="bank_name" name="bank_name" tabindex="20">
                                         <option value="">Select Bank</option>
                                     </select>
@@ -218,7 +218,7 @@
                         <div class="row">
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cash_container" style="display: none;">
                                 <div class="form-group">
-                                    <label for="settle_cash">Cash</label>
+                                    <label for="settle_cash">Cash</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" id="settle_cash" name="settle_cash" tabindex="21">
                                 </div>
                             </div>
@@ -226,13 +226,13 @@
                         <div class="row">
                             <div class="col-4" id="cheque_no_container" style="display: none;">
                                 <div class="form-group">
-                                    <label for="cheque_no">Cheque Number</label>
+                                    <label for="cheque_no">Cheque Number</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" id="cheque_no" name="cheque_no" tabindex="22">
                                 </div>
                             </div>
                             <div class="col-4" id="cheque_val_container" style="display: none;">
                                 <div class="form-group">
-                                    <label for="cheque_val">Cheque Value</label>
+                                    <label for="cheque_val">Cheque Value</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" id="cheque_val" name="cheque_val" tabindex="23">
                                 </div>
                             </div>
@@ -244,13 +244,13 @@
                             </div>
                             <div class="col-4" id="transaction_id_container" style="display: none;">
                                 <div class="form-group">
-                                    <label for="transaction_id">Transaction ID</label>
+                                    <label for="transaction_id">Transaction ID</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" id="transaction_id" name="transaction_id" tabindex="24">
                                 </div>
                             </div>
                             <div class="col-4" id="transaction_val_container" style="display: none;">
                                 <div class="form-group">
-                                    <label for="transaction_val">Transaction Value</label>
+                                    <label for="transaction_val">Transaction Value</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" id="transaction_val" name="transaction_val" tabindex="25">
                                 </div>
                             </div>
@@ -280,7 +280,7 @@
                             <!-- Fields -->
                             <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                 <div class="form-group">
-                                    <label for="gua_name">Name</label>
+                                    <label for="gua_name">Name</label><span class="text-danger">*</span>
                                     <select type="text" class="form-control" id="gua_name" name="gua_name" tabindex="28">
                                         <option value="">Select Guarantor</option>
                                     </select>
