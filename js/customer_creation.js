@@ -901,13 +901,12 @@ function editCustomerCreation(id) {
         // getExistingRefCustomer()
         setTimeout(() => {
             getAutoGenCusId(id)
-            getFamilyInfoTable()
-            getGuarantorInfoTable()
-            getSourceTable()
             getPlaceDropdown(response[0].place);
             $('#cus_name').trigger('change');
         }, 1000);
-
+            getFamilyInfoTable()
+            getGuarantorInfoTable()
+            getSourceTable()
         if (response[0].reference_type == '1') {
             $('#declaration_container').show();
             $('#cus_name_container').hide();
