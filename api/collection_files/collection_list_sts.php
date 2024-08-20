@@ -50,7 +50,7 @@ class CollectStsClass
             $current_date = date('Y-m-d');
 
             if ($current_date > $due_date) {
-                $coll_status = 'payable';
+                $coll_status = 'Payable';
             } else {
                 $coll_status = 'Payable';
             }

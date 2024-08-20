@@ -19,7 +19,6 @@ $(document).ready(function () {
         $('#collection_list').hide();
         $('#coll_main_container,#back_to_coll_list').show();
         let id = $(this).attr('value');
-        $('#group_id').val(id);
         // editGroupCreation(id)
         viewCustomerGroups(id);
         editCustomerCreation(id)
@@ -27,34 +26,35 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////Pay Start//////////////////////////////////////////////////////////
     $(document).on('click', '.add_pay', function (event) {
         event.preventDefault();
-       
+
         // Hide and show the appropriate sections
         $('.colls-cntnr, #back_to_coll_list').hide();
         $('.coll_details, #back_to_pay_list').show();
         collectDate();
-        
+
         // Extract the group and customer ID from the data attribute
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
-        
+
         // Log the dataParts array to verify its content
         console.log('Data Parts:', dataParts);
-        
+
         let groupId = dataParts[0];
         let customerId = dataParts[1];
         let auctionId = dataParts[2];
         let cusMappingID = dataParts[3]; // Extract cus_mapping_id from data attribute
-        
+        let cusId = dataParts[4];
+
         console.log('Group ID:', groupId);
         console.log('Customer ID:', customerId);
         console.log('Auction ID:', auctionId);
-        console.log('Customer Mapping ID:', cusMappingID); // Log cusMappingID to verify
-        
+        console.log('Customer Mapping ID:', cusId); // Log cusMappingID to verify
+
         // Check if cusMappingID is empty
         if (!cusMappingID) {
             console.error('Customer Mapping ID is empty');
         }
-        
+
         // Make an AJAX call to fetch the details
         $.ajax({
             url: 'api/collection_files/fetch_pay_details.php',
@@ -75,18 +75,19 @@ $(document).ready(function () {
                     $('#pending_amt').val(response.pending_amt);
                     $('#payable_amnt').val(response.payable_amnt);
                     $('#collection_amount').val('');
+
                 } else {
                     swalError('Warning', 'Failed to save the collection details');
                 }
             },
-           
+
         });
-    
+
         $('#submit_collection').click(function (event) {
             event.preventDefault();
             let collectionDate = $('#collection_date').val();
             let collectionAmount = $('#collection_amount').val(); // Get the collection amount
-    
+
             // Send the data to the server using AJAX
             $.ajax({
                 url: 'api/collection_files/submit_collection.php',
@@ -109,11 +110,15 @@ $(document).ready(function () {
                     // Ensure response is parsed correctly
                     if (typeof response === 'string') {
                         response = JSON.parse(response);
-                    } 
+                    }
                     if (response.success) {
                         swalSuccess('Success', "Collected Successfully");
                         // Optionally clear the form fields
                         $('#collection_amount').val('');
+                        viewCustomerGroups(cusId);
+                        $('.colls-cntnr,#back_to_coll_list').show();
+                        $('.coll_details, #back_to_pay_list').hide();
+
                     } else {
                         swalError('Warning', 'Failed to save the collection details');
                     }
@@ -121,14 +126,68 @@ $(document).ready(function () {
             });
         });
     });
-    
 
-    ////////////////////////////////////////////////Payy End/////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////Pay End/////////////////////////////////////////////////
     ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////
     $(document).on('click', '.add_commitment', function (event) {
         event.preventDefault();
+
+        // Show the modal
         $('#add_commitment_modal').modal('show');
+
+        // Pre-fill the modal or attach necessary data if required
+        let dataValue = $(this).data('value');
+        let dataParts = dataValue.split('_');
+        let groupId = dataParts[0];
+        let cusMappingID = dataParts[1];
+        getCommitmentInfoTable(cusMappingID,groupId)
+
+        $('#add_commit').on('click', function (event) {
+            event.preventDefault();
+
+            // Validation
+            let label = $('#label').val();
+            let remark = $('#remark').val();
+
+            var isValid = true;
+
+            // Validate each field
+            if (!validateField(label, 'label')) {
+                isValid = false;
+            }
+            if (!validateField(remark, 'remark')) {
+                isValid = false;
+            }
+
+            // If all fields are valid, proceed with the AJAX call
+            if (isValid) {
+                $.post('api/collection_files/submit_commitement.php', {
+                    group_id: groupId,
+                    cus_mapping_id: cusMappingID, // Pass cus_mapping_id
+                    label: label,
+                    remark: remark
+                }, function (response) {
+                    if (response == '1') {
+                        swalSuccess('Success', 'Commitment Added Successfully!');
+                        $('#label').val('');
+                        $('#remark').val('');
+                        getCommitmentInfoTable(cusMappingID,groupId)
+                    } else {
+                        swalError('Warning', 'Commitment Not Added!');
+                    }
+                });
+            }
+        });
+
+        $(document).on('click', '.commitDeleteBtn', function () {
+            var id = $(this).attr('value');
+            swalConfirm('Delete', 'Do you want to Delete the Commitment Details?', function () {
+                getCommitDelete(id, cusMappingID,groupId); // Pass cusMappingID to delete function
+            });
+        });
     });
+
     ///////////////////////////////////////////////////////Commitement  End/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////Due Start/////////////////////////////////////////////
     $(document).on('click', '.add_due', function (event) {
@@ -140,6 +199,12 @@ $(document).ready(function () {
     $(document).on('click', '.commitment_chart', function (event) {
         event.preventDefault();
         $('#commitment_chart_model').modal('show');
+        let dataValue = $(this).data('value');
+        let dataParts = dataValue.split('_');
+        let groupId = dataParts[0];
+        let cusMappingID = dataParts[1];
+        getCommitmentChartTable(cusMappingID,groupId)
+
     });
     ///////////////////////////////////////////////////////Commitement Chart End/////////////////////////////////////////////////
     /////////////////////////////////////Document End//////////////////////////////////////////////////////////////////    
@@ -148,6 +213,8 @@ function closeChartsModal() {
     $('#due_chart_model').modal('hide');
     $('#commitment_chart_model').modal('hide');
     $('#add_commitment_modal').modal('hide');
+    $('#label').val('');
+    $('#remark').val('');
 }
 $(function () {
     getCollectionTable();
@@ -206,4 +273,39 @@ function collectDate() {
 
     var currentDate = day + '-' + month + '-' + year;
     $('#collection_date').val(currentDate);
+}
+function getCommitmentInfoTable(cusMappingID,groupId) {
+    $.post('api/collection_files/commitment_info_data.php', { cus_mapping_id: cusMappingID,group_id:groupId}, function (response) {
+        var columnMapping = [
+            'sno',
+            'label',
+            'remark',
+            'action'
+
+        ];
+        appendDataToTable('#commit_form_table', response, columnMapping);
+        setdtable('#commit_form_table');
+    }, 'json')
+}
+function getCommitDelete(id, cusMappingID,groupId) {
+    $.post('api/collection_files/delete_commitment.php', { id: id }, function (response) {
+        if (response === '1') {
+            swalSuccess('Success', 'Commitment Info Deleted Successfully!');
+            getCommitmentInfoTable(cusMappingID,groupId)// Pass cusMappingID to refresh the table
+        } else {
+            swalError('Error', 'Failed to Delete Commitment: ' + response);
+        }
+    }, 'json');
+}
+function getCommitmentChartTable(cusMappingID,groupId) {
+    $.post('api/collection_files/commitment_chart_data.php', { cus_mapping_id: cusMappingID ,group_id:groupId}, function (response) {
+        var columnMapping = [
+            'sno',
+            'created_on',
+            'label',
+            'remark',
+        ];
+        appendDataToTable('#commitment_chart_table', response, columnMapping);
+        setdtable('#commitment_chart_table');
+    }, 'json')
 }

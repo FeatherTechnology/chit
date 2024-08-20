@@ -287,12 +287,12 @@
                         </div>
                     </div>
                     <div class="col-xl-2 col-lg-2 col-md-6 col-sm-4 col-12">
-                        <button type="button" tabindex="4" name="add_commitment" id="add_commitment" class="btn btn-primary" style="margin-top: 19px;">Add</button>
+                        <button type="button" tabindex="4" name="add_commit" id="add_commit" class="btn btn-primary" style="margin-top: 19px;">Add</button>
                     </div>
                 </div>
                 </br>
                 <div>
-                    <table id="fine_form_table" class="table custom-table">
+                    <table id="commit_form_table" class="table custom-table">
                         <thead>
                             <tr>
                                 <th width="15%"> S.No </th>
@@ -361,9 +361,9 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid" id="commitment_chart_table_div">
-                    <table class="table custom-table">
+                    <table id='commitment_chart_table' class="table custom-table">
                         <thead>
-                            <th>S.No</th>
+                            <th width="20">S.No</th>
                             <th>Date</th>
                             <th>Label</th>
                             <th>Remark</th>

@@ -9,6 +9,7 @@ $collectionSts = new CollectionStsClass($pdo);
 
 $query = "SELECT
     ad.id,
+    cc.id as customer_id,
     gc.grp_id,
     gc.grp_name,
     gc.chit_value,
@@ -90,16 +91,17 @@ if ($statement->rowCount() > 0) {
         $status_label = $collection_date ? 'Paid' : 'Payable';
         $sub_array['id'] = $row['id'];
         $sub_array['cus_mapping_id'] = $row['cus_mapping_id'];
+        $sub_array['customer_id'] = $row['customer_id'];
         $sub_array['grp_id'] = $row['grp_id'];
         $sub_array['grp_name'] = $row['grp_name'];
         $sub_array['chit_value'] = moneyFormatIndia($row['chit_value']);
-        $sub_array['chit_amount'] = moneyFormatIndia($row['chit_amount']);
+        $sub_array['chit_amount'] = ($row['chit_amount']);
         $sub_array['status'] = $status_label;
         $sub_array['grace_period'] = "<span style='display: inline-block; width: 20px; height: 20px;border-radius: 4px;  background-color: $status_color;'></span>";
         $sub_array['charts'] =   "<div class='dropdown'><button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button><div class='dropdown-content'><a href='#' class='add_due'data-value='{$row['grp_id']}_{$row['cus_id']}_{$row['id']}'>Due Chart</a>
-      <a href='#' class='commitment_chart'data-value='{$row['grp_id']}_{$row['cus_id']}'>Commitment Chart</a></div></div>";
-        $sub_array['action'] =   "<div class='dropdown'><button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button><div class='dropdown-content'><a href='#' class='add_pay'data-value='{$row['grp_id']}_{$row['cus_id']}_{$row['id']}_{$row['cus_mapping_id']}'> Pay</a>
-        <a href='#' class='add_commitment 'data-value='{$row['grp_id']}_{$row['cus_id']}_{$row['id']}'>Commitment</a></div></div>";
+      <a href='#' class='commitment_chart'data-value='{$row['grp_id']}_{$row['cus_mapping_id']}'>Commitment Chart</a></div></div>";
+        $sub_array['action'] =   "<div class='dropdown'><button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button><div class='dropdown-content'><a href='#' class='add_pay'data-value='{$row['grp_id']}_{$row['cus_id']}_{$row['id']}_{$row['cus_mapping_id']}_{$row['customer_id']}'> Pay</a>
+        <a href='#' class='add_commitment 'data-value='{$row['grp_id']}_{$row['cus_mapping_id']}'>Commitment</a></div></div>";
 
         $result[] = $sub_array;
     }
