@@ -4,29 +4,11 @@ $(document).ready(function () {
         'dashboard':'dashboard',
         'company_creation': 'master',
         'branch_creation': 'master',
-        'loan_category_creation': 'master',
-        'area_creation': 'master',
+        'customer_creation': 'master',
+        'group_creation': 'master',
         'bank_creation': 'admin',
-        'agent_creation': 'admin',
         'user_creation': 'admin',
-        'loan_entry': 'loan_entry',
-        'approval': 'approval',
-        'loan_issue': 'loan_issue',
-        'collection': 'collection',
-        'closed': 'closed',
-        'noc': 'noc',
-        'accounts': 'accounts',
-        'bank_clearance': 'accounts',
-        'balance_sheet': 'accounts',
-        'update_customer': 'update',
-        'update_document': 'update',
-        'customer_data': 'customer_data',
-        'search_screen': 'search',
-        'loan_issue_report': 'reports',
-        'collection_report': 'reports',
-        'balance_report': 'reports',
-        'closed_report': 'reports',
-        'bulk_upload': 'bulk_upload'
+        'auction': 'auction'
     };
 
     const current_page = localStorage.getItem('currentPage');
