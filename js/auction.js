@@ -410,7 +410,6 @@ function getAuctionTodayTable() {
 }
 
 function fetchAuctionDetails(groupId) {
-
     $.ajax({
         url: 'api/auction_files/view_auction_list.php', // Update this with the correct path to your PHP script
         type: 'POST',
@@ -430,7 +429,7 @@ function fetchAuctionDetails(groupId) {
                     // Format the values using moneyFormatIndia
                     var lowValue = moneyFormatIndia(item.low_value);
                     var highValue = moneyFormatIndia(item.high_value);
-                    var auctionValue = moneyFormatIndia(item.auction_value);
+                    var auctionValue = item.auction_value ? moneyFormatIndia(item.auction_value) : item.auction_value;
 
                     var cusName = item.cus_name;
                     var action = item.action;
@@ -457,6 +456,7 @@ function fetchAuctionDetails(groupId) {
         }
     });
 }
+
 
 function closeChartsModal() {
     $('#add_cus_map_modal').modal('hide');
