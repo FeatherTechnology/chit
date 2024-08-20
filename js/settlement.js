@@ -446,6 +446,7 @@ function getCashAck() {
     }, 'json');
 }
 
+
 function checkBalance() {
     let auction_id = $('#groupid').val();
     $.ajax({
