@@ -680,12 +680,13 @@ function getExistingRefCustomer() {
             if (val.id == editGId) {
                 selected = 'selected';
             }
-            appendCusOption += "<option value='" + val.id + "' " + selected + ">" + val.first_name + "</option>";
+            appendCusOption += "<option value='" + val.id + "' " + selected + ">" + val.full_name + "</option>";
         });
 
         $('#cus_name').empty().append(appendCusOption);
     }, 'json');
 }
+
 
 function getExistingCustomer() {
     $.post('api/customer_creation_files/get_existing_customer.php', function (response) {
@@ -697,7 +698,7 @@ function getExistingCustomer() {
             if (val.id == editGId) {
                 selected = 'selected';
             }
-            appendCustomerOption += "<option value='" + val.id + "' " + selected + ">" + val.first_name + "</option>";
+            appendCustomerOption  += "<option value='" + val.id + "' " + selected + ">" + val.full_name + "</option>";
         });
 
         $('#existing_cus').empty().append(appendCustomerOption);
