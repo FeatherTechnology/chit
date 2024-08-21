@@ -17,7 +17,7 @@ class CollectionStsClass
     {
         $coll_status = 'Payable';
 
-        $query = "SELECT collection_amount, collection_date FROM collection 
+        $query = "SELECT collection_amount, collection_date,payable FROM collection 
                   WHERE cus_mapping_id = :cus_mapping_id AND auction_id = :auction_id AND group_id = :group_id 
                   AND cus_id = :cus_id AND auction_month = :auction_month";
         $stmt = $this->pdo->prepare($query);
@@ -28,13 +28,14 @@ class CollectionStsClass
             ':cus_id' => $cus_id,
             ':auction_month' => $auction_month
         ]);
+
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
             $collection_amount = $row['collection_amount'];
             $collection_date = $row['collection_date'];
-
-            if ($collection_amount >= $chit_amount) {
+            $payable=$row['payable'];
+            if ($collection_amount >= $payable) {
                 $coll_status = 'Paid';
             } else {
                 $due_date = date('Y-m-t', strtotime($auction_month . '-01'));
@@ -50,7 +51,7 @@ class CollectionStsClass
             $current_date = date('Y-m-d');
 
             if ($current_date > $due_date) {
-                $coll_status = 'payable';
+                $coll_status = 'Payable';
             } else {
                 $coll_status = 'Payable';
             }

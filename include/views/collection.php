@@ -53,10 +53,6 @@
                         <div class="card-header">
                             <h5 class="card-title">Customer Info</h5>
                         </div>
-                        <input type="hidden" name="pending_sts" id="pending_sts" value="" />
-                        <input type="hidden" name="od_sts" id="od_sts" value="" />
-                        <input type="hidden" name="due_nil_sts" id="due_nil_sts" value="" />
-
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-8">
@@ -312,6 +308,7 @@
         </div>
     </div>
 </div>
+<div id="printcollection" style="display: none"></div>
 <!-- /////////////////////////////////////////////////////////////////// Commitment Add Modal END ////////////////////////////////////////////////////////////////////// -->
 <!-- /////////////////////////////////////////////////////////////////// Due Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
 <div class="modal fade bd-example-modal-lg" id="due_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -325,7 +322,7 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid" id="due_chart_table_div">
-                    <table class="table custom-table">
+                    <table id = "due_chart_table" class="table custom-table">
                         <thead>
                             <th>Auction Month</th>
                             <th>Date</th>

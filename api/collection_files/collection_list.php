@@ -21,7 +21,7 @@ $column = array(
 );
 
 $query = "SELECT 
-ad.id,
+    ad.id,
     cc.id,
     ad.id as auction_id,
     ad.group_id,
@@ -121,7 +121,7 @@ foreach ($result as $row) {
     $grace_start_date = $due_date; 
     $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
 
-    $payment_query = "SELECT collection_date FROM collection 
+    $payment_query = "SELECT collection_date, coll_status FROM collection 
                       WHERE auction_id = :auction_id AND group_id = :group_id AND cus_id = :cus_id 
                       AND auction_month = :auction_month";
     $payment_stmt = $pdo->prepare($payment_query);
@@ -134,28 +134,30 @@ foreach ($result as $row) {
 
     $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
     $collection_date = isset($payment_row['collection_date']) ? $payment_row['collection_date'] : null;
+    $collection_status = isset($payment_row['coll_status']) ? $payment_row['coll_status'] : null;
 
-    if ($collection_date) {
+    if ($collection_status === "Paid") {
+        $status_color = 'green'; // Payment is made
+    } elseif ($collection_date) {
         $collection_date = date('Y-m-d', strtotime($collection_date));
         if ($collection_date < $due_date) {
-            $status_color = 'green';
+            $status_color = 'orange'; // Payment made before due date but status is payable
         } elseif ($collection_date > $grace_end_date) {
-            $status_color = 'red'; 
+            $status_color = 'red'; // Missed payment after grace period
         } else {
-            $status_color = 'orange'; 
+            $status_color = 'orange'; // Payment made within grace period
         }
     } else {
         $current_date = date('Y-m-d');
         if ($current_date > $grace_end_date) {
-            $status_color = 'red'; 
+            $status_color = 'red'; // Missed payment after grace period
         } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-            $status_color = 'orange'; 
+            $status_color = 'orange'; // Payment is due or within grace period
         } else {
-            $status_color = 'red'; 
+            $status_color = 'red'; // Default to red if no payment status
         }
     }
     $sub_array[] = "<span style='display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: $status_color;'></span>";
-
 
     $action = "<button class='btn btn-primary collectionListBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
     $sub_array[] = $action;

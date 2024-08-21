@@ -2,13 +2,13 @@
 require "../../ajaxconfig.php";
 @session_start();
 $user_id = $_SESSION['user_id'];
-include 'collectionStatus.php';
+include 'submit_collection_status.php';
 
-$collectionSts = new CollectionStsClass($pdo);
+$collectionSts = new CollectionClass($pdo);
 
 $group_id = $_POST['group_id'];
 $cus_id = $_POST['cus_id'];
-$id = $_POST['id'];
+$auction_id = $_POST['auction_id'];
 $cus_mapping_id=$_POST['cus_mapping_id'];
 $auction_month = $_POST['auction_month'];
 $chit_value = $_POST['chit_value'];
@@ -19,14 +19,14 @@ $collection_amount = $_POST['collection_amount'];
 $collection_date = $_POST['collection_date']; 
 
 // Update collection status using the method
-$status = $collectionSts->updateCollectionStatus($cus_mapping_id,$id, $group_id, $cus_id, $auction_month, $chit_amount);
+$status = $collectionSts->updateCollection($cus_mapping_id,$auction_id,$group_id,$cus_id,$auction_month,$chit_amount);
 
 // Build the SQL query
 $qry = "INSERT INTO collection (cus_mapping_id,
     auction_id, group_id, cus_id, auction_month, chit_value, chit_amount, pending, payable,
     coll_status, collection_date, collection_amount, insert_login_id, created_on
 ) VALUES ('$cus_mapping_id',
-    '$id', '$group_id', '$cus_id', '$auction_month', '$chit_value', '$chit_amount', '$pending', '$payable',
+    '$auction_id', '$group_id', '$cus_id', '$auction_month', '$chit_value', '$chit_amount', '$pending', '$payable',
     '$status', '$collection_date', '$collection_amount', '$user_id', NOW()
 )";
 
