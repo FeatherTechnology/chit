@@ -111,7 +111,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
 
     // Fetch status using the correct method call
-    $status = $collectionSts->updateCollectStatus($row['auction_id'], $row['group_id'], $row['cus_id'], $row['auction_month'], $row['chit_amount']);
+    $status = $collectionSts->updateCollectStatus( $row['cus_id'], $row['auction_month']);
     $sub_array[] = $status;
 
     $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0; 
@@ -121,22 +121,22 @@ foreach ($result as $row) {
     $grace_start_date = $due_date; 
     $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
 
-    $payment_query = "SELECT collection_date, coll_status FROM collection 
-                      WHERE auction_id = :auction_id AND group_id = :group_id AND cus_id = :cus_id 
+    $payment_query = "SELECT collection_date FROM collection 
+                      WHERE  cus_id = :cus_id 
+                      AND group_id = :group_id
                       AND auction_month = :auction_month";
     $payment_stmt = $pdo->prepare($payment_query);
     $payment_stmt->execute([
-        ':auction_id' => $row['auction_id'],
-        ':group_id' => $row['group_id'],
+         ':group_id'=>$row['group_id'],
         ':cus_id' => $row['cus_id'],
         ':auction_month' => $row['auction_month']
     ]);
 
     $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
     $collection_date = isset($payment_row['collection_date']) ? $payment_row['collection_date'] : null;
-    $collection_status = isset($payment_row['coll_status']) ? $payment_row['coll_status'] : null;
+   // $collection_status = isset($payment_row['coll_status']) ? $payment_row['coll_status'] : null;
 
-    if ($collection_status === "Paid") {
+    if ($status === "Paid") {
         $status_color = 'green'; // Payment is made
     } elseif ($collection_date) {
         $collection_date = date('Y-m-d', strtotime($collection_date));

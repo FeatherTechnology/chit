@@ -38,55 +38,58 @@ $(document).ready(function () {
         let auctionId = dataParts[2];
         let cusMappingID = dataParts[3]; // Extract cus_mapping_id from data attribute
         let cusId = dataParts[4];
-
         $.ajax({
             url: 'api/collection_files/fetch_pay_details.php',
             type: 'POST',
             data: {
                 group_id: groupId,
-                cus_id: customerId
+                cus_mapping_id: cusMappingID
             },
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    // Populate the form fields with the fetched data
+                    // Round off chit_amount and payable_amnt
+                    let roundedChitAmount = Math.round(response.chit_amount);
+                    let roundedPayableAmnt = Math.round(response.payable_amnt);
+        
+                    // Populate the form fields with the fetched and rounded data
                     $('#group_name').val(response.group_name);
                     $('#auction_month').val(response.auction_month);
                     $('#date').val(response.date);
                     $('#chit_value').val(response.chit_value);
-                    $('#chit_amt').val(response.chit_amount);
+                    $('#chit_amt').val(roundedChitAmount);
                     $('#pending_amt').val(response.pending_amt);
-                    $('#payable_amnt').val(response.payable_amnt);
+                    $('#payable_amnt').val(roundedPayableAmnt);
                     $('#collection_amount').val('');
-
+        
                 } else {
                     swalError('Warning', 'Failed to save the collection details');
                 }
-            },
-
+            }
         });
+        
 
-        $('#submit_collection').click(function (event) {
+        $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
-            
+
             let collectionDate = $('#collection_date').val();
             let collectionAmount = $('#collection_amount').val(); // Get the collection amount
             let payableAmount = Math.round(parseFloat($('#payable_amnt').val())); // Get and round off the payable amount
             let chitAmount = Math.round(parseFloat($('#chit_amt').val())); // Get and round off the chit amount
-            
+
             let isValid = true; // Assume form is valid unless proven otherwise
-        
+
             // Validate the collection amount field
             if (!validateField(collectionAmount, 'collection_amount')) {
                 isValid = false;
             }
-            
+
             // Check if collection amount is less than or equal to payable amount
             if (parseFloat(collectionAmount) > payableAmount) {
                 isValid = false;
                 swalError('Warning', 'Collection amount cannot be greater than payable amount.');
             }
-            
+
             if (isValid) {
                 // Send the data to the server using AJAX
                 $.ajax({
@@ -95,7 +98,7 @@ $(document).ready(function () {
                     data: {
                         group_id: groupId,
                         cus_id: customerId,
-                       auction_id: auctionId,
+                        auction_id: auctionId,
                         cus_mapping_id: cusMappingID, // Pass cus_mapping_id
                         auction_month: $('#auction_month').val(),
                         chit_value: $('#chit_value').val(),
@@ -106,24 +109,21 @@ $(document).ready(function () {
                         collection_date: collectionDate
                     },
                     success: function (response) {
-                        // Ensure response is parsed correctly
-                        if (typeof response === 'string') {
-                            response = JSON.parse(response);
-                        }
-                        if (response.success) {
+                        if (response == '1') {
                             swalSuccess('Success', "Collected Successfully");
                             // Optionally clear the form fields
                             $('#collection_amount').val('');
-                            //viewCustomerGroups(cusId);
+                            viewCustomerGroups(cusId);
                             $('.colls-cntnr,#back_to_coll_list').show();
                             $('.coll_details, #back_to_pay_list').hide();
                         } else {
                             swalError('Warning', 'Failed to save the collection details');
                         }
+                        // Ensure response is parsed correctly
                     },
                 });
             }
-        });     
+        });
     });
 
 
@@ -198,58 +198,71 @@ $(document).ready(function () {
         let cusMappingID = dataParts[1];
         let auction_month = dataParts[2];
         getDueChart(groupId, cusMappingID, auction_month);
-    
+
         setTimeout(() => {
-            $('.print_due_coll').click(function() {
+            $('.print_due_coll').click(function () {
                 // Fetch the data from the server and create a table with it
-                const collId = $(this).attr('id');
+                const coll_id = $(this).attr('id');
                 $.ajax({
                     url: 'api/collection_files/print_collection.php', // Update with the correct path to your PHP script
                     type: 'POST',
                     data: {
-                        cus_mapping_id: collId,
-                        group_id: $('#group_id').val() // Or other necessary parameters
+                        coll_id: coll_id,
                     },
                     dataType: 'json',
-                    success: function(response) {
+                    success: function (response) {
                         // Create the HTML content with formatted values
                         let rows = response.map(row => `
                             <tr>
-                                <td>${row.groupName}</td>
+                                <td><strong>Group ID</strong></td>
+                                <td>${row.group_id}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Group Name</strong></td>
+                                <td>${row.group_name}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Customer Name</strong></td>
+                                <td>${row.cus_name}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auction Month</strong></td>
                                 <td>${row.auction_month}</td>
-                                <td>${row.auction_date}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Chit Amount</strong></td>
                                 <td>${row.chit_amount}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Payable</strong></td>
                                 <td>${row.payable}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Collection Date</strong></td>
                                 <td>${row.collection_date}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Collection Amount</strong></td>
                                 <td>${row.collection_amount}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pending</strong></td>
                                 <td>${row.pending}</td>
-                                <td>${row.action}</td>
                             </tr>
                         `).join('');
-        
+
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
                                     <img src="img/auction.png" width="25" height="25" style="margin-right: 10px;">
                                     Chit Company
                                 </h2>
-                                <table style="margin: 0 auto; border-collapse: collapse; width: 100%; text-align: left;">
-                                    <tr>
-                                        <th>Group Name</th>
-                                        <th>Auction Month</th>
-                                        <th>Auction Date</th>
-                                        <th>Chit Amount</th>
-                                        <th>Payable</th>
-                                        <th>Collection Date</th>
-                                        <th>Collection Amount</th>
-                                        <th>Pending</th>
-                                        <th>Action</th>
-                                    </tr>
+                                <table style="margin: 0 auto; border-collapse: collapse; width: 50%;">
                                     ${rows}
                                 </table>
                             </div>
                         `;
-        
+
                         const tempDiv = $('<div>').html(content).css({
                             position: 'absolute',
                             top: '-500px',
@@ -261,7 +274,7 @@ $(document).ready(function () {
                             textAlign: 'center', // Center-aligns the content
                             fontFamily: 'Arial, sans-serif' // Optional: for better font rendering
                         }).appendTo('body');
-        
+
                         html2canvas(tempDiv[0], {
                             scale: 2,  // Increase the scale factor to improve the resolution
                             width: tempDiv.outerWidth(), // Set canvas width to the width of the div
@@ -277,13 +290,11 @@ $(document).ready(function () {
                             console.error('Error generating image:', err);
                         });
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('Error fetching data:', textStatus, errorThrown);
-                    }
                 });
             });
         }, 1000);
-        
+
+
     });
     ////////////////////////////////////////////////////////Due End////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////Commitement Chart Start////////////////////////////////////////////
@@ -339,12 +350,17 @@ function editCustomerCreation(id) {
 }
 function viewCustomerGroups(id) {
     $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {
+        // Iterate through the response to round off chit_amount
+        response.forEach(function(item) {
+            item.chit_amount = Math.round(item.chit_amount); // Round off chit_amount
+        });
+
         let cashList = [
             "sno",
             "grp_id",
             "grp_name",
             "chit_value",
-            "chit_amount",
+            "chit_amount",  // Rounded chit_amount will be used here
             "status",
             "grace_period",
             "charts",
@@ -356,6 +372,7 @@ function viewCustomerGroups(id) {
         setDropdownScripts();
     }, 'json');
 }
+
 function collectDate() {
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
@@ -427,7 +444,9 @@ function getDueChart(groupId, cusMappingID, auction_month) {
                 var payable = item.payable ? moneyFormatIndia(item.payable) : '';
                 var collectionDate = item.collection_date ? item.collection_date : '';
                 var collectionAmount = item.collection_amount ? moneyFormatIndia(item.collection_amount) : '';
-                var pending = item.pending ? moneyFormatIndia(item.pending) : '';
+                //  var pending = item.pending;
+                var pending = item.pending !== null && item.pending !== undefined ? moneyFormatIndia(item.pending) : '';
+
                 var action = item.action ? item.action : '';
 
                 var row = '<tr>' +

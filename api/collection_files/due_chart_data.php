@@ -81,7 +81,7 @@ if ($qry1->rowCount() > 0) {
                 'payable' => '',
                 'collection_date' => '',
                 'collection_amount' => '',
-                'pending' => 0, // Ensure pending is 0
+                'pending' =>'', // Ensure pending is 0
                 'id' => '',
                 'action' => ''
             );
