@@ -172,8 +172,8 @@ $(document).ready(function () {
         $('#grp_details_table tbody tr').each(function () {
             let auctionMonth = $(this).find('.auction_month').text();
             let monthName = $(this).find('.month_name').text();
-            let lowValue = $(this).find('.low_value').val();
-            let highValue = $(this).find('.high_value').val();
+            let lowValue = $(this).find('.low_value').val().replace(/,/g, '');;
+            let highValue = $(this).find('.high_value').val().replace(/,/g, '');;
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
                 isValid = false;
@@ -194,7 +194,7 @@ $(document).ready(function () {
 
         // Show an alert if validation fails
         if (!isValid) {
-            swalError('Validation Error', 'Please fill all Low Value and High Value fields.');
+            swalError('Warning', 'Please fill all low value and high value fields.');
             return; // Prevent further execution if validation fails
         }
 
@@ -406,8 +406,8 @@ function populateAuctionDetailsTable(data) {
             <tr>
                 <td class="auction_month">${auction.auction_month}</td>
                 <td class="month_name">${auction.date}</td>
-                <td><input type="number" class="form-control low_value" value="${auction.low_value}" placeholder="Enter Low Value"></td>
-                <td><input type="number" class="form-control high_value" value="${auction.high_value}" placeholder="Enter High Value"></td>
+                 <td><input type="text" class="form-control low_value" value="${moneyFormatIndia(auction.low_value)}" placeholder="Enter Low Value"></td>
+                <td><input type="text" class="form-control high_value" value="${moneyFormatIndia(auction.high_value)}" placeholder="Enter High Value"></td>
             </tr>
         `);
     });
@@ -466,19 +466,6 @@ function getDateDropDown(editDId) {
     $('#grp_date').empty().append(dateOption);
 }
 
-// function hideSubmitButton(groupId) {
-//     if (groupId) {
-//         $.post('api/group_creation_files/fetch_group_status.php', { group_id: groupId }, function(response) {
-//             var status = parseInt(response, 10);
-
-//             if (status === 3) {
-//                 $('#submit_group_info').hide();
-//                 $('#submit_group_details').hide();
-//                 $('#submit_cus_map').hide();
-//             }
-//         }, 'json')
-//     }
-// }
 function hideSubmitButton(status) {
     if (status >2) {
         // Hide the reset button and submit buttons
