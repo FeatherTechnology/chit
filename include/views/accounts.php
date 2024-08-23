@@ -668,7 +668,9 @@ function moneyFormatIndia($num1) {
                                     <label for="balance_sheet">Balance Sheet Type</label><span class="text-danger">*</span>
                                     <select class="form-control" name="balance_sheet" id="balance_sheet" tabindex="1">
                                         <option value="">Select Balance Sheet Type</option>
-     
+                                        <option value="1">Deposit</option>
+                                        <option value="2">EL</option>
+                                        <option value="3">Exchange</option>
                                     </select>
                                 </div>
                             </div>
@@ -677,15 +679,12 @@ function moneyFormatIndia($num1) {
                                     <label for="balance_view">View</label><span class="text-danger">*</span>
                                     <select class="form-control" name="balance_view" id="balance_view" tabindex="8">
                                         <option value="">Select View</option>
+                                        <option value="1">Overall</option>
+                                        <option value="2">Individual</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div class="form-group">
-                                    <button name="submit_balance" id="submit_balance" class="btn btn-primary" tabindex="14" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_balance_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="15">Clear</button>
-                                </div>
-                            </div>
+                          
                             <div class="col-sm-1 col-md-1 col-lg-1">
                                 <div class="form-group">
                                     <label for="opening_bal" class="lbl-style-cls">Opening Balance</label>

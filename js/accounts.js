@@ -36,7 +36,6 @@ $(document).ready(function(){
     $(document).on('click', '.collect-money', function(event){
         event.preventDefault();
         let id = $(this).attr('value');
-        let line = $(this).closest('tr').find('td:nth-child(3)').text();
         let branch = $(this).closest('tr').find('td:nth-child(4)').text();
         let no_of_bills = $(this).closest('tr').find('td:nth-child(5)').text();
         let collected_amnt = $(this).closest('tr').find('td:nth-child(6)').text();
@@ -319,9 +318,8 @@ function getCollectionList(){
         let columnMapping = [
             'sno',
             'name',
-            'linename',
             'branch_name',
-            'no_of_bills',
+            'no_of_customers',
             'total_amount',
             'action'
         ];
