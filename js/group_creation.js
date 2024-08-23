@@ -61,7 +61,7 @@ $(document).ready(function () {
         let grpInfoData = {
             'groupid': $('#groupid').val(),
             'group_id': $('#group_id').val(),
-            'chit_value': $('#chit_value').val(),
+            'chit_value': $('#chit_value').val().replace(/,/g, ''),
             'grp_date': $('#grp_date').val(),
             'group_name': $('#group_name').val(),
             'commission': $('#commission').val(),
@@ -163,6 +163,7 @@ $(document).ready(function () {
         let groupId = $('#group_id').val();
         let groupDate = $('#grp_date').val();
 
+
         // Initialize a flag to check validation
         let isValid = true;
 
@@ -170,10 +171,9 @@ $(document).ready(function () {
         let auctionDetails = [];
         $('#grp_details_table tbody tr').each(function () {
             let auctionMonth = $(this).find('.auction_month').text();
-            let monthName = $(this).find('td').eq(2).text();
+            let monthName = $(this).find('.month_name').text();
             let lowValue = $(this).find('.low_value').val();
             let highValue = $(this).find('.high_value').val();
-
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
                 isValid = false;
@@ -205,9 +205,9 @@ $(document).ready(function () {
             auction_details: auctionDetails
         }, function (response) {
             if (response.trim() === '1') { // Use .trim() to remove any extra whitespace
-                swalSuccess('Success', 'Auction Details have been Saved.');
+                swalSuccess('Success', 'Auction Details Submitted Successfully');
             } else {
-                swalError('Error', 'An error occurred while saving auction details.');
+                swalError('Warning', 'An error occurred while saving auction details.');
             }
         }).fail(function () {
             swalError('Error', 'Failed to communicate with the server.');
@@ -287,19 +287,6 @@ function getCustomerList() {
         $('#cus_name').empty().append(cusOptn);
     }, 'json');
 }
-
-// function isFormValid(formdata) {
-//     const excludedFields = ['groupid'];
-
-//     for (let key in formdata) {
-//         if (excludedFields.includes(key)) continue;
-//         if (!validateField(formdata[key], key)) {
-//             return false;
-//         }
-//     }
-
-//     return true;
-// }
 
 function getCusMapTable() {
     let total_members = $('#total_members').val();
@@ -417,8 +404,8 @@ function populateAuctionDetailsTable(data) {
     data.forEach(auction => {
         tableBody.append(`
             <tr>
-                <td>${auction.auction_month}</td>
-                <td>${auction.date}</td>
+                <td class="auction_month">${auction.auction_month}</td>
+                <td class="month_name">${auction.date}</td>
                 <td><input type="number" class="form-control low_value" value="${auction.low_value}" placeholder="Enter Low Value"></td>
                 <td><input type="number" class="form-control high_value" value="${auction.high_value}" placeholder="Enter High Value"></td>
             </tr>
@@ -454,9 +441,9 @@ function populateAuctionDetailsTableWithInputs(totalMonths, startMonth, endMonth
             <tr>
                 <td>${i + 1}</td>
                 <td class="auction_month" style="display: none;">${monthValue}</td>
-                <td>${monthName}</td>
-                <td><input type="text" class="form-control low_value" placeholder="Enter Low Value"></td>
-                <td><input type="text" class="form-control high_value" placeholder="Enter High Value"></td>
+                <td class="month_name">${monthName}</td>
+                <td><input type="number" class="form-control low_value" placeholder="Enter Low Value"></td>
+                <td><input type="number" class="form-control high_value" placeholder="Enter High Value"></td>
             </tr>
         `);
     }
@@ -518,7 +505,7 @@ function editGroupCreation(id) {
         $('#group_creation').addClass('edit-mode');
         $('#groupid').val(id);
         $('#group_id').val(response[0].grp_id);
-        $('#chit_value').val(response[0].chit_value);
+        $('#chit_value').val(moneyFormatIndia(response[0].chit_value))
         $('#group_name').val(response[0].grp_name);
         $('#commission').val(response[0].commission);
         $('#hours').val(response[0].hours);

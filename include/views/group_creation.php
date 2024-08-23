@@ -56,7 +56,7 @@
                                     <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
                                         <div class="form-group">
                                             <label for="chit_value">Chit Value</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="chit_value" name="chit_value" placeholder="Enter Chit Value" tabindex="2">
+                                            <input type="text" class="form-control" id="chit_value" name="chit_value" placeholder="Enter Chit Value" tabindex="2">
                                         </div>
                                     </div>
                                     <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4">
