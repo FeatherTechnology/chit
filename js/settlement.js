@@ -96,8 +96,8 @@ $(document).ready(function () {
         let settleInfo = {
             'auction_id': $('#groupid').val(),
             'settle_date': $('#settle_date').val(),
-            'settle_amount': $('#settle_amount').val(),
-            'settle_balance': parseFloat($('#settle_balance').val()) || 0,
+            'settle_amount': $('#settle_amount').val().replace(/,/g, ''),
+            'settle_balance': parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0,
             'payment_type': $('#payment_type').val(),
             'settle_type': $('#settle_type').val(),
             'bank_name': $('#bank_name').val(),
@@ -108,7 +108,7 @@ $(document).ready(function () {
             'transaction_id': $('#transaction_id').val(),
             'transaction_val': parseFloat($('#transaction_val').val()) || 0,
             'transaction_remark': $('#transaction_remark').val(),
-            'balance_amount': $('#balance_amount').val(),
+            'balance_amount': $('#balance_amount').val().replace(/,/g, ''),
             'gua_name': $('#gua_name').val(),
             'gua_relationship': $('#gua_relationship').val(),
         };
@@ -273,7 +273,7 @@ function setSettlementFields(data) {
 
     // Set Settlement Amount and Balance
     $('#settle_amount').val(settlementAmount);
-   // $('#settle_balance').val(moneyFormatIndia(settlementAmount));
+    // $('#settle_balance').val(moneyFormatIndia(settlementAmount));
    checkBalance();
     // Update the UI based on payment and settlement types
     updateSettleAmount();
