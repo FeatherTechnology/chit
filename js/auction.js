@@ -14,6 +14,7 @@ $(document).ready(function () {
         getAuctionTodayTable()
         getAuctionMonthTable()
         getAuctionTable();
+        $('#cus_mapping_table tbody').empty(); 
         $('#pageHeaderName').text(` - Auction`);
 
     });
@@ -525,7 +526,9 @@ function calculation(uniqueValue) {
             $('#auction_value').val(moneyFormatIndia(response.auction_value));
             $('#Commission').val(moneyFormatIndia(response.commission));
             $('#total_value').val(moneyFormatIndia(response.total_value));
-            $('#chit_amount').val(moneyFormatIndia(response.chit_amount));
+            let roundedAmount = Math.round(response.chit_amount); 
+            let formattedAmount = moneyFormatIndia(roundedAmount);
+            $('#chit_amount').val(formattedAmount);
         },
         error: function (xhr, status, error) {
             console.error('AJAX Error:', status, error);
