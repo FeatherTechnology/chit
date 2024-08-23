@@ -34,6 +34,7 @@ $query = "SELECT
             auction_details ad ON gc.grp_id = ad.group_id
         JOIN 
             branch_creation bc ON gc.branch = bc.id
+        JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
         WHERE 
             gc.status BETWEEN 2 AND 3";
 
