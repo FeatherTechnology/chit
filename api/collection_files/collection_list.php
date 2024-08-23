@@ -65,6 +65,7 @@ INNER JOIN (
     GROUP BY 
         cc.id
 ) AS subquery ON cc.id = subquery.cus_id AND gc.chit_value = subquery.max_chit_value
+   JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
 WHERE 
     ad.status IN (2, 3)";
 
