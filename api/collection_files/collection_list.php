@@ -9,7 +9,6 @@ $collectionSts = new CollectStsClass($pdo);
 
 $column = array(
     'cc.id',
-    'ad.group_id',
     'cc.cus_id',
     'cus_name',
     'cc.mobile1',
@@ -20,53 +19,42 @@ $column = array(
     'cc.id'
 );
 
-$query = "SELECT 
+$query = "SELECT
     ad.id,
     cc.id,
-    ad.id as auction_id,
+    ad.id AS auction_id,
     ad.group_id,
     cc.cus_id,
     CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
-    cc.mobile1, 
+    cc.mobile1,
     pl.place,
-    (SELECT GROUP_CONCAT(sc.occupation SEPARATOR ', ') 
-     FROM source sc 
-     WHERE sc.cus_id = cc.cus_id) AS occupations,
-     gcm.id as cus_mapping_id,
+    (
+        SELECT
+            GROUP_CONCAT(sc.occupation SEPARATOR ', ')
+        FROM 
+            SOURCE sc
+        WHERE
+            sc.cus_id = cc.cus_id
+    ) AS occupations,
+    gcm.id AS cus_mapping_id,
     gc.chit_value,
     gc.grace_period,
-    ad.date,              
+    ad.date,
     ad.chit_amount,
     ad.auction_month
-FROM 
+FROM
     auction_details ad
-LEFT JOIN 
-    group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
-LEFT JOIN 
-    customer_creation cc ON gcm.cus_id = cc.id 
-LEFT JOIN 
-    place pl ON cc.place = pl.id
-LEFT JOIN
-    group_creation gc ON ad.group_id = gc.grp_id
-INNER JOIN (
-    SELECT 
-        cc.id AS cus_id,
-        MAX(gc.chit_value) AS max_chit_value
-    FROM 
-        auction_details ad
-    LEFT JOIN 
-        group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
-    LEFT JOIN 
-        customer_creation cc ON gcm.cus_id = cc.id
-    LEFT JOIN 
-        group_creation gc ON ad.group_id = gc.grp_id
-    WHERE 
-        ad.status IN (2, 3)
-    GROUP BY 
-        cc.id
-) AS subquery ON cc.id = subquery.cus_id AND gc.chit_value = subquery.max_chit_value
-   JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
-WHERE 
+LEFT JOIN group_cus_mapping gcm ON
+    ad.group_id = gcm.grp_creation_id
+LEFT JOIN customer_creation cc ON
+    gcm.cus_id = cc.id
+LEFT JOIN place pl ON
+    cc.place = pl.id
+LEFT JOIN group_creation gc ON
+    ad.group_id = gc.grp_id
+JOIN users us ON
+    FIND_IN_SET(gc.branch, us.branch)
+WHERE
     ad.status IN (2, 3)";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
@@ -81,10 +69,11 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
                       ) LIKE '%" . $search . "%')";
 }
 
-$query .= " GROUP BY 
-    cc.cus_id, ad.group_id
+$query .= "
+   GROUP BY
+    cc.cus_id
 ORDER BY 
-    max_chit_value DESC, ad.group_id, cc.cus_id";
+   cc.cus_id";
 
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
@@ -104,7 +93,7 @@ $data = [];
 foreach ($result as $row) {
     $sub_array = array();
     $sub_array[] = $sno++;
-    $sub_array[] = isset($row['group_id']) ? $row['group_id'] : '';
+    // $sub_array[] = isset($row['group_id']) ? $row['group_id'] : '';
     $sub_array[] = isset($row['cus_id']) ? $row['cus_id'] : '';
     $sub_array[] = isset($row['cus_name']) ? $row['cus_name'] : '';
     $sub_array[] = isset($row['mobile1']) ? $row['mobile1'] : '';

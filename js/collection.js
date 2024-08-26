@@ -131,26 +131,27 @@ $(document).ready(function () {
     ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////
     $(document).on('click', '.add_commitment', function (event) {
         event.preventDefault();
-
+    
         // Show the modal
         $('#add_commitment_modal').modal('show');
-
+    
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
         let cusMappingID = dataParts[1];
-        // getCommitmentInfoTable(cusMappingID,groupId)
-
-        $('#add_commit').on('click', function (event) {
+        getCommitmentInfoTable(cusMappingID, groupId);
+    
+        // Unbind any existing click event to prevent multiple submissions
+        $('#add_commit').off('click').on('click', function (event) {
             event.preventDefault();
-
+    
             // Validation
             let label = $('#label').val();
             let remark = $('#remark').val();
-
+    
             var isValid = true;
-
+    
             // Validate each field
             if (!validateField(label, 'label')) {
                 isValid = false;
@@ -158,7 +159,7 @@ $(document).ready(function () {
             if (!validateField(remark, 'remark')) {
                 isValid = false;
             }
-
+    
             // If all fields are valid, proceed with the AJAX call
             if (isValid) {
                 $.post('api/collection_files/submit_commitement.php', {
@@ -171,14 +172,14 @@ $(document).ready(function () {
                         swalSuccess('Success', 'Commitment Added Successfully!');
                         $('#label').val('');
                         $('#remark').val('');
-                        getCommitmentInfoTable(cusMappingID, groupId)
+                        getCommitmentInfoTable(cusMappingID, groupId);
                     } else {
                         swalError('Warning', 'Commitment Not Added!');
                     }
                 });
             }
         });
-
+    
         $(document).on('click', '.commitDeleteBtn', function () {
             var id = $(this).attr('value');
             swalConfirm('Delete', 'Do you want to Delete the Commitment Details?', function () {
@@ -186,6 +187,7 @@ $(document).ready(function () {
             });
         });
     });
+    
 
     ///////////////////////////////////////////////////////Commitement  End/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////Due Start/////////////////////////////////////////////
@@ -250,48 +252,47 @@ $(document).ready(function () {
                                 <td>${row.pending}</td>
                             </tr>
                         `).join('');
-
+            
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
                                     <img src="img/auction.png" width="25" height="25" style="margin-right: 10px;">
                                     Chit Company
                                 </h2>
-                                <table style="margin: 0 auto; border-collapse: collapse; width: 50%;">
+                                <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
                                     ${rows}
                                 </table>
                             </div>
                         `;
-
-                        const tempDiv = $('<div>').html(content).css({
-                            position: 'absolute',
-                            top: '-500px',
-                            left: '-500px',
-                            width: '800px',  // Adjust width
-                            height: 'auto',  // Adjust height or set a specific height like '600px'
-                            padding: '20px', // Optional: add padding for better layout in the image
-                            backgroundColor: '#fff', // Ensure background is white (or any color you prefer)
-                            textAlign: 'center', // Center-aligns the content
-                            fontFamily: 'Arial, sans-serif' // Optional: for better font rendering
-                        }).appendTo('body');
-
-                        html2canvas(tempDiv[0], {
-                            scale: 2,  // Increase the scale factor to improve the resolution
-                            width: tempDiv.outerWidth(), // Set canvas width to the width of the div
-                            height: tempDiv.outerHeight() // Set canvas height to the height of the div
-                        }).then(canvas => {
-                            const imgData = canvas.toDataURL('image/png');
-                            const link = document.createElement('a');
-                            link.href = imgData;
-                            link.download = 'calculation_details.png';
-                            link.click();
-                            tempDiv.remove();
-                        }).catch(err => {
-                            console.error('Error generating image:', err);
-                        });
+            
+                        // Create a temporary iframe to hold the content for printing
+                        const printWindow = window.open('', '_blank');
+                        printWindow.document.write(`
+                            <html>
+                            <head>
+                                <title>Print Collection Details</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; text-align: center; }
+                                    table { margin: 0 auto; border-collapse: collapse; width: 50%; border: none; }
+                                    td { padding: 8px; }
+                                    strong { font-weight: bold; }
+                                </style>
+                            </head>
+                            <body>
+                                ${content}
+                            </body>
+                            </html>
+                        `);
+                        printWindow.document.close();
+            
+                        // Trigger the print dialog
+                        printWindow.focus();
+                        printWindow.print();
+                        printWindow.close();
                     },
                 });
             });
+            
         }, 1000);
 
 
