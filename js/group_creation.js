@@ -149,8 +149,6 @@ $(document).ready(function () {
         }
     });
 
-
-
     $(document).on('click', '.cusMapDeleteBtn', function () {
         let id = $(this).attr('value');
         swalConfirm('Delete', 'Do you want to remove this customer mapping?', removeCusMap, id, '');
@@ -159,21 +157,21 @@ $(document).ready(function () {
     //////////////////////////////////////////////////////////////auction Details/////////////////////////////////////////////////////////
     $('#submit_group_details').click(function (event) {
         event.preventDefault();
-
+    
         let groupId = $('#group_id').val();
         let groupDate = $('#grp_date').val();
-
-
+    
         // Initialize a flag to check validation
         let isValid = true;
-
+    
         // Collect table data
         let auctionDetails = [];
         $('#grp_details_table tbody tr').each(function () {
             let auctionMonth = $(this).find('.auction_month').text();
             let monthName = $(this).find('.month_name').text();
-            let lowValue = $(this).find('.low_value').val().replace(/,/g, '');;
-            let highValue = $(this).find('.high_value').val().replace(/,/g, '');;
+            let lowValue = $(this).find('.low_value').val().replace(/,/g, '');
+            let highValue = $(this).find('.high_value').val().replace(/,/g, '');
+    
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
                 isValid = false;
@@ -183,7 +181,7 @@ $(document).ready(function () {
                 $(this).find('.low_value').css('border-color', '');
                 $(this).find('.high_value').css('border-color', '');
             }
-
+    
             auctionDetails.push({
                 auction_month: auctionMonth,
                 month_name: monthName,
@@ -191,13 +189,22 @@ $(document).ready(function () {
                 high_value: highValue
             });
         });
-
-        // Show an alert if validation fails
+    
+        // Show an alert if any low_value or high_value fields are empty
         if (!isValid) {
             swalError('Warning', 'Please fill all low value and high value fields.');
             return; // Prevent further execution if validation fails
         }
-
+    
+        // Perform the min-max validation
+        checkMinMaxValue('.low_value', '.high_value');
+    
+        // Check if any fields were marked as invalid (red border) by checkMinMaxValue
+        if ($('#grp_details_table tbody tr').find('.low_value, .high_value').filter(function() { return $(this).css('border-color') === 'rgb(255, 0, 0)'; }).length > 0) {
+            swalError('Warning', 'Low value cannot be greater than high value.');
+            return; // Prevent form submission if any fields are invalid
+        }
+    
         // Send data to the PHP script if validation passes
         $.post('api/group_creation_files/submit_auction_details.php', {
             group_id: groupId,
@@ -205,6 +212,7 @@ $(document).ready(function () {
             auction_details: auctionDetails
         }, function (response) {
             if (response.trim() === '1') { // Use .trim() to remove any extra whitespace
+                populateAuctionDetailsTable(auctionDetails);
                 swalSuccess('Success', 'Auction Details Submitted Successfully');
             } else {
                 swalError('Warning', 'An error occurred while saving auction details.');
@@ -350,8 +358,8 @@ function getCusModal() {
 function checkMinMaxValue(lowValueClass, highValueClass) {
     // Iterate over each row in the table
     $('#grp_details_table tbody tr').each(function () {
-        let lowValue = $(this).find(lowValueClass).val();
-        let highValue = $(this).find(highValueClass).val();
+        let lowValue = $(this).find(lowValueClass).val().replace(/,/g, '');
+        let highValue = $(this).find(highValueClass).val().replace(/,/g, '');
 
         if (lowValue && highValue && parseFloat(lowValue) > parseFloat(highValue)) {
             // Handle invalid case where lowValue is greater than highValue
@@ -401,24 +409,28 @@ function populateAuctionDetailsTable(data) {
     let tableBody = $('#grp_details_table tbody');
     tableBody.empty();
 
-    data.forEach(auction => {
+    data.forEach((auction, index) => {
+        let monthName = auction.month_name || auction.date; // Ensure month_name is correctly retrieved
+
         tableBody.append(`
             <tr>
-                <td class="auction_month">${auction.auction_month}</td>
-                <td class="month_name">${auction.date}</td>
-                 <td><input type="text" class="form-control low_value" value="${moneyFormatIndia(auction.low_value)}" placeholder="Enter Low Value"></td>
+                <td>${index + 1}</td> <!-- S.No. -->
+                <td class="auction_month" style="display: none;">${auction.auction_month}</td>
+                <td class="month_name">${monthName}</td>
+                <td><input type="text" class="form-control low_value" value="${moneyFormatIndia(auction.low_value)}" placeholder="Enter Low Value"></td>
                 <td><input type="text" class="form-control high_value" value="${moneyFormatIndia(auction.high_value)}" placeholder="Enter High Value"></td>
             </tr>
         `);
     });
 
-    // Ensure this is applied to all rows
-    $('.low_value, .high_value').change(function () {
+    // Reapply the money format and validation check
+    $('.low_value, .high_value').on('change blur', function () {
+        let formattedValue = moneyFormatIndia(parseFloat($(this).val().replace(/,/g, '')) || 0);
+        $(this).val(formattedValue);
         checkMinMaxValue('.low_value', '.high_value');
     });
-
-    $('#grp_details_card').show();
 }
+
 
 
 
@@ -442,8 +454,8 @@ function populateAuctionDetailsTableWithInputs(totalMonths, startMonth, endMonth
                 <td>${i + 1}</td>
                 <td class="auction_month" style="display: none;">${monthValue}</td>
                 <td class="month_name">${monthName}</td>
-                <td><input type="number" class="form-control low_value" placeholder="Enter Low Value"></td>
-                <td><input type="number" class="form-control high_value" placeholder="Enter High Value"></td>
+                <td><input type="number" class="form-control  low_value" placeholder="Enter Low Value"></td>
+                <td><input type="number" class="form-control  high_value" placeholder="Enter High Value"></td>
             </tr>
         `);
     }
@@ -548,7 +560,7 @@ function editGroupCreation(id) {
     
                 // Function to handle form submission or any other action
                 function handleFormAction() {
-                    if (formChanged && status <= 2) {
+                    if (status <= 2) {
                         $('#back_btn').hide();
                     } else {
                         $('#back_btn').show();
