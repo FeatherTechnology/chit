@@ -240,7 +240,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="tot_income"> Total Income</label>
-                                    <input type="number" class="form-control" id="tot_income" name="tot_income" placeholder="Enter Total Income" disabled tabindex="24">
+                                    <input type="text" class="form-control" id="tot_income" name="tot_income" placeholder="Enter Total Income" disabled tabindex="24">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
