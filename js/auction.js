@@ -105,6 +105,7 @@ $(document).ready(function () {
             }
         }
     });
+    
 
 
     // Event handler for re-adding a customer from the table
