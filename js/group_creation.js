@@ -159,6 +159,7 @@ $(document).ready(function () {
     
         let groupId = $('#group_id').val();
         let groupDate = $('#grp_date').val();
+        let chitValue = parseFloat($('#chit_value').val().replace(/,/g, '')); // Parse chitValue as a float
     
         // Initialize a flag to check validation
         let isValid = true;
@@ -168,8 +169,8 @@ $(document).ready(function () {
         $('#grp_details_table tbody tr').each(function () {
             let auctionMonth = $(this).find('.auction_month').text();
             let monthName = $(this).find('.month_name').text();
-            let lowValue = $(this).find('.low_value').val().replace(/,/g, '');
-            let highValue = $(this).find('.high_value').val().replace(/,/g, '');
+            let lowValue = parseFloat($(this).find('.low_value').val().replace(/,/g, '')); // Parse lowValue as a float
+            let highValue = parseFloat($(this).find('.high_value').val().replace(/,/g, '')); // Parse highValue as a float
     
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
@@ -179,6 +180,13 @@ $(document).ready(function () {
             } else {
                 $(this).find('.low_value').css('border-color', '');
                 $(this).find('.high_value').css('border-color', '');
+    
+                // Validate that high_value is less than or equal to chit_value
+                if (highValue > chitValue) {
+                    isValid = false;
+                    $(this).find('.high_value').css('border-color', 'red');
+                    swalError('Warning', 'High value cannot be greater than Chit Value.');
+                }
             }
     
             auctionDetails.push({
@@ -189,9 +197,8 @@ $(document).ready(function () {
             });
         });
     
-        // Show an alert if any low_value or high_value fields are empty
+        // Show an alert if any fields are invalid
         if (!isValid) {
-            swalError('Warning', 'Please fill all low value and high value fields.');
             return; // Prevent further execution if validation fails
         }
     
@@ -220,6 +227,8 @@ $(document).ready(function () {
             swalError('Error', 'Failed to communicate with the server.');
         });
     });
+    
+    
     ///////////////////////////////////////////////////////////////////auction details End//////////////////////////////////////////
     $(document).on('click', '.edit-group-creation', function () {
         let id = $(this).attr('value');
@@ -501,7 +510,7 @@ function editGroupCreation(id) {
         $('#group_creation').addClass('edit-mode');
         $('#groupid').val(id);
         $('#group_id').val(response[0].grp_id);
-        $('#chit_value').val(moneyFormatIndia(response[0].chit_value))
+        $('#chit_value').val(moneyFormatIndia(response[0].chit_value));
         $('#group_name').val(response[0].grp_name);
         $('#commission').val(response[0].commission);
         $('#hours').val(response[0].hours);
@@ -538,7 +547,7 @@ function editGroupCreation(id) {
                 let formChanged = false;
     
                 // Attach the change event listener to all input, select, and textarea elements within the form
-                $('#group_creation').on('keyup.change paste', 'input, select, textarea', function() {
+                $('#group_creation').on('keyup change paste', 'input, select, textarea', function() {
                     checkFormChange();
                 });
     
@@ -557,7 +566,7 @@ function editGroupCreation(id) {
     
                 // Function to handle form submission or any other action
                 function handleFormAction() {
-                    if (status <= 2) {
+                    if (formChanged && status <= 2) {
                         $('#back_btn').hide();
                     } else {
                         $('#back_btn').show();
@@ -567,7 +576,7 @@ function editGroupCreation(id) {
                 // Clean up event listeners when leaving edit mode
                 $('#submit_group_info').click(function() {
                     $('#group_creation').removeClass('edit-mode');
-                    $('#group_creation').off('keyup.change paste');
+                    $('#group_creation').off('keyup change paste');
                 });
     
             }, 'json');
@@ -577,6 +586,7 @@ function editGroupCreation(id) {
         getCusModal();
     }, 'json');
 }
+
 $('button[type="reset"],#back_btn').click(function (event) {
     // event.preventDefault();
     $('input').each(function () {
