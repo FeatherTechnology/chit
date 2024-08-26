@@ -75,7 +75,7 @@ foreach ($result as $row) {
         $sno++,
         isset($row['grp_id']) ? $row['grp_id'] : '',
         isset($row['grp_name']) ? $row['grp_name'] : '',
-        isset($row['chit_value']) ? $row['chit_value'] : '',
+        isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']): '',
         isset($row['total_months']) ? $row['total_months'] : '',
         isset($row['date']) ? $row['date'] : '',
         isset($row['commission']) ? $row['commission'] : '',
@@ -104,4 +104,34 @@ $output = array(
 );
 
 echo json_encode($output);
-?>
+function moneyFormatIndia($num1)
+{
+    if ($num1 < 0) {
+        $num = str_replace("-", "", $num1);
+    } else {
+        $num = $num1;
+    }
+    $explrestunits = "";
+    if (strlen($num) > 3) {
+        $lastthree = substr($num, strlen($num) - 3, strlen($num));
+        $restunits = substr($num, 0, strlen($num) - 3);
+        $restunits = (strlen($restunits) % 2 == 1) ? "0" . $restunits : $restunits;
+        $expunit = str_split($restunits, 2);
+        for ($i = 0; $i < sizeof($expunit); $i++) {
+            if ($i == 0) {
+                $explrestunits .= (int)$expunit[$i] . ",";
+            } else {
+                $explrestunits .= $expunit[$i] . ",";
+            }
+        }
+        $thecash = $explrestunits . $lastthree;
+    } else {
+        $thecash = $num;
+    }
+
+    if ($num1 < 0 && $num1 != '') {
+        $thecash = "-" . $thecash;
+    }
+
+    return $thecash;
+}
