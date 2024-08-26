@@ -219,7 +219,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="cash_container" style="display: none;">
                                 <div class="form-group">
                                     <label for="settle_cash">Cash</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" id="settle_cash" name="settle_cash" tabindex="21">
+                                    <input type="text" class="form-control" id="settle_cash" name="settle_cash" tabindex="21">
                                 </div>
                             </div>
                         </div>
@@ -233,7 +233,7 @@
                             <div class="col-4" id="cheque_val_container" style="display: none;">
                                 <div class="form-group">
                                     <label for="cheque_val">Cheque Value</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" id="cheque_val" name="cheque_val" tabindex="23">
+                                    <input type="text" class="form-control" id="cheque_val" name="cheque_val" tabindex="23">
                                 </div>
                             </div>
                             <div class="col-4" id="cheque_remark_container" style="display: none;">
@@ -251,7 +251,7 @@
                             <div class="col-4" id="transaction_val_container" style="display: none;">
                                 <div class="form-group">
                                     <label for="transaction_val">Transaction Value</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" id="transaction_val" name="transaction_val" tabindex="25">
+                                    <input type="text" class="form-control" id="transaction_val" name="transaction_val" tabindex="25">
                                 </div>
                             </div>
                             <div class="col-4" id="transaction_remark_container" style="display: none;">

@@ -101,12 +101,12 @@ $(document).ready(function () {
             'payment_type': $('#payment_type').val(),
             'settle_type': $('#settle_type').val(),
             'bank_name': $('#bank_name').val(),
-            'settle_cash': parseFloat($('#settle_cash').val()) || 0,
+            'settle_cash': parseFloat($('#settle_cash').val().replace(/,/g, '')) || 0,
             'cheque_no': $('#cheque_no').val(),
-            'cheque_val': parseFloat($('#cheque_val').val()) || 0,
+            'cheque_val': parseFloat($('#cheque_val').val().replace(/,/g, '')) || 0,
             'cheque_remark': $('#cheque_remark').val(),
             'transaction_id': $('#transaction_id').val(),
-            'transaction_val': parseFloat($('#transaction_val').val()) || 0,
+            'transaction_val': parseFloat($('#transaction_val').val().replace(/,/g, '')) || 0,
             'transaction_remark': $('#transaction_remark').val(),
             'balance_amount': $('#balance_amount').val().replace(/,/g, ''),
             'gua_name': $('#gua_name').val(),
@@ -119,6 +119,8 @@ $(document).ready(function () {
         // Validate settlement amounts for Split Payment
         if (settleInfo.payment_type == '1') { // Split Payment
             var totalAmount = settleInfo.settle_cash + settleInfo.cheque_val + settleInfo.transaction_val;
+    
+            // Compare totalAmount with settle_balance, ensuring both are in a comparable format (no commas)
             if (totalAmount > settleInfo.settle_balance) {
                 swalError('Warning', 'The entered amount exceeds the settlement balance.');
                 isValid = false; // Ensure the form doesn't submit if invalid
@@ -141,21 +143,7 @@ $(document).ready(function () {
             });
         }
     });
-    $('#settle_cash,#cheque_val,#transaction_val').on('change', function () {
-    var paymentType = $('#payment_type').val();
-    var settleType = $('#settle_type').val();
-    var settleBalance = parseFloat($('#settle_balance').val()) || 0;
-    var cash = parseFloat($('#settle_cash').val()) || 0;
-    var chequeVal = parseFloat($('#cheque_val').val()) || 0;
-    var transactionVal = parseFloat($('#transaction_val').val()) || 0;
-
-    if (paymentType == '1') { // Split Payment
-        var totalAmount = cash + chequeVal + transactionVal;
-        if (totalAmount > settleBalance) {
-            swalError('Warning', 'The entered amount exceeds the settlement balance.');
-        }
-    }
-})
+    
     ////////////////////////Document End/////////////////////////////////////////////
 
 });
@@ -272,8 +260,8 @@ function setSettlementFields(data) {
     $('#settle_date').val(formatDate(currentDate));
 
     // Set Settlement Amount and Balance
-    $('#settle_amount').val(settlementAmount);
-    // $('#settle_balance').val(moneyFormatIndia(settlementAmount));
+    // $('#settle_amount').val(settlementAmount);
+    $('#settle_amount').val(moneyFormatIndia(settlementAmount));
    checkBalance();
     // Update the UI based on payment and settlement types
     updateSettleAmount();
@@ -325,14 +313,19 @@ function updateSettleAmount() {
 }
 
 function calculateBalance() {
-    // Assuming `settlementBalance` is the total balance amount fetched from the server
-    let settlementBalance = parseFloat($('#settle_balance').val()) || 0;
+    // Get the settlement balance and remove commas, then parse it as a float
+    let settlementBalance = parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0;
     let cashVal = parseFloat($('#settle_cash').val()) || 0;
     let chequeVal = parseFloat($('#cheque_val').val()) || 0;
     let transactionVal = parseFloat($('#transaction_val').val()) || 0;
+
+    // Calculate the remaining balance
     let remainingBalance = settlementBalance - (cashVal + chequeVal + transactionVal);
-    $('#balance_amount').val(remainingBalance);
+
+    // Format the remaining balance using the moneyFormatIndia function
+    $('#balance_amount').val(moneyFormatIndia(remainingBalance));
 }
+
 function isFormDataValid(settleInfo) {
     let isValid = true;
 
@@ -462,7 +455,7 @@ function checkBalance() {
                     // Set balance to settlement amount if balance is zero
                     $('#settle_balance').val($('#settle_amount').val());
                 } else {
-                    $('#settle_balance').val(balanceAmount);
+                    $('#settle_balance').val(moneyFormatIndia(balanceAmount));
                 }
 
             } else {
