@@ -3,6 +3,7 @@ $(document).ready(function () {
     $(document).on('click', '#add_group, #back_btn', function () {
         swapTableAndCreation();
         getDateDropDown()
+        getGroupCreationTable();
         $('#branch_name_edit').val('')
         $('#auction_modal_btn')
         .removeAttr('data-toggle')
@@ -107,9 +108,7 @@ $(document).ready(function () {
                     swalError('Error', 'Group Info Not Submitted');
                     $('#groupid').val('');
                     $('#group_creation').trigger('reset');
-                    getGroupCreationTable();
-                    swapTableAndCreation();
-
+                  
                 }
             }, 'json').fail(function () {
                 swalError('Error', 'Request failed. Please try again.');
@@ -486,8 +485,6 @@ function hideSubmitButton(status) {
         $('#submit_group_info').hide();
         $('#submit_group_details').hide();
         $('#submit_cus_map').hide();
-      
-
     } else {
         // Show the reset button and submit buttons
         $('#reset_clear').show();
