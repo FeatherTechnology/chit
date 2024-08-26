@@ -66,23 +66,7 @@ class CollectionStsClass
             }
         }
 
-        // Optional: Uncomment the following lines if you want to update the collection status
-        // $update_query = "UPDATE collection 
-        // SET coll_status = :coll_status 
-        // WHERE cus_mapping_id = :cus_mapping_id 
-        // AND auction_id = :auction_id 
-        // AND group_id = :group_id 
-        // AND cus_id = :cus_id 
-        // AND auction_month = :auction_month";
-        // $update_stmt = $this->pdo->prepare($update_query);
-        // $update_stmt->execute([
-        //     ':coll_status' => $coll_status,
-        //     ':cus_mapping_id' => $cus_mapping_id,
-        //     ':auction_id' => $auction_id,
-        //     ':group_id' => $group_id,
-        //     ':cus_id' => $cus_id,
-        //     ':auction_month' => $auction_month
-        // ]);
+        
 
         return $coll_status; // Return the status for use in your table
     }
