@@ -1,9 +1,10 @@
 <?php
 //Format number in Indian Format
-function moneyFormatIndia($num1) {
-    if($num1 < 0){
-        $num = str_replace("-","",$num1);
-    }else{
+function moneyFormatIndia($num1)
+{
+    if ($num1 < 0) {
+        $num = str_replace("-", "", $num1);
+    } else {
         $num = $num1;
     }
     $explrestunits = "";
@@ -24,7 +25,7 @@ function moneyFormatIndia($num1) {
         $thecash = $num;
     }
 
-    if($num1 < 0 && $num1 != ''){
+    if ($num1 < 0 && $num1 != '') {
         $thecash = "-" . $thecash;
     }
 
@@ -153,12 +154,12 @@ function moneyFormatIndia($num1) {
                     <div class="col-sm-3 col-md-3 col-lg-3"></div>
                     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                         <div class="form-group">
-                            <input type="radio" id="coll_hand_cash" name="coll_cash_type" value='1'/>&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
+                            <input type="radio" id="coll_hand_cash" name="coll_cash_type" value='1' />&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
                         </div>
                     </div>
                     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                         <div class="form-group">
-                            <input type="radio" id="coll_bank_cash" name="coll_cash_type" value='2'/>&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
+                            <input type="radio" id="coll_bank_cash" name="coll_cash_type" value='2' />&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
                         </div>
                     </div>
                     <div class="col-sm-2 col-md-2 col-lg-2">
@@ -203,12 +204,12 @@ function moneyFormatIndia($num1) {
                             <div class="col-sm-3 col-md-3 col-lg-3"></div>
                             <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                                 <div class="form-group">
-                                    <input type="radio" id="loan_issue_hand_cash" name="issue_cash_type" value='1'/>&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
+                                    <input type="radio" id="loan_issue_hand_cash" name="issue_cash_type" value='1' />&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
                                 </div>
                             </div>
                             <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12">
                                 <div class="form-group">
-                                    <input type="radio" id="loan_issue_bank_cash" name="issue_cash_type" value='2'/>&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
+                                    <input type="radio" id="loan_issue_bank_cash" name="issue_cash_type" value='2' />&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
                                 </div>
                             </div>
                             <div class="col-sm-2 col-md-2 col-lg-2">
@@ -228,7 +229,7 @@ function moneyFormatIndia($num1) {
                                         <th>User</th>
                                         <th>Branch</th>
                                         <th>Date</th>
-                                        <th>Customer</th>
+                                        <th> No of Customer</th>
                                         <th>Total Value</th>
                                     </tr>
                                 </thead>
@@ -276,10 +277,10 @@ function moneyFormatIndia($num1) {
         <div class="card" id="other_transaction_card" style="display: none;">
             <div class="card-header">
                 <h3 class="card-title">Other Transaction</h3>
-               
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_other_transaction_modal" id="other_trans_add" style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='31'>Add Other Transaction</button>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_balance_modal" id="balance_add" style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='30'>Balance Sheet</button>
 
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_other_transaction_modal" id="other_trans_add" style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='31'>Add Other Transaction</button>
+                <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_balance_modal" id="balance_add" style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='30'>Balance Sheet</button> -->
+                <button type="button" name="blnc_sheet_btn" id="blnc_sheet_btn" class="btn btn-primary" data-toggle='modal' data-target='.blncModal'  style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='30' >Balance Sheet</button>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -292,7 +293,8 @@ function moneyFormatIndia($num1) {
                                     <th>Name</th>
                                     <th>Type</th>
                                     <th>Bank Name</th>
-                                    <th>User Name</th>
+                                    <th>Reference ID</th>
+                                    <th>Transaction ID</th>
                                     <th>Amount</th>
                                     <th>Remark</th>
                                     <th>Action</th>
@@ -323,17 +325,17 @@ function moneyFormatIndia($num1) {
             <div class="modal-body">
                 <div class="container-fluid">
                     <form id="expenses_form">
-                        
+
                         <div class="row">
                             <div class="col-sm-1 col-md-1 col-lg-1"></div>
                             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
-                                    <input type="radio" id="expenses_hand_cash" name="expenses_cash_type" tabindex="2" value='1'/>&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
+                                    <input type="radio" id="expenses_hand_cash" name="expenses_cash_type" tabindex="2" value='1' />&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
-                                    <input type="radio" id="expenses_bank_cash" name="expenses_cash_type" tabindex="3" value='2'/>&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
+                                    <input type="radio" id="expenses_bank_cash" name="expenses_cash_type" tabindex="3" value='2' />&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
                                 </div>
                             </div>
                             <div class="col-sm-3 col-md-3 col-lg-3">
@@ -378,30 +380,9 @@ function moneyFormatIndia($num1) {
                                         <option value="11">Salary</option>
                                         <option value="12">Tax & Auditor</option>
                                         <option value="13">Int Less</option>
-                                        <option value="14">Agent Incentive</option>
-                                        <option value="15">Common</option>
-                                        <option value="16">Other</option>
+                                        <option value="14">Common</option>
+                                        <option value="15">Other</option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 agentDiv" style="display: none;">
-                                <div class="form-group">
-                                    <label for="agent_name">Agent Name</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="agent_name" id="agent_name" tabindex="8">
-                                        <option value="">Select Agent Name</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 agentDiv" style="display: none;">
-                                <div class="form-group">
-                                    <label for="expenses_total_issued">Total Issued</label><span class="text-danger">*</span>
-                                    <input class="form-control" name="expenses_total_issued" id="expenses_total_issued" tabindex="9" readonly>
-                                </div>
-                            </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 agentDiv" style="display: none;">
-                                <div class="form-group">
-                                    <label for="expenses_total_amnt">Total Amount</label><span class="text-danger">*</span>
-                                    <input class="form-control" name="expenses_total_amnt" id="expenses_total_amnt" tabindex="10" readonly>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -416,10 +397,10 @@ function moneyFormatIndia($num1) {
                                     <input type="number" class="form-control" name="expenses_amnt" id="expenses_amnt" tabindex="12">
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 exp_trans_div" style="display: none;">
                                 <div class="form-group">
                                     <label for="expenses_trans_id">Transaction ID</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="expenses_trans_id" id="expenses_trans_id" tabindex="13">
+                                    <input type="number" class="form-control" name="expenses_trans_id" id="expenses_trans_id" tabindex="13">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -437,7 +418,7 @@ function moneyFormatIndia($num1) {
                         <table id="expenses_creation_table" class="table custom-table">
                             <thead>
                                 <tr>
-                                    <th>S.NO</th>
+                                    <th width="20">S.NO</th>
                                     <th>Invoice ID</th>
                                     <th>Branch</th>
                                     <th>Expense Category</th>
@@ -458,7 +439,6 @@ function moneyFormatIndia($num1) {
     </div>
 </div>
 <!--Expenses Modal End-->
-
 <!--Other Transaction Modal Start-->
 <div class="modal fade" id="add_other_transaction_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
@@ -472,17 +452,17 @@ function moneyFormatIndia($num1) {
             <div class="modal-body">
                 <div class="container-fluid">
                     <form id="other_transaction_form">
-                        
+
                         <div class="row">
                             <div class="col-sm-1 col-md-1 col-lg-1"></div>
                             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
-                                    <input type="radio" id="othertransaction_hand_cash" name="othertransaction_cash_type" tabindex="2" value='1'/>&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
+                                    <input type="radio" id="othertransaction_hand_cash" name="othertransaction_cash_type" tabindex="2" value='1' />&emsp;<label class='radio-style'>Hand Cash</label>&emsp;
                                 </div>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
                                 <div class="form-group">
-                                    <input type="radio" id="othertransaction_bank_cash" name="othertransaction_cash_type" tabindex="3" value='2'/>&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
+                                    <input type="radio" id="othertransaction_bank_cash" name="othertransaction_cash_type" tabindex="3" value='2' />&emsp;<label class='radio-style'>Bank Cash</label>&emsp;
                                 </div>
                             </div>
                             <div class="col-sm-3 col-md-3 col-lg-3">
@@ -506,8 +486,9 @@ function moneyFormatIndia($num1) {
                                         <option value="4">Exchange</option>
                                         <option value="5">Bank Deposit</option>
                                         <option value="6">Bank Withdrawal</option>
-                                        <option value="7">Loan Advance</option>
+                                        <!-- <option value="7">Loan Advance</option> -->
                                         <option value="8">Other Income</option>
+                                        <option value="9">Bank Unbilled</option>
                                     </select>
                                 </div>
                             </div>
@@ -534,12 +515,24 @@ function moneyFormatIndia($num1) {
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
+                                    <label for="other_ref_id">Reference ID</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="other_ref_id" id="other_ref_id" tabindex="9" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 other_trans_div" style="display: none;">
+                                <div class="form-group">
+                                    <label for="other_trans_id">Transaction ID</label><span class="text-danger">*</span>
+                                    <input type="number" class="form-control" name="other_trans_id" id="other_trans_id" tabindex="10">
+                                </div>
+                            </div>
+                            <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 other_user_name_div" style="display: none;">
+                                <div class="form-group">
                                     <label for="other_user_name">User Name</label><span class="text-danger">*</span>
                                     <select class="form-control" name="other_user_name" id="other_user_name" tabindex="11" disabled>
                                         <option value="">Select User Name</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="other_amnt">Amount</label><span class="text-danger">*</span>
@@ -572,7 +565,8 @@ function moneyFormatIndia($num1) {
                                     <th>Name</th>
                                     <th>Type</th>
                                     <th>Bank Name</th>
-                                    <th>User Name</th>
+                                    <th>Reference ID</th>
+                                    <th>Transaction ID</th>
                                     <th>Amount</th>
                                     <th>Remark</th>
                                     <th>Action</th>
@@ -598,7 +592,7 @@ function moneyFormatIndia($num1) {
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Name</h5>
-                <button type="button" class="close name_close" data-dismiss="modal" tabindex="1" >
+                <button type="button" class="close name_close" data-dismiss="modal" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -648,80 +642,69 @@ function moneyFormatIndia($num1) {
     </div>
 </div>
 <!-- --------------------------------------------------------- Other Transaction Name Modal END ------------------------------------------------------------ -->
- <!-----------------------------------------------------------Balance Modal Start---------------------------------------------------------->
-<div class="modal fade" id="add_balance_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-lg " role="document">
+<!-- /////////////////////////////////////////////////////////////////// Balance Sheet Modal START ////////////////////////////////////////////////////////////////////// -->
+<div class="modal fade blncModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    
+    <div class="modal-dialog modal-lg">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add Balance</h5>
-                <button type="button" class="close clse-trans" data-dismiss="modal" tabindex="1" aria-label="Close">
+                <h5 class="modal-title" id="myLargeModalLabel"> Balance Sheet</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetBlncSheet()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <form id="balance_form">
-                        
-                        <div class="row">
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div class="form-group">
-                                    <label for="balance_sheet">Balance Sheet Type</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="balance_sheet" id="balance_sheet" tabindex="1">
-                                        <option value="">Select Balance Sheet Type</option>
-                                        <option value="1">Deposit</option>
-                                        <option value="2">EL</option>
-                                        <option value="3">Exchange</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div class="form-group">
-                                    <label for="balance_view">View</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="balance_view" id="balance_view" tabindex="8">
-                                        <option value="">Select View</option>
-                                        <option value="1">Overall</option>
-                                        <option value="2">Individual</option>
-                                    </select>
-                                </div>
-                            </div>
-                          
-                            <div class="col-sm-1 col-md-1 col-lg-1">
-                                <div class="form-group">
-                                    <label for="opening_bal" class="lbl-style-cls">Opening Balance</label>
-                                </div>
-                            </div>
-                            <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
-                            <div class="col-sm-2 col-md-2 col-lg-2">
-                                <div class="form-group">
-                                    <label for="opening_val" class="lbl-style-cls opening_val"><?php echo moneyFormatIndia(0); ?></label>
-
-                                </div>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-                <div class="row">
-                    <div class="col-12 overflow-x-cls">
-                        <table id="other_transaction_table" class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th>S.NO</th>
-                                    <th>Date</th>
-                                    <th>Cash Type</th>
-                                    <th>Credit</th>
-                                    <th>Debit</th>
-                                </tr>
-                            </thead>
-                            <tbody> </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+			
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+								<div class="form-group">
+									<label for='IDE_type'>Balance Sheet type</label>
+									<select class="form-control" id='IDE_type' name='IDE_type' >
+										<option value=''>Select Sheet type</option>
+										<option value='1'>Deposit</option>
+										<option value='2'>EL</option>
+										<option value='3'>Exchange</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12" >
+								<div class="form-group">
+									<label for='IDE_view_type'>View</label>
+									<select class="form-control" id='IDE_view_type' name='IDE_view_type' >
+										<option value=''>Select Sheet type</option>
+										<option value='1'>Overall</option>
+										<option value='2'>Individual</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 IDE_nameDiv" style="display:none">
+								<div class="form-group">
+									<label for='IDE_name_list'>Name</label>
+									<select class="form-control" id='IDE_name_list' name='IDE_name_list' >
+										<option value=''>Select Name</option>
+									</select>
+								</div>
+							</div>
+							<!-- <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 IDE_nameDiv" style="display:none">
+								<div class="form-group">
+									<label for='IDE_name_area'>Area</label>
+									<input type='text' class="form-control" id='IDE_name_area' name='IDE_name_area' readonly placeholder='Please Select Name'>
+								</div>
+							</div> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body">
+				<div id="blncSheetDiv">
+				</div>
+			</div>
             <div class="modal-footer">
-                <button class="btn btn-secondary clse-trans" data-dismiss="modal" tabindex="1">Close</button>
+                <button type="button" class="btn btn-secondary" id='' data-dismiss="modal" onclick="resetBlncSheet()">Close</button>
             </div>
         </div>
     </div>
 </div>
-<!-----------------------------------------------------Balance Modal END----------------------------------------------------------------->
+<!-- /////////////////////////////////////////////////////////////////// Balance Sheet Modal END ////////////////////////////////////////////////////////////////////// -->
