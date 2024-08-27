@@ -178,7 +178,7 @@ function moneyFormatIndia($num1) {
                                 <th>User</th>
                                 <th>Branch</th>
                                 <th>No of Customer</th>
-                                <th>Chit Amount</th>
+                                <th>Collection Amount</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -193,7 +193,7 @@ function moneyFormatIndia($num1) {
         <!----------------------------- Settlement CARD START ------------------------------>
         <div class="card" id="settlement_card" style="display: none;">
             <div class="card-header">
-                <h3 class="card-title">Loan Issued</h3>
+                <h3 class="card-title">Settlement</h3>
             </div>
             <div class="card-body">
                 <div class="row">

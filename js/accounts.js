@@ -35,14 +35,15 @@ $(document).ready(function(){
     
     $(document).on('click', '.collect-money', function(event){
         event.preventDefault();
+      
         let id = $(this).attr('value');
         let branch = $(this).closest('tr').find('td:nth-child(4)').text();
-        let no_of_bills = $(this).closest('tr').find('td:nth-child(5)').text();
-        let collected_amnt = $(this).closest('tr').find('td:nth-child(6)').text();
+        let no_of_customers = $(this).closest('tr').find('td:nth-child(5)').text();
+        let total_amount = $(this).closest('tr').find('td:nth-child(6)').text();
         let cash_type = $("input[name='coll_cash_type']:checked").val();
         let bank_id = $('#coll_bank_name :selected').val();
         
-        $.post('api/accounts_files/accounts/submit_collect.php', {id, line, branch, no_of_bills, collected_amnt, cash_type, bank_id}, function(response){
+        $.post('api/accounts_files/accounts/submit_collect.php', {id, line, branch, no_of_customers, total_amount, cash_type, bank_id}, function(response){
             if (response == '1') {
                 swalSuccess('Success', 'Collected Successfully.');
                 getCollectionList();

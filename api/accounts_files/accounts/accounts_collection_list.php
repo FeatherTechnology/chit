@@ -10,71 +10,78 @@ if ($cash_type == '1') {
 } elseif ($cash_type == '2') {
     $cndtn = "coll_mode != '1' AND bank_id = '$bank_id' ";
 }
+
 //collection_mode = 1 - cash; 2 to 5 - bank;
-$qry = $pdo->query("WITH first_query AS (
-    SELECT 
-        u.id AS userid, 
-        u.name,
-        bc.branch_name, 
-        (
-            SELECT COUNT(*) 
-            FROM collection nbc 
-            WHERE $cndtn 
-            AND nbc.insert_login_id = u.id 
-            AND nbc.collection_date > COALESCE(
-                (SELECT created_on FROM accounts_collect_entry WHERE user_id = u.id AND $cndtn ORDER BY id DESC LIMIT 1), 
+$qry = $pdo->query("WITH
+    first_query AS (
+        SELECT
+            u.id AS userid,
+            u.name,
+            bc.branch_name,
+            gc.grp_id,
+            COUNT(DISTINCT c.cus_id) AS no_of_customers,
+            SUM(c.collection_amount) AS total_amount,
+            '1' AS TYPE
+        FROM
+            `collection` c
+        LEFT JOIN group_creation gc ON c.group_id = gc.grp_id
+        LEFT JOIN branch_creation bc ON gc.branch = bc.id
+        JOIN users u ON FIND_IN_SET(gc.branch, u.branch)
+        WHERE
+            c.collection_date > COALESCE(
+                (
+                    SELECT created_on
+                    FROM accounts_collect_entry
+                    WHERE user_id = u.id
+                    ORDER BY id DESC
+                    LIMIT 1
+                ),
                 '1970-01-01 00:00:00'
-            ) 
-            AND nbc.collection_date <= NOW()
-        ) as no_of_customers,
-        SUM(c.chit_amount) AS total_amount, 
-        '1' AS type
-    FROM `collection` c 
-    JOIN branch_creation bc ON c.branch = bc.id 
-    JOIN users u ON FIND_IN_SET(c.line, u.line) 
-    LEFT JOIN (
-        SELECT ace.user_id, ace.collection_amnt 
-        FROM `accounts_collect_entry` ace 
-        ORDER BY id DESC 
-        LIMIT 1
-    ) AS last_collection ON c.insert_login_id = last_collection.user_id 
-    WHERE $cndtn 
-    AND c.collection_date > COALESCE(
-        (SELECT created_on FROM accounts_collect_entry WHERE user_id = u.id AND $cndtn ORDER BY id DESC LIMIT 1), 
-        '1970-01-01 00:00:00'
-    ) 
-    AND c.collection_date <= NOW() 
-    AND c.insert_login_id = u.id 
-    GROUP BY u.id
-),
-second_query AS (
-    SELECT 
-        us.id as userid, 
-        us.name, 
-        ac.branch, 
-        SUM(ac.no_of_customers) AS no_of_customers,  
-        SUM(ac.collection_amnt) AS total_amount,
-        '2' as type
-    FROM `accounts_collect_entry` ac
-    JOIN users us ON ac.user_id = us.id
-    WHERE $cndtn 
-    AND DATE(ac.created_on) = CURDATE() 
-    AND ac.user_id NOT IN (
-        SELECT userid 
-        FROM first_query
+            )
+            AND c.collection_date <= NOW()
+            AND c.insert_login_id = u.id
+        GROUP BY u.id, bc.branch_name, gc.grp_id
+    ),
+    second_query AS (
+        SELECT
+            us.id AS userid,
+            us.name,
+            bc.branch_name,
+            NULL AS grp_id, -- grp_id is not applicable here
+            SUM(ac.no_of_customers) AS no_of_customers,
+            SUM(ac.collection_amnt) AS total_amount,
+            '2' AS TYPE
+        FROM
+            `accounts_collect_entry` ac
+        JOIN users us ON ac.user_id = us.id
+        LEFT JOIN branch_creation bc ON ac.branch = bc.id
+        WHERE
+            DATE(ac.created_on) = CURDATE()
+            AND ac.user_id NOT IN (
+                SELECT userid FROM first_query
+            )
+        GROUP BY us.id, bc.branch_name
     )
-    GROUP BY us.id
-)
-SELECT userid, name,branch_name, no_of_customers, total_amount, type 
-FROM (
-    SELECT * FROM first_query
-    UNION ALL
-    SELECT * FROM second_query
-) AS subqry 
-ORDER BY userid ASC; ");
+SELECT
+    userid,
+    name,
+    branch_name,
+    grp_id,
+    no_of_customers,
+    total_amount,
+    TYPE
+FROM
+    (
+        SELECT * FROM first_query
+        UNION ALL
+        SELECT * FROM second_query
+    ) AS subqry
+ORDER BY userid ASC;
+");
+
 if ($qry->rowCount() > 0) {
     while ($data = $qry->fetch(PDO::FETCH_ASSOC)) {
-        $disabled = ($data['type'] == 2) ? 'disabled' : ''; // 1 - disabled; 2 - enabled;
+        $disabled = ($data['TYPE'] == 2) ? 'disabled' : ''; // 1 - enabled; 2 - disabled
         $data['total_amount'] = moneyFormatIndia($data['total_amount']);
         $data['action'] = "<a href='#' class='collect-money' value='" . $data['userid'] . "'><button class='btn btn-primary' " . $disabled . ">Collect</button></a> ";
         $collection_list_arr[] = $data;
