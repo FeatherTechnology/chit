@@ -45,11 +45,13 @@ $(document).ready(function () {
             $('#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
             $('#settle_cash').prop('readonly', true);
         } else if (settleType == "2") { // Cheque
+            resetValidation()
             getBankName()
             $('#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container').show();
             $('#cash_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
             $('#cheque_val').prop('readonly', true);
         } else if (settleType == "3") { // Bank Transfer
+            resetValidation()
             getBankName()
             $('#bank_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').show();
             $('#cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container').hide();
@@ -89,42 +91,59 @@ $(document).ready(function () {
     });
     $('#submit_settle_info').click(function (event) {
         event.preventDefault();
-        let settleInfo= {
-            'auction_id' : $('#groupid').val(),
+    
+        // Gathering form data into an object
+        let settleInfo = {
+            'auction_id': $('#groupid').val(),
             'settle_date': $('#settle_date').val(),
-            'settle_amount': $('#settle_amount').val(),
-            'settle_balance': $('#settle_balance').val(),
+            'settle_amount': $('#settle_amount').val().replace(/,/g, ''),
+            'settle_balance': parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0,
             'payment_type': $('#payment_type').val(),
             'settle_type': $('#settle_type').val(),
             'bank_name': $('#bank_name').val(),
-            'settle_cash': $('#settle_cash').val(),
+            'settle_cash': parseFloat($('#settle_cash').val().replace(/,/g, '')) || 0,
             'cheque_no': $('#cheque_no').val(),
-            'cheque_val': $('#cheque_val').val(),
+            'cheque_val': parseFloat($('#cheque_val').val().replace(/,/g, '')) || 0,
             'cheque_remark': $('#cheque_remark').val(),
             'transaction_id': $('#transaction_id').val(),
-            'transaction_val': $('#transaction_val').val(),
+            'transaction_val': parseFloat($('#transaction_val').val().replace(/,/g, '')) || 0,
             'transaction_remark': $('#transaction_remark').val(),
-            'balance_amount': $('#balance_amount').val(),
+            'balance_amount': $('#balance_amount').val().replace(/,/g, ''),
             'gua_name': $('#gua_name').val(),
             'gua_relationship': $('#gua_relationship').val(),
+        };
+    
+        // Validate the form data
+        let isValid = isFormDataValid(settleInfo);
+    
+        // Validate settlement amounts for Split Payment
+        if (settleInfo.payment_type == '1') { // Split Payment
+            var totalAmount = settleInfo.settle_cash + settleInfo.cheque_val + settleInfo.transaction_val;
+    
+            // Compare totalAmount with settle_balance, ensuring both are in a comparable format (no commas)
+            if (totalAmount > settleInfo.settle_balance) {
+                swalError('Warning', 'The entered amount exceeds the settlement balance.');
+                isValid = false; // Ensure the form doesn't submit if invalid
+            }
         }
-
-        if (isFormDataValid(settleInfo)) {
+    
+        // Check if the form is valid before submission
+        if (isValid) {
             $.post('api/settlement_files/submit_settlement_info.php', settleInfo, function (response) {
                 if (response == '1') {
                     swalSuccess('Success', 'Settlement Successfully');
                     $('.settlement_table_content').show();
-                    $('#settlement_content,.back_btn').hide();
+                    $('#settlement_content, .back_btn').hide();
                     getSettlementTable();
                     $('#groupid').val('');
-                $('#settlement_screen').trigger('reset');
+                    $('#settlement_screen').trigger('reset');
                 } else {
                     swalError('Warning', 'Settlement Failed.');
                 }
             });
         }
-
-    })
+    });
+    
     ////////////////////////Document End/////////////////////////////////////////////
 
 });
@@ -241,8 +260,8 @@ function setSettlementFields(data) {
     $('#settle_date').val(formatDate(currentDate));
 
     // Set Settlement Amount and Balance
-    $('#settle_amount').val(settlementAmount);
-   // $('#settle_balance').val(moneyFormatIndia(settlementAmount));
+    // $('#settle_amount').val(settlementAmount);
+    $('#settle_amount').val(moneyFormatIndia(settlementAmount));
    checkBalance();
     // Update the UI based on payment and settlement types
     updateSettleAmount();
@@ -263,8 +282,9 @@ function fetchSettlementData(id) {
 function updateSettleAmount() {
     const paymentType = $('#payment_type').val();
     const settleType = $('#settle_type').val();
-    const settlementAmount = $('#settle_amount').val();
-
+    
+    // Fetch the settle balance value
+    const settleBalance = $('#settle_balance').val();
 
     // Hide all containers initially
     $('#cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #bank_container').hide();
@@ -272,11 +292,14 @@ function updateSettleAmount() {
     // Show relevant containers based on payment type and settlement type
     if (paymentType == "2") { // Single Payment
         if (settleType == "1") { // Cash
-            $('#settle_cash').val(settlementAmount);
+            $('#settle_cash').val(settleBalance);
+            $('#cash_container').show(); // Show the cash container
         } else if (settleType == "2") { // Cheque
-            $('#cheque_val').val(settlementAmount);
+            $('#cheque_val').val(settleBalance);
+            $('#cheque_no_container, #cheque_val_container, #cheque_remark_container, #bank_container').show(); // Show cheque containers
         } else if (settleType == "3") { // Bank Transfer
-            $('#transaction_val').val(settlementAmount);
+            $('#transaction_val').val(settleBalance);
+            $('#transaction_id_container, #transaction_val_container, #transaction_remark_container, #bank_container').show(); // Show transaction containers
         }
     } else if (paymentType == "1") { // Split Payment
         $('#bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').show();
@@ -288,45 +311,80 @@ function updateSettleAmount() {
         $('#settle_type_container, #bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
     }
 }
+
 function calculateBalance() {
-    // Assuming `settlementBalance` is the total balance amount fetched from the server
-    let settlementBalance = parseFloat($('#settle_balance').val()) || 0;
+    // Get the settlement balance and remove commas, then parse it as a float
+    let settlementBalance = parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0;
     let cashVal = parseFloat($('#settle_cash').val()) || 0;
     let chequeVal = parseFloat($('#cheque_val').val()) || 0;
     let transactionVal = parseFloat($('#transaction_val').val()) || 0;
+
+    // Calculate the remaining balance
     let remainingBalance = settlementBalance - (cashVal + chequeVal + transactionVal);
-    $('#balance_amount').val(remainingBalance);
+
+    // Format the remaining balance using the moneyFormatIndia function
+    $('#balance_amount').val(moneyFormatIndia(remainingBalance));
 }
+
 function isFormDataValid(settleInfo) {
     let isValid = true;
-    // Validate common fields
-    isValid = validateField(settleInfo.gua_name, 'gua_name') && isValid;
-    isValid = validateField(settleInfo.payment_type, 'payment_type') && isValid;
-    if (settleInfo.payment_type == "1") {
-        // Check if at least one of the fields is filled
-        let isCashFilled = validateField(settleInfo.settle_cash, 'settle_cash');
-        let isChequeFilled = validateField(settleInfo.cheque_val, 'cheque_val');
-        let isTransactionFilled = validateField(settleInfo.transaction_val, 'transaction_val');
 
-        if (isCashFilled || isChequeFilled || isTransactionFilled) {
-            isValid = isCashFilled || isChequeFilled || isTransactionFilled;
-            resetFieldBorders(['settle_cash', 'cheque_val', 'transaction_val']);
+    // Validate gua_name field
+    if (!validateField(settleInfo.gua_name, 'gua_name')) {
+        isValid = false;
+    }
+
+    // Validate payment type and related fields
+    if (!validateField(settleInfo.payment_type, 'payment_type')) {
+        isValid = false;
+    }
+
+    if (settleInfo.payment_type == "1") { // Split Payment
+        // Check if at least one of the fields is filled
+        let isCashFilled = settleInfo.settle_cash > 0;
+        let isChequeFilled = settleInfo.cheque_val > 0;
+        let isTransactionFilled = settleInfo.transaction_val > 0;
+
+        if (!(isCashFilled || isChequeFilled || isTransactionFilled)) {
+            isValid = false;
+            $('#settle_cash, #cheque_val, #transaction_val').css('border', '1px solid #ff0000');
         } else {
+            resetFieldBorders(['settle_cash', 'cheque_val', 'transaction_val']);
+        }
+        if (isChequeFilled) {
+            if (!validateField(settleInfo.cheque_no, 'cheque_no') && 
+                !validateField(settleInfo.bank_name, 'bank_name')) {
+                isValid = false;
+            }
+        }
+        if (isTransactionFilled) {
+            if (!validateField(settleInfo.transaction_id, 'transaction_id') && 
+                !validateField(settleInfo.bank_name, 'bank_name')) {
+                isValid = false;
+            }
+        }
+
+    } else if (settleInfo.payment_type == "2") { // Single Payment
+        if (!validateField(settleInfo.settle_type, 'settle_type')) {
             isValid = false;
         }
-    } else if (settleInfo.payment_type == "2") {
-        isValid = validateField(settleInfo.settle_type, 'settle_type') && isValid;
 
-        if (settleInfo.settle_type == "1") {
-            isValid = validateField(settleInfo.settle_cash, 'settle_cash') && isValid;
-        } else if (settleInfo.settle_type == "2") {
-            isValid = validateField(settleInfo.cheque_no, 'cheque_no') &&
-                      validateField(settleInfo.cheque_val, 'cheque_val') &&
-                      validateField(settleInfo.cheque_remark, 'cheque_remark') && isValid;
-        } else if (settleInfo.settle_type == "3") {
-            isValid = validateField(settleInfo.transaction_id, 'transaction_id') &&
-                      validateField(settleInfo.transaction_val, 'transaction_val') &&
-                      validateField(settleInfo.transaction_remark, 'transaction_remark') && isValid;
+        if (settleInfo.settle_type == "1") { // Cash
+            if (!validateField(settleInfo.settle_cash, 'settle_cash')) {
+                isValid = false;
+            }
+        } else if (settleInfo.settle_type == "2") { // Cheque
+            if (!validateField(settleInfo.cheque_no, 'cheque_no') ||
+                !validateField(settleInfo.cheque_val, 'cheque_val') ||
+                !validateField(settleInfo.bank_name, 'bank_name')) {
+                isValid = false;
+            }
+        } else if (settleInfo.settle_type == "3") { // Transaction
+            if (!validateField(settleInfo.transaction_id, 'transaction_id') ||
+                !validateField(settleInfo.transaction_val, 'transaction_val') ||
+                !validateField(settleInfo.bank_name, 'bank_name')) {
+                isValid = false;
+            }
         }
     }
 
@@ -340,7 +398,7 @@ function resetFieldBorders(fields) {
 }
 function resetValidation() {
     const fieldsToReset = [
-        'settle_type', 'settle_cash', 'cheque_no',
+        'settle_type', 'settle_cash', 'cheque_no','bank_name',
         'cheque_val', 'cheque_remark', 'transaction_id', 'transaction_val',
         'transaction_remark', 'payment_type', 'gua_name'
     ];
@@ -352,18 +410,36 @@ function resetValidation() {
 }
 function getCashAck() {
     let auction_id = $('#groupid').val();
-    $.post('api/settlement_files/get_cashack_list.php',{auction_id},function (response) {
-        let cashList = [
-            "sno",
-            "settle_date",
-            "settle_amount",
-            "guarantor_name",
-            "guarantor_relationship"
-        ]
-        appendDataToTable('#guarantor_table', response, cashList);
-        setdtable('#guarantor_table');
+    $.post('api/settlement_files/get_cashack_list.php', { auction_id }, function (response) {
+        let tableBody = $('#guarantor_table tbody');
+        tableBody.empty(); // Clear existing rows
+
+        // Check if response is an array and has elements
+        if (Array.isArray(response) && response.length > 0) {
+            response.forEach((row, index) => {
+                // Append new rows to the table
+                tableBody.append(`
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${row.settle_date}</td>
+                        <td>${row.balance_amount}</td>
+                        <td>${row.guarantor_name}</td>
+                        <td>${row.guarantor_relationship}</td>
+                    </tr>
+                `);
+            });
+        } else {
+            // Optionally, display a message if no data is available
+            tableBody.append(`
+                <tr>
+                    <td colspan="5">No data available</td>
+                </tr>
+            `);
+        }
     }, 'json');
 }
+
+
 function checkBalance() {
     let auction_id = $('#groupid').val();
     $.ajax({
@@ -379,8 +455,9 @@ function checkBalance() {
                     // Set balance to settlement amount if balance is zero
                     $('#settle_balance').val($('#settle_amount').val());
                 } else {
-                    $('#settle_balance').val(balanceAmount);
+                    $('#settle_balance').val(moneyFormatIndia(balanceAmount));
                 }
+
             } else {
                 console.error('Balance amount not found in response');
             }
