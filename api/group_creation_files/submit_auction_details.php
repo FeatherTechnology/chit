@@ -4,6 +4,7 @@ require '../../ajaxconfig.php';
 $user_id = $_SESSION['user_id'];
 $groupId = $_POST['group_id'];
 $grpDate = $_POST['grp_date'];
+
 $auctionDetails = $_POST['auction_details'];
 
 $result = 0;
@@ -25,8 +26,8 @@ try {
             $formatDate = new DateTime($formattedDate);
             $formattedDate = $formatDate->format('Y-m-d');
 
-            $insertQry = $pdo->prepare("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value, status, insert_login_id, created_on) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-            $insertQry->execute([$groupId, $formattedDate, $auctionMonth, $lowValue, $highValue,1,$user_id]);
+            $insertQry = $pdo->query("INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value, status, insert_login_id, created_on) VALUES ('$groupId','$formattedDate', '$auctionMonth', '$lowValue','$highValue', 1, '$user_id', NOW())");
+ 
         }
 
         $result = 1; // Success
@@ -37,4 +38,5 @@ try {
 
 echo json_encode($result);
 ?>
+
 

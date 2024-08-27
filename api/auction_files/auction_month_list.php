@@ -33,6 +33,7 @@ LEFT JOIN
     auction_details ad ON gc.grp_id = ad.group_id
 JOIN 
     branch_creation bc ON gc.branch = bc.id
+JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
 WHERE 
     MONTH(ad.date) = MONTH(CURDATE()) AND
     YEAR(ad.date) = YEAR(CURDATE()) AND
@@ -52,6 +53,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 }
 
 // Modify ordering logic to sort status `1` first and `2` last
+$query .= " GROUP BY gc.grp_id ";
 $query .= " ORDER BY 
     CASE 
         WHEN ad.status = 1 THEN 0
