@@ -293,7 +293,7 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 				$('<td>').text(index + 1).appendTo(row); // Add serial number
 			} else if (item.hasOwnProperty(value)) {
 
-				if (value === 'action' || value === 'upload' || value === 'charts' || value === 'info') {
+				if (value === 'action' || value === 'upload' || value === 'charts' || value === 'info'|| value==='grace_period') {
 					// If the key is 'action' or 'upload', insert the HTML content directly
 					$('<td>').html(item[value]).appendTo(row);
 				} else {

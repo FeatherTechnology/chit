@@ -3,6 +3,7 @@ $(document).ready(function () {
     $(document).on('click', '#add_group, #back_btn', function () {
         swapTableAndCreation();
         getDateDropDown()
+        getGroupCreationTable();
         $('#branch_name_edit').val('')
         $('#auction_modal_btn')
         .removeAttr('data-toggle')
@@ -61,7 +62,7 @@ $(document).ready(function () {
         let grpInfoData = {
             'groupid': $('#groupid').val(),
             'group_id': $('#group_id').val(),
-            'chit_value': $('#chit_value').val(),
+            'chit_value': $('#chit_value').val().replace(/,/g, ''),
             'grp_date': $('#grp_date').val(),
             'group_name': $('#group_name').val(),
             'commission': $('#commission').val(),
@@ -107,9 +108,7 @@ $(document).ready(function () {
                     swalError('Error', 'Group Info Not Submitted');
                     $('#groupid').val('');
                     $('#group_creation').trigger('reset');
-                    getGroupCreationTable();
-                    swapTableAndCreation();
-
+                  
                 }
             }, 'json').fail(function () {
                 swalError('Error', 'Request failed. Please try again.');
@@ -149,8 +148,6 @@ $(document).ready(function () {
         }
     });
 
-
-
     $(document).on('click', '.cusMapDeleteBtn', function () {
         let id = $(this).attr('value');
         swalConfirm('Delete', 'Do you want to remove this customer mapping?', removeCusMap, id, '');
@@ -159,21 +156,22 @@ $(document).ready(function () {
     //////////////////////////////////////////////////////////////auction Details/////////////////////////////////////////////////////////
     $('#submit_group_details').click(function (event) {
         event.preventDefault();
-
+    
         let groupId = $('#group_id').val();
         let groupDate = $('#grp_date').val();
-
+        let chitValue = parseFloat($('#chit_value').val().replace(/,/g, '')); // Parse chitValue as a float
+    
         // Initialize a flag to check validation
         let isValid = true;
-
+    
         // Collect table data
         let auctionDetails = [];
         $('#grp_details_table tbody tr').each(function () {
             let auctionMonth = $(this).find('.auction_month').text();
-            let monthName = $(this).find('td').eq(2).text();
-            let lowValue = $(this).find('.low_value').val();
-            let highValue = $(this).find('.high_value').val();
-
+            let monthName = $(this).find('.month_name').text();
+            let lowValue = parseFloat($(this).find('.low_value').val().replace(/,/g, '')); // Parse lowValue as a float
+            let highValue = parseFloat($(this).find('.high_value').val().replace(/,/g, '')); // Parse highValue as a float
+    
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
                 isValid = false;
@@ -182,8 +180,15 @@ $(document).ready(function () {
             } else {
                 $(this).find('.low_value').css('border-color', '');
                 $(this).find('.high_value').css('border-color', '');
+    
+                // Validate that high_value is less than or equal to chit_value
+                if (highValue > chitValue) {
+                    isValid = false;
+                    $(this).find('.high_value').css('border-color', 'red');
+                    swalError('Warning', 'High value cannot be greater than Chit Value.');
+                }
             }
-
+    
             auctionDetails.push({
                 auction_month: auctionMonth,
                 month_name: monthName,
@@ -191,13 +196,21 @@ $(document).ready(function () {
                 high_value: highValue
             });
         });
-
-        // Show an alert if validation fails
+    
+        // Show an alert if any fields are invalid
         if (!isValid) {
-            swalError('Validation Error', 'Please fill all Low Value and High Value fields.');
             return; // Prevent further execution if validation fails
         }
-
+    
+        // Perform the min-max validation
+        checkMinMaxValue('.low_value', '.high_value');
+    
+        // Check if any fields were marked as invalid (red border) by checkMinMaxValue
+        if ($('#grp_details_table tbody tr').find('.low_value, .high_value').filter(function() { return $(this).css('border-color') === 'rgb(255, 0, 0)'; }).length > 0) {
+            swalError('Warning', 'Low value cannot be greater than high value.');
+            return; // Prevent form submission if any fields are invalid
+        }
+    
         // Send data to the PHP script if validation passes
         $.post('api/group_creation_files/submit_auction_details.php', {
             group_id: groupId,
@@ -205,14 +218,17 @@ $(document).ready(function () {
             auction_details: auctionDetails
         }, function (response) {
             if (response.trim() === '1') { // Use .trim() to remove any extra whitespace
-                swalSuccess('Success', 'Auction Details have been Saved.');
+                populateAuctionDetailsTable(auctionDetails);
+                swalSuccess('Success', 'Auction Details Submitted Successfully');
             } else {
-                swalError('Error', 'An error occurred while saving auction details.');
+                swalError('Warning', 'An error occurred while saving auction details.');
             }
         }).fail(function () {
             swalError('Error', 'Failed to communicate with the server.');
         });
     });
+    
+    
     ///////////////////////////////////////////////////////////////////auction details End//////////////////////////////////////////
     $(document).on('click', '.edit-group-creation', function () {
         let id = $(this).attr('value');
@@ -288,19 +304,6 @@ function getCustomerList() {
     }, 'json');
 }
 
-// function isFormValid(formdata) {
-//     const excludedFields = ['groupid'];
-
-//     for (let key in formdata) {
-//         if (excludedFields.includes(key)) continue;
-//         if (!validateField(formdata[key], key)) {
-//             return false;
-//         }
-//     }
-
-//     return true;
-// }
-
 function getCusMapTable() {
     let total_members = $('#total_members').val();
     if (total_members === '') {
@@ -363,8 +366,8 @@ function getCusModal() {
 function checkMinMaxValue(lowValueClass, highValueClass) {
     // Iterate over each row in the table
     $('#grp_details_table tbody tr').each(function () {
-        let lowValue = $(this).find(lowValueClass).val();
-        let highValue = $(this).find(highValueClass).val();
+        let lowValue = $(this).find(lowValueClass).val().replace(/,/g, '');
+        let highValue = $(this).find(highValueClass).val().replace(/,/g, '');
 
         if (lowValue && highValue && parseFloat(lowValue) > parseFloat(highValue)) {
             // Handle invalid case where lowValue is greater than highValue
@@ -414,24 +417,28 @@ function populateAuctionDetailsTable(data) {
     let tableBody = $('#grp_details_table tbody');
     tableBody.empty();
 
-    data.forEach(auction => {
+    data.forEach((auction, index) => {
+        let monthName = auction.month_name || auction.date; // Ensure month_name is correctly retrieved
+
         tableBody.append(`
             <tr>
-                <td>${auction.auction_month}</td>
-                <td>${auction.date}</td>
-                <td><input type="number" class="form-control low_value" value="${auction.low_value}" placeholder="Enter Low Value"></td>
-                <td><input type="number" class="form-control high_value" value="${auction.high_value}" placeholder="Enter High Value"></td>
+                <td>${index + 1}</td> <!-- S.No. -->
+                <td class="auction_month" style="display: none;">${auction.auction_month}</td>
+                <td class="month_name">${monthName}</td>
+                <td><input type="text" class="form-control low_value" value="${moneyFormatIndia(auction.low_value)}" placeholder="Enter Low Value"></td>
+                <td><input type="text" class="form-control high_value" value="${moneyFormatIndia(auction.high_value)}" placeholder="Enter High Value"></td>
             </tr>
         `);
     });
 
-    // Ensure this is applied to all rows
-    $('.low_value, .high_value').change(function () {
+    // Reapply the money format and validation check
+    $('.low_value, .high_value').on('change blur', function () {
+        let formattedValue = moneyFormatIndia(parseFloat($(this).val().replace(/,/g, '')) || 0);
+        $(this).val(formattedValue);
         checkMinMaxValue('.low_value', '.high_value');
     });
-
-    $('#grp_details_card').show();
 }
+
 
 
 
@@ -454,9 +461,9 @@ function populateAuctionDetailsTableWithInputs(totalMonths, startMonth, endMonth
             <tr>
                 <td>${i + 1}</td>
                 <td class="auction_month" style="display: none;">${monthValue}</td>
-                <td>${monthName}</td>
-                <td><input type="text" class="form-control low_value" placeholder="Enter Low Value"></td>
-                <td><input type="text" class="form-control high_value" placeholder="Enter High Value"></td>
+                <td class="month_name">${monthName}</td>
+                <td><input type="number" class="form-control  low_value" placeholder="Enter Low Value"></td>
+                <td><input type="number" class="form-control  high_value" placeholder="Enter High Value"></td>
             </tr>
         `);
     }
@@ -479,19 +486,6 @@ function getDateDropDown(editDId) {
     $('#grp_date').empty().append(dateOption);
 }
 
-// function hideSubmitButton(groupId) {
-//     if (groupId) {
-//         $.post('api/group_creation_files/fetch_group_status.php', { group_id: groupId }, function(response) {
-//             var status = parseInt(response, 10);
-
-//             if (status === 3) {
-//                 $('#submit_group_info').hide();
-//                 $('#submit_group_details').hide();
-//                 $('#submit_cus_map').hide();
-//             }
-//         }, 'json')
-//     }
-// }
 function hideSubmitButton(status) {
     if (status >2) {
         // Hide the reset button and submit buttons
@@ -500,8 +494,6 @@ function hideSubmitButton(status) {
         $('#submit_group_info').hide();
         $('#submit_group_details').hide();
         $('#submit_cus_map').hide();
-      
-
     } else {
         // Show the reset button and submit buttons
         $('#reset_clear').show();
@@ -518,7 +510,7 @@ function editGroupCreation(id) {
         $('#group_creation').addClass('edit-mode');
         $('#groupid').val(id);
         $('#group_id').val(response[0].grp_id);
-        $('#chit_value').val(response[0].chit_value);
+        $('#chit_value').val(moneyFormatIndia(response[0].chit_value));
         $('#group_name').val(response[0].grp_name);
         $('#commission').val(response[0].commission);
         $('#hours').val(response[0].hours);
@@ -555,7 +547,7 @@ function editGroupCreation(id) {
                 let formChanged = false;
     
                 // Attach the change event listener to all input, select, and textarea elements within the form
-                $('#group_creation').on('keyup.change paste', 'input, select, textarea', function() {
+                $('#group_creation').on('keyup change paste', 'input, select, textarea', function() {
                     checkFormChange();
                 });
     
@@ -584,7 +576,7 @@ function editGroupCreation(id) {
                 // Clean up event listeners when leaving edit mode
                 $('#submit_group_info').click(function() {
                     $('#group_creation').removeClass('edit-mode');
-                    $('#group_creation').off('keyup.change paste');
+                    $('#group_creation').off('keyup change paste');
                 });
     
             }, 'json');
@@ -594,6 +586,7 @@ function editGroupCreation(id) {
         getCusModal();
     }, 'json');
 }
+
 $('button[type="reset"],#back_btn').click(function (event) {
     // event.preventDefault();
     $('input').each(function () {
