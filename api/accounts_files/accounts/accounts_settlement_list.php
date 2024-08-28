@@ -5,52 +5,52 @@ $loan_issue_list_arr = array();
 $cash_type = $_POST['cash_type'];
 $bank_id = $_POST['bank_id'];
 
-// Conditions based on cash_type
-$cndtn = '';
+// Initialize bank_condition
+$bank_condition = ''; 
+
+// Initialize amount_column based on cash_type
+$amount_column = '';
 
 if ($cash_type == '1') {
-    $cndtn = "si.payment_type = '1'"; // Assuming '1' means cash
+    // Assuming '1' means cash
+    $amount_column = "si.settle_cash";
 } elseif ($cash_type == '2') {
-    $cndtn = "si.payment_type != '1' AND si.bank_name = '$bank_id'"; // Assuming non-cash and bank name check
+    // Assuming '2' means bank (cheque and transaction)
+    $amount_column = "si.cheque_val + si.transaction_val";
+    $bank_condition = "AND si.bank_id = '$bank_id'";
 }
 
-$qry = $pdo->query("
-    WITH SettlementSummary AS (
-        SELECT 
-            si.insert_login_id,
-            si.settle_date,
-            COUNT(DISTINCT si.auction_id) AS no_of_customers,
-            SUM(
-                CASE 
-                    WHEN si.payment_type = '1' THEN (
-                        si.settle_cash + si.cheque_val + si.transaction_val
-                    )
-                    ELSE 
-                        CASE 
-                            WHEN si.settle_type = '1' THEN si.settle_cash
-                            WHEN si.settle_type = '2' THEN si.cheque_val
-                            WHEN si.settle_type = '3' THEN si.transaction_val
-                        END
-                END
-            ) AS total_settlement_amount
-        FROM settlement_info si
-        WHERE DATE(si.settle_date) = CURDATE()
-        AND $cndtn
-        GROUP BY si.insert_login_id, si.settle_date
-    )
-    SELECT
-        a.name AS user_name,
-        GROUP_CONCAT(DISTINCT bc.branch_name ORDER BY bc.branch_name SEPARATOR ', ') AS branch_names,
-        ss.no_of_customers,
-        ss.settle_date,
-        ss.total_settlement_amount
-    FROM
-        users a
-    INNER JOIN SettlementSummary ss ON ss.insert_login_id = a.id
-    LEFT JOIN branch_creation bc ON FIND_IN_SET(bc.id, a.branch)
-    GROUP BY
-        a.name, ss.settle_date;
-");
+// Constructing the query
+$query = "WITH SettlementSummary AS (
+    SELECT 
+        si.insert_login_id,
+        DATE_FORMAT(si.settle_date, '%d-%m-%Y') AS settle_date,
+        COUNT(DISTINCT CASE WHEN $amount_column > 0 THEN si.auction_id END) AS no_of_customers,
+        SUM(CASE WHEN $amount_column > 0 THEN $amount_column ELSE 0 END) AS amount
+    FROM 
+        settlement_info si
+    WHERE 
+        DATE(si.settle_date) = CURDATE()
+        $bank_condition
+    GROUP BY 
+        si.insert_login_id, DATE_FORMAT(si.settle_date, '%d-%m-%Y')
+)
+SELECT
+    a.name AS user_name,
+    GROUP_CONCAT(DISTINCT bc.branch_name ORDER BY bc.branch_name SEPARATOR ', ') AS branch_names,
+    ss.no_of_customers,
+    ss.settle_date,
+    COALESCE(ss.amount, 0) AS total_settlement_amount
+FROM
+    users a
+INNER JOIN SettlementSummary ss ON ss.insert_login_id = a.id
+LEFT JOIN branch_creation bc ON FIND_IN_SET(bc.id, a.branch)
+GROUP BY
+    a.name, ss.settle_date
+ORDER BY
+    a.name, ss.settle_date;";
+
+$qry = $pdo->query($query);
 
 if ($qry->rowCount() > 0) {
     while ($data = $qry->fetch(PDO::FETCH_ASSOC)) {
@@ -94,6 +94,4 @@ function moneyFormatIndia($num1)
 
     return $thecash;
 }
-
-
 ?>
