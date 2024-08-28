@@ -9,7 +9,7 @@ $(document).ready(function () {
         event.preventDefault();
         $('.colls-cntnr,#back_to_coll_list').show();
         $('.coll_details,#back_to_pay_list').hide();
-
+        $('#transaction_container').hide();
 
     })
 
@@ -23,6 +23,14 @@ $(document).ready(function () {
         viewCustomerGroups(id);
         editCustomerCreation(id)
     })
+    $('#coll_mode').change(function () {
+        var coll_mode = $(this).val();
+        $('#transaction_container').hide();
+        if (coll_mode == '2') {
+            // Promotion selected
+            $('#transaction_container').show();
+        }
+    });
     /////////////////////////////////////////////////////Pay Start//////////////////////////////////////////////////////////
     $(document).on('click', '.add_pay', function (event) {
         event.preventDefault();
@@ -51,7 +59,7 @@ $(document).ready(function () {
                     // Round off chit_amount and payable_amnt
                     let roundedChitAmount = Math.round(response.chit_amount);
                     let roundedPayableAmnt = Math.round(response.payable_amnt);
-        
+
                     // Populate the form fields with the fetched and rounded data
                     $('#group_name').val(response.group_name);
                     $('#auction_month').val(response.auction_month);
@@ -60,20 +68,29 @@ $(document).ready(function () {
                     $('#chit_amt').val(roundedChitAmount);
                     $('#pending_amt').val(response.pending_amt);
                     $('#payable_amnt').val(roundedPayableAmnt);
+                    $('#coll_mode').each(function () {
+                        $(this).val($(this).find('option:first').val());
+                    });
                     $('#collection_amount').val('');
-        
+                    $('#transaction_id').val('');
+                    $('input').css('border', '1px solid #cecece');
+                    $('select').css('border', '1px solid #cecece');
+                    $('#transaction_container').hide();
+
                 } else {
                     swalError('Warning', 'Failed to save the collection details');
                 }
             }
         });
-        
+
 
         $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
 
             let collectionDate = $('#collection_date').val();
             let collectionAmount = $('#collection_amount').val(); // Get the collection amount
+            let coll_mode = $('#coll_mode').val();
+            let transaction_id = $('#transaction_id').val();
             let payableAmount = Math.round(parseFloat($('#payable_amnt').val())); // Get and round off the payable amount
             let chitAmount = Math.round(parseFloat($('#chit_amt').val())); // Get and round off the chit amount
 
@@ -83,7 +100,15 @@ $(document).ready(function () {
             if (!validateField(collectionAmount, 'collection_amount')) {
                 isValid = false;
             }
-
+            // Validate the collection amount field
+            if (!validateField(coll_mode, 'coll_mode')) {
+                isValid = false;
+            } 
+            if (coll_mode === '2') {
+                if (!validateField(transaction_id, 'transaction_id')) {
+                    isValid = false;
+                }
+            }
             // Check if collection amount is less than or equal to payable amount
             if (parseFloat(collectionAmount) > payableAmount) {
                 isValid = false;
@@ -106,7 +131,9 @@ $(document).ready(function () {
                         pending_amt: $('#pending_amt').val(),
                         payable_amnt: payableAmount, // Use rounded payable amount
                         collection_amount: collectionAmount,
-                        collection_date: collectionDate
+                        collection_date: collectionDate,
+                        coll_mode:coll_mode,
+                        transaction_id:transaction_id,
                     },
                     success: function (response) {
                         if (response == '1') {
@@ -131,27 +158,27 @@ $(document).ready(function () {
     ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////
     $(document).on('click', '.add_commitment', function (event) {
         event.preventDefault();
-    
+
         // Show the modal
         $('#add_commitment_modal').modal('show');
-    
+
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
         let cusMappingID = dataParts[1];
         getCommitmentInfoTable(cusMappingID, groupId);
-    
+
         // Unbind any existing click event to prevent multiple submissions
         $('#add_commit').off('click').on('click', function (event) {
             event.preventDefault();
-    
+
             // Validation
             let label = $('#label').val();
             let remark = $('#remark').val();
-    
+
             var isValid = true;
-    
+
             // Validate each field
             if (!validateField(label, 'label')) {
                 isValid = false;
@@ -159,7 +186,7 @@ $(document).ready(function () {
             if (!validateField(remark, 'remark')) {
                 isValid = false;
             }
-    
+
             // If all fields are valid, proceed with the AJAX call
             if (isValid) {
                 $.post('api/collection_files/submit_commitement.php', {
@@ -179,7 +206,7 @@ $(document).ready(function () {
                 });
             }
         });
-    
+
         $(document).on('click', '.commitDeleteBtn', function () {
             var id = $(this).attr('value');
             swalConfirm('Delete', 'Do you want to Delete the Commitment Details?', function () {
@@ -187,7 +214,7 @@ $(document).ready(function () {
             });
         });
     });
-    
+
 
     ///////////////////////////////////////////////////////Commitement  End/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////Due Start/////////////////////////////////////////////
@@ -252,7 +279,7 @@ $(document).ready(function () {
                                 <td>${row.pending}</td>
                             </tr>
                         `).join('');
-            
+
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
@@ -264,7 +291,7 @@ $(document).ready(function () {
                                 </table>
                             </div>
                         `;
-            
+
                         // Create a temporary iframe to hold the content for printing
                         const printWindow = window.open('', '_blank');
                         printWindow.document.write(`
@@ -284,7 +311,7 @@ $(document).ready(function () {
                             </html>
                         `);
                         printWindow.document.close();
-            
+
                         // Trigger the print dialog
                         printWindow.focus();
                         printWindow.print();
@@ -292,7 +319,7 @@ $(document).ready(function () {
                     },
                 });
             });
-            
+
         }, 1000);
 
 
@@ -352,7 +379,7 @@ function editCustomerCreation(id) {
 function viewCustomerGroups(id) {
     $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {
         // Iterate through the response to round off chit_amount
-        response.forEach(function(item) {
+        response.forEach(function (item) {
             item.chit_amount = Math.round(item.chit_amount); // Round off chit_amount
         });
 
@@ -441,7 +468,7 @@ function getDueChart(groupId, cusMappingID, auction_month) {
                 var auctionDate = item.auction_date;
 
                 // Format the values using moneyFormatIndia
-                var chitAmount = item.chit_amount ? moneyFormatIndia(item.chit_amount) : '';
+                var chitAmount = item.chit_amount ? moneyFormatIndia(Math.round(item.chit_amount)) : '';
                 var payable = item.payable ? moneyFormatIndia(item.payable) : '';
                 var collectionDate = item.collection_date ? item.collection_date : '';
                 var collectionAmount = item.collection_amount ? moneyFormatIndia(item.collection_amount) : '';
