@@ -68,10 +68,10 @@ $(document).ready(function () {
                     $('#group_name').val(response.group_name);
                     $('#auction_month').val(response.auction_month);
                     $('#date').val(response.date);
-                    $('#chit_value').val(response.chit_value);
-                    $('#chit_amt').val(roundedChitAmount);
-                    $('#pending_amt').val(response.pending_amt);
-                    $('#payable_amnt').val(roundedPayableAmnt);
+                    $('#chit_value').val(moneyFormatIndia(response.chit_value));
+                    $('#chit_amt').val(moneyFormatIndia(roundedChitAmount));
+                    $('#pending_amt').val(moneyFormatIndia(response.pending_amt));
+                    $('#payable_amnt').val(moneyFormatIndia(roundedPayableAmnt));
                     $('#coll_mode').each(function () {
                         $(this).val($(this).find('option:first').val());
                     });
@@ -100,8 +100,8 @@ $(document).ready(function () {
             let coll_mode = $('#coll_mode').val();
             let transaction_id = $('#transaction_id').val();
             let bank_name=$('#bank_name').val();
-            let payableAmount = Math.round(parseFloat($('#payable_amnt').val())); // Get and round off the payable amount
-            let chitAmount = Math.round(parseFloat($('#chit_amt').val())); // Get and round off the chit amount
+            let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Get and round off the payable amount
+            let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Get and round off the chit amount
 
             let isValid = true; // Assume form is valid unless proven otherwise
 
@@ -271,11 +271,11 @@ $(document).ready(function () {
                             </tr>
                             <tr>
                                 <td><strong>Chit Amount</strong></td>
-                                <td>${row.chit_amount}</td>
+                                <td>${moneyFormatIndia(row.chit_amount)}</td>
                             </tr>
                             <tr>
                                 <td><strong>Payable</strong></td>
-                                <td>${row.payable}</td>
+                                <td>${moneyFormatIndia(row.payable)}</td>
                             </tr>
                             <tr>
                                 <td><strong>Collection Date</strong></td>
@@ -283,18 +283,18 @@ $(document).ready(function () {
                             </tr>
                             <tr>
                                 <td><strong>Collection Amount</strong></td>
-                                <td>${row.collection_amount}</td>
+                                <td>${moneyFormatIndia(row.collection_amount)}</td>
                             </tr>
                             <tr>
                                 <td><strong>Pending</strong></td>
-                                <td>${row.pending}</td>
+                                <td>${moneyFormatIndia(row.pending)}</td>
                             </tr>
                         `).join('');
 
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="img/auction.png" width="25" height="25" style="margin-right: 10px;">
+                                    <img src="img/auction1.jpg" width="25" height="25" style="margin-right: 10px;">
                                     Chit Company
                                 </h2>
                                 <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
@@ -391,7 +391,10 @@ function viewCustomerGroups(id) {
     $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {
         // Iterate through the response to round off chit_amount
         response.forEach(function (item) {
-            item.chit_amount = Math.round(item.chit_amount); // Round off chit_amount
+            item.chit_amount = Math.round(item.chit_amount);
+
+            // Format the rounded chit_amount
+            item.chit_amount = moneyFormatIndia(item.chit_amount)// Round off chit_amount
         });
 
         let cashList = [
@@ -467,7 +470,6 @@ function getDueChart(groupId, cusMappingID, auction_month) {
             auction_month: auction_month
         },
         success: function (response) {
-            console.log(response);
             var tbody = $('#due_chart_table tbody');
             tbody.empty(); // Clear existing rows
 
