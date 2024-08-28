@@ -67,10 +67,14 @@ foreach ($auctionData as $auctionDetails) {
     WHERE 
         c.group_id = '$groupId' AND
         c.cus_mapping_id = '$cusMappingID'
-        AND c.auction_month = '$auction_month'");
+        AND c.auction_month = '$auction_month' ORDER BY c.id");
 
     if ($qry2->rowCount() > 0) {
         while ($row = $qry2->fetch(PDO::FETCH_ASSOC)) {
+            if (!empty($row['collection_date'])) {
+                $collection_date = new DateTime($row['collection_date']);
+                $row['collection_date'] = $collection_date->format('d-m-Y');
+            }
             // Calculate pending amount
             $payable = $row['payable'];
             $collection_amount = $row['collection_amount'];
