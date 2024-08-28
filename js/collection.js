@@ -26,8 +26,11 @@ $(document).ready(function () {
     $('#coll_mode').change(function () {
         var coll_mode = $(this).val();
         $('#transaction_container').hide();
+        $('#bank_container').hide();
         if (coll_mode == '2') {
-            // Promotion selected
+          
+            getBankName()
+            $('#bank_container').show();
             $('#transaction_container').show();
         }
     });
@@ -39,6 +42,7 @@ $(document).ready(function () {
         $('.colls-cntnr, #back_to_coll_list').hide();
         $('.coll_details, #back_to_pay_list').show();
         collectDate();
+        
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
@@ -71,11 +75,15 @@ $(document).ready(function () {
                     $('#coll_mode').each(function () {
                         $(this).val($(this).find('option:first').val());
                     });
+                    $('#bank_name').each(function () {
+                        $(this).val($(this).find('option:first').val());
+                    });
                     $('#collection_amount').val('');
                     $('#transaction_id').val('');
                     $('input').css('border', '1px solid #cecece');
                     $('select').css('border', '1px solid #cecece');
                     $('#transaction_container').hide();
+                    $('#bank_container').hide();
 
                 } else {
                     swalError('Warning', 'Failed to save the collection details');
@@ -91,6 +99,7 @@ $(document).ready(function () {
             let collectionAmount = $('#collection_amount').val(); // Get the collection amount
             let coll_mode = $('#coll_mode').val();
             let transaction_id = $('#transaction_id').val();
+            let bank_name=$('#bank_name').val();
             let payableAmount = Math.round(parseFloat($('#payable_amnt').val())); // Get and round off the payable amount
             let chitAmount = Math.round(parseFloat($('#chit_amt').val())); // Get and round off the chit amount
 
@@ -105,10 +114,11 @@ $(document).ready(function () {
                 isValid = false;
             } 
             if (coll_mode === '2') {
-                if (!validateField(transaction_id, 'transaction_id')) {
+                if (!validateField(transaction_id, 'transaction_id') && !validateField(bank_name, 'bank_name')) {
                     isValid = false;
                 }
             }
+            
             // Check if collection amount is less than or equal to payable amount
             if (parseFloat(collectionAmount) > payableAmount) {
                 isValid = false;
@@ -134,6 +144,7 @@ $(document).ready(function () {
                         collection_date: collectionDate,
                         coll_mode:coll_mode,
                         transaction_id:transaction_id,
+                        bank_name:bank_name,
                     },
                     success: function (response) {
                         if (response == '1') {
@@ -513,4 +524,17 @@ function getDueChart(groupId, cusMappingID, auction_month) {
         }
     });
 }
-
+function getBankName() {
+    $.post('api/settlement_files/get_bank_name.php', function (response) {
+        let appendBankOption = "<option value=''>Select Bank Name</option>";
+        $.each(response, function (index, val) {
+            let selected = '';
+            let editGId = $('#bank_name_edit').val(); // Existing guarantor ID (if any)
+            if (val.id == editGId) {
+                selected = 'selected';
+            }
+            appendBankOption += "<option value='" + val.id + "' " + selected + ">" + val.bank_name + "</option>";
+        });
+        $('#bank_name').empty().append(appendBankOption);
+    }, 'json');
+}

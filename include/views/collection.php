@@ -241,16 +241,24 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 "id="transaction_container" style="display:none;">
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="bank_container" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="bank_name">Bank Name</label>
+                                        <select class="form-control" id="bank_name" name="bank_name" tabindex="10">
+                                            <option value="">Select Bank</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 " id="transaction_container" style="display:none;">
                                     <div class="form-group">
                                         <label for="transaction_id">Transaction ID</label>&nbsp;<span class="text-danger">*</span>
-                                        <input type="number" class="form-control" id="transaction_id" name="transaction_id" value='' placeholder='Enter Transaction ID' tabindex='10'>
+                                        <input type="number" class="form-control" id="transaction_id" name="transaction_id" value='' placeholder='Enter Transaction ID' tabindex='11'>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 intLoanDiv">
                                     <div class="form-group">
                                         <label for="collection_amount">Collection Amount</label>&nbsp;<span class="text-danger">*</span>
-                                        <input type="number" class="form-control clearFields" id="collection_amount" name="collection_amount" value='' placeholder='Enter Collection Amount' tabindex='11'>
+                                        <input type="number" class="form-control clearFields" id="collection_amount" name="collection_amount" value='' placeholder='Enter Collection Amount' tabindex='12'>
                                     </div>
                                 </div>
                             </div>
