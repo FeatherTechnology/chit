@@ -31,6 +31,7 @@ $query = "SELECT
             group_creation gc ON ad.group_id = gc.grp_id
         JOIN 
             customer_creation cc ON ad.cus_name = cc.id
+        JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
         WHERE 
             ad.status = 2";
 
@@ -45,7 +46,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
                       OR CONCAT(cc.first_name, ' ', cc.last_name) LIKE '%" . $search . "%'
                       OR ad.auction_value LIKE '%" . $search . "%')";
 }
-
+$query .= " GROUP BY gc.grp_id ";
 if (isset($_POST['order'])) {
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
 } else {

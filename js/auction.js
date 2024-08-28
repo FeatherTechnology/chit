@@ -14,6 +14,7 @@ $(document).ready(function () {
         getAuctionTodayTable()
         getAuctionMonthTable()
         getAuctionTable();
+        $('#cus_mapping_table tbody').empty(); 
         $('#pageHeaderName').text(` - Auction`);
 
     });
@@ -411,7 +412,6 @@ function getAuctionTodayTable() {
 }
 
 function fetchAuctionDetails(groupId) {
-
     $.ajax({
         url: 'api/auction_files/view_auction_list.php', // Update this with the correct path to your PHP script
         type: 'POST',
@@ -431,7 +431,7 @@ function fetchAuctionDetails(groupId) {
                     // Format the values using moneyFormatIndia
                     var lowValue = moneyFormatIndia(item.low_value);
                     var highValue = moneyFormatIndia(item.high_value);
-                    var auctionValue = moneyFormatIndia(item.auction_value);
+                    var auctionValue = item.auction_value ? moneyFormatIndia(item.auction_value) : item.auction_value;
 
                     var cusName = item.cus_name;
                     var action = item.action;
@@ -458,6 +458,7 @@ function fetchAuctionDetails(groupId) {
         }
     });
 }
+
 
 function closeChartsModal() {
     $('#add_cus_map_modal').modal('hide');
@@ -526,7 +527,9 @@ function calculation(uniqueValue) {
             $('#auction_value').val(moneyFormatIndia(response.auction_value));
             $('#Commission').val(moneyFormatIndia(response.commission));
             $('#total_value').val(moneyFormatIndia(response.total_value));
-            $('#chit_amount').val(moneyFormatIndia(response.chit_amount));
+            let roundedAmount = Math.round(response.chit_amount); 
+            let formattedAmount = moneyFormatIndia(roundedAmount);
+            $('#chit_amount').val(formattedAmount);
         },
         error: function (xhr, status, error) {
             console.error('AJAX Error:', status, error);
