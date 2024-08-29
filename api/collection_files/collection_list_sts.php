@@ -19,7 +19,8 @@ class CollectStsClass
                   LEFT JOIN group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
                   LEFT JOIN customer_creation cc ON gcm.cus_id = cc.id
                   WHERE cc.cus_id = :cus_id
-                    AND ad.status IN (2, 3)";
+                    AND ad.status IN (2, 3) AND MONTH(ad.date) = MONTH(CURDATE()) 
+    AND YEAR(ad.date) = YEAR(CURDATE())";
 
         $statement = $this->pdo->prepare($qry1);
         $statement->execute([':cus_id' => $cus_id]);
@@ -32,12 +33,14 @@ class CollectStsClass
 
             // Query to fetch the most recent collection record for the same group
             $qry2 = "SELECT c.coll_status
-                     FROM collection c
-                     WHERE c.cus_id = :cus_id
-                       AND c.group_id = :group_id
-                       AND c.auction_month = :auction_month
-                     ORDER BY c.created_on DESC
-                     LIMIT 1";
+            FROM collection c
+            LEFT JOIN auction_details ad ON c.auction_id=ad.id
+            WHERE c.cus_id = :cus_id
+              AND c.group_id = :group_id
+              AND c.auction_month = :auction_month AND MONTH(ad.date) = MONTH(CURDATE()) 
+             AND YEAR(ad.date) = YEAR(CURDATE())
+            ORDER BY c.created_on DESC
+            LIMIT 1";
 
             $stmt2 = $this->pdo->prepare($qry2);
             $stmt2->execute([
