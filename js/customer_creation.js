@@ -409,7 +409,7 @@ $(document).ready(function () {
         let pic = $('#pic')[0].files[0];
         let per_pic = $('#per_pic').val();
         let tot_income = $('#tot_income').val().replace(/,/g, '');
-        let chit_limit = $('#chit_limit').val();
+        let chit_limit = $('#chit_limit').val().replace(/,/g, '');
         let reference = $('#reference').val();
         let customer_id = $('#customer_id').val();
 
@@ -891,7 +891,7 @@ function editCustomerCreation(id) {
         $('#address').val(response[0].address);
         $('#native_address').val(response[0].native_address);
         $('#tot_income').val(moneyFormatIndia(response[0].tot_income));
-        $('#chit_limit').val(response[0].chit_limit);
+        $('#chit_limit').val(moneyFormatIndia(response[0].chit_limit));
         $('#reference').val(response[0].reference);
         if (response[0].whatsapp === response[0].mobile1) {
             $('#mobile1_radio').prop('checked', true);
