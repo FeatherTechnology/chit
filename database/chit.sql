@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 25, 2024 at 09:57 AM
+-- Generation Time: Aug 27, 2024 at 03:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,64 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `accounts_collect_entry`
+--
+
+CREATE TABLE `accounts_collect_entry` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `branch` varchar(50) NOT NULL,
+  `coll_mode` int(11) NOT NULL,
+  `bank_id` varchar(50) DEFAULT NULL,
+  `no_of_customers` int(11) NOT NULL,
+  `collection_amnt` varchar(150) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `created_on` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auction_details`
+--
+
+CREATE TABLE `auction_details` (
+  `id` int(11) NOT NULL,
+  `group_id` varchar(100) NOT NULL,
+  `date` varchar(100) NOT NULL,
+  `auction_month` int(11) NOT NULL,
+  `low_value` varchar(100) NOT NULL,
+  `high_value` varchar(100) NOT NULL,
+  `status` varchar(100) NOT NULL,
+  `cus_name` varchar(100) NOT NULL,
+  `auction_value` varchar(100) NOT NULL,
+  `chit_amount` varchar(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auction_modal`
+--
+
+CREATE TABLE `auction_modal` (
+  `id` int(11) NOT NULL,
+  `auction_id` int(11) NOT NULL,
+  `group_id` varchar(100) NOT NULL,
+  `date` varchar(100) NOT NULL,
+  `cus_name` varchar(100) NOT NULL,
+  `value` int(11) NOT NULL,
+  `inserted_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `bank_creation`
 --
 
@@ -38,8 +96,8 @@ CREATE TABLE `bank_creation` (
   `gpay` varchar(100) NOT NULL,
   `under_branch` varchar(255) NOT NULL,
   `status` varchar(100) NOT NULL DEFAULT '1',
-  `insert_login_id` varchar(100) NOT NULL,
-  `update_login_id` varchar(100) NOT NULL,
+  `insert_login_id` varchar(100) DEFAULT NULL,
+  `update_login_id` varchar(100) DEFAULT NULL,
   `delete_login_id` varchar(100) NOT NULL,
   `created_date` datetime NOT NULL,
   `updated_date` date DEFAULT NULL
@@ -67,10 +125,52 @@ CREATE TABLE `branch_creation` (
   `whatsapp` varchar(100) NOT NULL,
   `landline_code` varchar(50) DEFAULT NULL,
   `landline` varchar(100) NOT NULL,
-  `insert_login_id` int(11) NOT NULL,
-  `update_login_id` int(11) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
   `created_date` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_date` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `collection`
+--
+
+CREATE TABLE `collection` (
+  `id` int(11) NOT NULL,
+  `cus_mapping_id` varchar(100) NOT NULL,
+  `auction_id` int(11) NOT NULL,
+  `group_id` varchar(100) NOT NULL,
+  `cus_id` varchar(11) NOT NULL,
+  `auction_month` varchar(100) NOT NULL,
+  `chit_value` varchar(100) NOT NULL,
+  `chit_amount` varchar(100) NOT NULL,
+  `pending` varchar(100) NOT NULL,
+  `payable` bigint(100) NOT NULL,
+  `coll_status` varchar(100) NOT NULL,
+  `collection_date` date NOT NULL,
+  `collection_amount` bigint(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` datetime DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `commitment_info`
+--
+
+CREATE TABLE `commitment_info` (
+  `id` int(11) NOT NULL,
+  `cus_mapping_id` int(11) NOT NULL,
+  `group_id` varchar(100) NOT NULL,
+  `label` varchar(100) NOT NULL,
+  `remark` varchar(100) NOT NULL,
+  `insert_login_id` int(100) NOT NULL,
+  `created_on` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -99,6 +199,55 @@ CREATE TABLE `company_creation` (
   `update_user_id` int(11) DEFAULT NULL,
   `created_date` datetime DEFAULT current_timestamp(),
   `updated_date` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer_creation`
+--
+
+CREATE TABLE `customer_creation` (
+  `id` int(11) NOT NULL,
+  `reference_type` varchar(100) NOT NULL,
+  `cus_name` varchar(100) NOT NULL,
+  `ref_cus_id` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `mobile` varchar(100) NOT NULL,
+  `declaration` varchar(100) NOT NULL,
+  `cus_id` varchar(100) NOT NULL,
+  `aadhar_number` varchar(100) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `place` int(11) NOT NULL,
+  `mobile1` varchar(100) NOT NULL,
+  `mobile2` varchar(100) NOT NULL,
+  `whatsapp` varchar(100) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `native_address` varchar(255) NOT NULL,
+  `pic` varchar(100) NOT NULL,
+  `tot_income` varchar(100) NOT NULL,
+  `chit_limit` varchar(100) NOT NULL,
+  `reference` varchar(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `designation`
+--
+
+CREATE TABLE `designation` (
+  `id` int(11) NOT NULL,
+  `designation` varchar(150) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -162,6 +311,113 @@ INSERT INTO `districts` (`id`, `state_id`, `district_name`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `expenses`
+--
+
+CREATE TABLE `expenses` (
+  `id` int(11) NOT NULL,
+  `coll_mode` int(11) NOT NULL,
+  `bank_id` int(11) DEFAULT NULL,
+  `invoice_id` varchar(100) NOT NULL,
+  `branch` int(11) NOT NULL,
+  `expenses_category` varchar(50) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `amount` varchar(150) NOT NULL,
+  `trans_id` varchar(150) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `created_on` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `family_info`
+--
+
+CREATE TABLE `family_info` (
+  `id` int(11) NOT NULL,
+  `cus_id` varchar(100) NOT NULL,
+  `fam_name` varchar(100) NOT NULL,
+  `fam_relationship` varchar(100) NOT NULL,
+  `fam_age` varchar(100) NOT NULL,
+  `fam_live` varchar(100) NOT NULL,
+  `fam_occupation` varchar(100) NOT NULL,
+  `fam_aadhar` varchar(100) NOT NULL,
+  `fam_mobile` varchar(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `group_creation`
+--
+
+CREATE TABLE `group_creation` (
+  `id` int(11) NOT NULL,
+  `grp_id` varchar(100) NOT NULL,
+  `grp_name` varchar(255) NOT NULL,
+  `chit_value` bigint(11) NOT NULL,
+  `date` int(11) NOT NULL,
+  `commission` int(11) NOT NULL,
+  `hours` int(11) NOT NULL,
+  `minutes` int(11) NOT NULL,
+  `ampm` varchar(10) NOT NULL,
+  `total_members` int(11) NOT NULL,
+  `total_months` int(11) NOT NULL,
+  `start_month` varchar(50) NOT NULL,
+  `end_month` varchar(50) NOT NULL,
+  `branch` int(11) NOT NULL,
+  `grace_period` int(11) NOT NULL,
+  `status` varchar(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `group_cus_mapping`
+--
+
+CREATE TABLE `group_cus_mapping` (
+  `id` int(11) NOT NULL,
+  `grp_creation_id` varchar(100) NOT NULL,
+  `cus_id` int(11) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `created_on` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `guarantor_info`
+--
+
+CREATE TABLE `guarantor_info` (
+  `id` int(11) NOT NULL,
+  `cus_id` varchar(100) NOT NULL,
+  `relationship_type` varchar(100) NOT NULL,
+  `family_id` varchar(100) NOT NULL,
+  `existing_cus_id` varchar(100) NOT NULL,
+  `guarantor_name` varchar(100) NOT NULL,
+  `guarantor_relationship` varchar(100) NOT NULL,
+  `details` varchar(100) NOT NULL,
+  `gu_pic` varchar(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `menu_list`
 --
 
@@ -177,8 +433,64 @@ CREATE TABLE `menu_list` (
 --
 
 INSERT INTO `menu_list` (`id`, `menu`, `link`, `icon`) VALUES
-(1, 'Dashboard', 'dashboard', 'globe'),
-(2, 'Master', 'master', 'globe');
+(1, 'Dashboard', 'dashboard', 'developer_board'),
+(2, 'Master', 'master', 'camera1'),
+(3, 'Administration', 'admin', 'layers'),
+(4, 'Auction', 'auction', 'credit'),
+(5, 'Settlement', 'settlement', 'uninstall'),
+(6, 'Collection', 'collection', 'credit'),
+(7, 'Accounts', 'accounts', 'credit');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `other_transaction`
+--
+
+CREATE TABLE `other_transaction` (
+  `id` int(11) NOT NULL,
+  `coll_mode` int(11) NOT NULL,
+  `bank_id` int(11) DEFAULT NULL,
+  `trans_cat` int(11) NOT NULL,
+  `name` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
+  `ref_id` varchar(100) DEFAULT NULL,
+  `trans_id` varchar(100) NOT NULL,
+  `user_name` int(11) DEFAULT NULL,
+  `amount` varchar(150) NOT NULL,
+  `remark` varchar(255) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `created_on` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `other_trans_name`
+--
+
+CREATE TABLE `other_trans_name` (
+  `id` int(11) NOT NULL,
+  `trans_cat` int(11) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `created_on` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `place`
+--
+
+CREATE TABLE `place` (
+  `id` int(11) NOT NULL,
+  `place` varchar(150) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -189,6 +501,56 @@ INSERT INTO `menu_list` (`id`, `menu`, `link`, `icon`) VALUES
 CREATE TABLE `role` (
   `id` int(11) NOT NULL,
   `role` varchar(150) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `settlement_info`
+--
+
+CREATE TABLE `settlement_info` (
+  `id` int(11) NOT NULL,
+  `auction_id` int(11) NOT NULL,
+  `settle_date` date NOT NULL,
+  `settle_amount` varchar(100) NOT NULL,
+  `settle_balance` varchar(100) NOT NULL,
+  `payment_type` varchar(100) NOT NULL,
+  `settle_type` varchar(100) NOT NULL,
+  `bank_name` varchar(100) NOT NULL,
+  `settle_cash` varchar(100) NOT NULL,
+  `cheque_no` varchar(100) NOT NULL,
+  `cheque_val` varchar(100) NOT NULL,
+  `cheque_remark` varchar(100) NOT NULL,
+  `transaction_id` varchar(100) NOT NULL,
+  `transaction_val` varchar(100) NOT NULL,
+  `transaction_remark` varchar(100) NOT NULL,
+  `balance_amount` varchar(100) NOT NULL,
+  `guarantor_name` varchar(100) NOT NULL,
+  `guarantor_relationship` varchar(100) NOT NULL,
+  `insert_login_id` int(11) DEFAULT NULL,
+  `update_login_id` int(11) DEFAULT NULL,
+  `created_on` date DEFAULT NULL,
+  `updated_on` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `source`
+--
+
+CREATE TABLE `source` (
+  `id` int(11) NOT NULL,
+  `cus_id` varchar(100) NOT NULL,
+  `occupation` varchar(100) NOT NULL,
+  `occ_detail` varchar(100) NOT NULL,
+  `source` varchar(100) NOT NULL,
+  `income` varchar(100) NOT NULL,
   `insert_login_id` int(11) NOT NULL,
   `update_login_id` int(11) DEFAULT NULL,
   `created_on` date DEFAULT NULL,
@@ -234,13 +596,17 @@ CREATE TABLE `sub_menu_list` (
 --
 
 INSERT INTO `sub_menu_list` (`id`, `main_menu`, `sub_menu`, `link`, `icon`) VALUES
-(1, 1, 'Dashboard', 'dashboard', 'upload-to-cloud'),
-(2, 2, 'Company Creation', 'company_creation', 'upload-to-cloud'),
-(3, 2, 'Branch Creation', 'branch_creation', 'upload-to-cloud'),
-(4, 2, 'Customer Creation', 'customer_creation', 'upload-to-cloud'),
+(1, 1, 'Dashboard', 'dashboard', 'view_comfy'),
+(2, 2, 'Company Creation', 'company_creation', 'domain'),
+(3, 2, 'Branch Creation', 'branch_creation', 'add-to-list'),
+(4, 2, 'Customer Creation', 'customer_creation', 'recent_actors'),
 (5, 2, 'Group Creation', 'group_creation', 'upload-to-cloud'),
-(6, 2, 'Bank Creation', 'bank_creation', 'upload-to-cloud'),
-(7, 2, 'User Creation', 'user_creation', 'upload-to-cloud');
+(6, 3, 'Bank Creation', 'bank_creation', 'store_mall_directory'),
+(7, 3, 'User Creation', 'user_creation', 'group_add'),
+(8, 4, 'Auction', 'auction', 'credit'),
+(9, 5, 'Settlement', 'settlement', 'circle-with-cross'),
+(10, 6, 'Collection', 'collection', 'devices_other'),
+(11, 7, 'Accounts', 'accounts', 'credit');
 
 -- --------------------------------------------------------
 
@@ -593,17 +959,15 @@ CREATE TABLE `users` (
   `name` varchar(100) NOT NULL,
   `user_code` varchar(100) NOT NULL,
   `role` int(255) NOT NULL,
-  `designation` int(255) NOT NULL,
   `address` varchar(100) NOT NULL,
-  `place` varchar(100) NOT NULL,
+  `place` int(11) NOT NULL,
   `email` varchar(100) NOT NULL,
   `mobile` varchar(100) NOT NULL,
   `user_name` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `branch` varchar(255) NOT NULL,
-  `loan_category` varchar(255) NOT NULL,
-  `line` varchar(255) NOT NULL,
-  `collection_access` int(11) NOT NULL,
+  `designation` int(11) NOT NULL,
+  `occ_detail` varchar(255) NOT NULL,
   `screens` varchar(255) NOT NULL,
   `insert_login_id` varchar(100) NOT NULL,
   `update_login_id` varchar(100) NOT NULL,
@@ -615,12 +979,34 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `user_code`, `role`, `designation`, `address`, `place`, `email`, `mobile`, `user_name`, `password`, `branch`, `loan_category`, `line`, `collection_access`, `screens`, `insert_login_id`, `update_login_id`, `created_on`, `updated_on`) VALUES
-(1, 'Super Admin', 'US-001', 1, 1, '', '', '', '', 'admin', '123', '1,2', '1,2', '1,2', 1, '2,3,4,5,6,7', '1', '1', '2024-06-13', '2024-07-13');
+INSERT INTO `users` (`id`, `name`, `user_code`, `role`, `address`, `place`, `email`, `mobile`, `user_name`, `password`, `branch`, `designation`, `occ_detail`, `screens`, `insert_login_id`, `update_login_id`, `created_on`, `updated_on`) VALUES
+(1, 'Super Admin', 'US-001', 2, '', 2, '', '', 'admin', '123', '1,2', 3, '1,2', '2,3,4,5,6,7,8,9,10,11', '1', '1', '2024-06-13', '2024-07-13'),
+(10, 'Tester', 'US-003', 3, '', 2, '', '', 'Testing', '123', '1,4', 3, 'TCS', '1,3,6,7', '1', '1', '2024-07-25', '2024-07-25'),
+(11, 'test1', 'US-004', 2, '', 5, '', '', 'test', '123', '4,1,2', 3, '', '1,2,3,7', '1', '', '2024-07-25', '0000-00-00'),
+(12, 'Develop', 'US-005', 4, 'MN nagar', 5, '', '', 'dev', '123', '1,4', 8, '', '2,3,4,6,7', '1', '1', '2024-07-31', '2024-07-31');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `accounts_collect_entry`
+--
+ALTER TABLE `accounts_collect_entry`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `auction_details`
+--
+ALTER TABLE `auction_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `auction_modal`
+--
+ALTER TABLE `auction_modal`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `auc_id` (`auction_id`);
 
 --
 -- Indexes for table `bank_creation`
@@ -638,6 +1024,18 @@ ALTER TABLE `branch_creation`
   ADD KEY `taluk_id` (`taluk`);
 
 --
+-- Indexes for table `collection`
+--
+ALTER TABLE `collection`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `commitment_info`
+--
+ALTER TABLE `commitment_info`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `company_creation`
 --
 ALTER TABLE `company_creation`
@@ -647,11 +1045,54 @@ ALTER TABLE `company_creation`
   ADD KEY `Taluk ids` (`taluk`);
 
 --
+-- Indexes for table `customer_creation`
+--
+ALTER TABLE `customer_creation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `places` (`place`);
+
+--
+-- Indexes for table `designation`
+--
+ALTER TABLE `designation`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `districts`
 --
 ALTER TABLE `districts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `State id` (`state_id`);
+
+--
+-- Indexes for table `expenses`
+--
+ALTER TABLE `expenses`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `family_info`
+--
+ALTER TABLE `family_info`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `group_creation`
+--
+ALTER TABLE `group_creation`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `group_cus_mapping`
+--
+ALTER TABLE `group_cus_mapping`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `guarantor_info`
+--
+ALTER TABLE `guarantor_info`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `menu_list`
@@ -660,9 +1101,39 @@ ALTER TABLE `menu_list`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `other_transaction`
+--
+ALTER TABLE `other_transaction`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `other_trans_name`
+--
+ALTER TABLE `other_trans_name`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `place`
+--
+ALTER TABLE `place`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `role`
 --
 ALTER TABLE `role`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `settlement_info`
+--
+ALTER TABLE `settlement_info`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `source`
+--
+ALTER TABLE `source`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -691,12 +1162,31 @@ ALTER TABLE `taluks`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `Role id` (`role`),
-  ADD KEY `Designation id` (`designation`);
+  ADD KEY `place` (`place`),
+  ADD KEY `role` (`role`),
+  ADD KEY `designation` (`designation`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `accounts_collect_entry`
+--
+ALTER TABLE `accounts_collect_entry`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `auction_details`
+--
+ALTER TABLE `auction_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `auction_modal`
+--
+ALTER TABLE `auction_modal`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `bank_creation`
@@ -711,9 +1201,33 @@ ALTER TABLE `branch_creation`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `collection`
+--
+ALTER TABLE `collection`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `commitment_info`
+--
+ALTER TABLE `commitment_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `company_creation`
 --
 ALTER TABLE `company_creation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `customer_creation`
+--
+ALTER TABLE `customer_creation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `designation`
+--
+ALTER TABLE `designation`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -723,15 +1237,75 @@ ALTER TABLE `districts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
+-- AUTO_INCREMENT for table `expenses`
+--
+ALTER TABLE `expenses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `family_info`
+--
+ALTER TABLE `family_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `group_creation`
+--
+ALTER TABLE `group_creation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `group_cus_mapping`
+--
+ALTER TABLE `group_cus_mapping`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `guarantor_info`
+--
+ALTER TABLE `guarantor_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `menu_list`
 --
 ALTER TABLE `menu_list`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
+-- AUTO_INCREMENT for table `other_transaction`
+--
+ALTER TABLE `other_transaction`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `other_trans_name`
+--
+ALTER TABLE `other_trans_name`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `place`
+--
+ALTER TABLE `place`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `settlement_info`
+--
+ALTER TABLE `settlement_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `source`
+--
+ALTER TABLE `source`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -756,7 +1330,7 @@ ALTER TABLE `taluks`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
