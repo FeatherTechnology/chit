@@ -1,9 +1,9 @@
 <?php
 $timeZoneQry = "SET time_zone = '+5:30' ";
 
-$host = "127.0.0.1";
-$db_user = "root";
-$db_pass = "";
+$host = "192.168.1.4";
+$db_user = "dbuserid";
+$db_pass = "dbpassword@123";
 $dbname = "chit";
 $pdo = new PDO("mysql:host=$host; dbname=$dbname", $db_user, $db_pass);
 $pdo->exec($timeZoneQry);
