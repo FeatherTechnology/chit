@@ -17,7 +17,6 @@ $collection_date = date('Y-m-d', strtotime($_POST['collection_date']));
 $coll_mode = $_POST['coll_mode'];
 $transaction_id = $_POST['transaction_id'];
 $bank_name = $_POST['bank_name'];
-
 if ($collection_amount >= $payable) {
     $status = 'Paid';
 } else {
