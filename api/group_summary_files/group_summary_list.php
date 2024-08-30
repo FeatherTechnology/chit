@@ -2,9 +2,11 @@
 require '../../ajaxconfig.php';
 @session_start();
 $user_id = $_SESSION['user_id'];
-
+$currentMonth = date('m'); // Get the current month
+$currentYear = date('Y'); // Get the current year
 // Define status mapping array
 $status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current'];
+
 
 // Define column names for sorting
 $column = array(
@@ -18,13 +20,12 @@ $column = array(
 );
 
 // Base query with JOIN
-$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branch_name, gc.status, ad.auction_month
+$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branch_name, gc.status, ad.auction_month,ad.id as auction_id
           FROM group_creation gc 
           JOIN branch_creation bc ON gc.branch = bc.id 
           LEFT JOIN auction_details ad ON gc.grp_id = ad.group_id
-          WHERE gc.status = 3
-          AND MONTH(ad.date) = MONTH(CURDATE()) 
-          AND YEAR(ad.date) = YEAR(CURDATE())";
+          WHERE gc.status = 3 AND
+          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth)";
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {
@@ -112,11 +113,11 @@ foreach ($result as $row) {
         <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
         <div class='dropdown-content'>
             <a href='#' class='auction_chart' data-value='{$row['grp_id']}_{$row['auction_month']}'>Auction Chart</a>
-            <a href='#' class='settle_chart' data-value='{$row['grp_id']}_{$row['auction_month']}'>Settlement Chart</a>
+            <a href='#' class='settle_chart' data-value='{$row['grp_id']}_{$row['auction_id']}'>Settlement Chart</a>
         </div>
     </div>";
     // Action button
-    $sub_array[] = "<button class='btn btn-primary customerActionBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
+    $sub_array[] = "<button class='btn btn-primary customerActionBtn' value='" . $row['grp_id'] . "'>&nbsp;View</button>";
 
   
 

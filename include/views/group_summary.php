@@ -1,4 +1,4 @@
-<div class="radio-container">
+<div class="radio-container"id="curr_closed">
     <div class="selector">
         <div class="selector-item">
             <input type="radio" id="group_current" name="customer_data_type" class="selector-item_radio" value="cus_profile" checked>
@@ -140,3 +140,38 @@
     </div>
 </div>
 <!-- /////////////////////////////////////////////////////////////////// Settlement Chart Modal END ////////////////////////////////////////////////////////////////////// -->
+ <!-- /////////////////////////////////////////////////////////////////// Collection Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
+<div class="modal fade bd-example-modal-lg" id="collection_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dueChartTitle">Collection Chart</h5>
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="closeChartsModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid" id="collect_chart_table_div">
+                    <table id="collect_chart_table" class="table custom-table">
+                        <thead>
+                            <th>SI.NO</th>
+                            <th>Cus ID</th>
+                            <th>Cus Name</th>
+                            <th>Place</th>
+                            <th>Occupation</th>
+                            <th>Mobile</th>
+                            <th>Action</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()" tabindex="4">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /////////////////////////////////////////////////////////////////// Collection Chart Modal END ////////////////////////////////////////////////////////////////////// -->

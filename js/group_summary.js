@@ -1,6 +1,10 @@
 $(document).ready(function () {
     //Add Group creation & Back.
     $(document).on('click', '#back_btn', function () {
+        $('.group_table_content').show();
+        $('#back_btn').hide();
+        $('#curr_closed').show();
+        $('.auction_detail_content').hide();
     });
 
     $('input[name=customer_data_type]').click(function () {
@@ -15,13 +19,26 @@ $(document).ready(function () {
 
     $(document).on('click', '#group_current', function () {
           $('.group_table_content').show(); 
+          $('.auction_detail_content').hide();
           getGroupCreationTable();
     })
     $(document).on('click', '#group_closed', function () {
         $('.group_table_content').show();
+        $('.auction_detail_content').hide();
         getGroupClosedCreationTable();
     })
+/////////////////////////////////////////////////Auction List/////////////////////////////////
+$(document).on('click', '.customerActionBtn', function (event) {
+    event.preventDefault();
+    $('.auction_detail_content').show();
+    $('#back_btn').show();
+    $('.group_table_content').hide();
+    $('#curr_closed').hide();
+    let group_id = $(this).attr('value');
+    auctionList(group_id)
 
+});
+///////////////////////////////////////////////////////////////////////////Auction list End//////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////Auction Chart Start////////////////////////////////////////////////////////////
 $(document).on('click', '.auction_chart', function (event) {
     event.preventDefault();
@@ -39,14 +56,31 @@ $(document).on('click', '.settle_chart', function (event) {
     let dataValue = $(this).data('value');
     let dataParts = dataValue.split('_');
     let groupId = dataParts[0];
-    getSettleChart(groupId)
+    let auction_id = dataParts[1];
+    getSettleChart(groupId,auction_id)
 
 });
 //////////////////////////////////////////////////////////////////////////////settlement Chart End//////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////Collection Chart Start//////////////////////////////////////////////////
+$(document).on('click', '.collectionActionBtn', function (event) {
+    event.preventDefault();
+    $('#collection_chart_model').modal('show');
+    let group_id = $(this).attr('value');
+    collectionList(group_id)
+
+});
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////Collection Chart End/////////////////////////////////////////////////////////////
 });
 function closeChartsModal() {
     $('#auction_chart_model').modal('hide');
     $('#settlement_chart_model').modal('hide');
+    $('#collection_chart_model').modal('hide');
 }
 $(function () {
     getGroupCreationTable();
@@ -104,24 +138,30 @@ function getAuctionChart(groupId) {
         }
     });
 }
-function getAuctionChart(groupId) {
+function getSettleChart(groupId, auction_id) {
     $.ajax({
         url: 'api/group_summary_files/settlement_chart_data.php',
         type: 'POST',
         dataType: 'json',
         data: {
             group_id: groupId,
+            auction_id: auction_id,
         },
         success: function (response) {
-            var tbody = $('#auction_chart_table tbody');
+            var tbody = $('#settle_chart_table tbody');
             tbody.empty(); // Clear existing rows
 
             var hasRows = false;
 
             $.each(response, function (index, item) {
-                var auctionMonth = item.auction_month;
-                var settle_amount = item.settle_amount ? moneyFormatIndia(item.settle_amount) : '';
-                
+                var auctionMonth = item.auction_month || '';
+                var group_id = item.group_id || '';
+                var group_name = item.grp_name || '';
+                var cus_id = item.cus_id || '';
+                var cus_name = item.guarantor_name === 'Customer' ? (item.cus_name || '') : (item.guarantor_name || '');
+                var settle_date = item.settle_date || '';
+                var total_amount = item.balance_amount ? moneyFormatIndia(item.balance_amount) : '';
+
                 var row = '<tr>' +
                     '<td>' + auctionMonth + '</td>' +
                     '<td>' + group_id + '</td>' +
@@ -129,7 +169,7 @@ function getAuctionChart(groupId) {
                     '<td>' + cus_id + '</td>' +
                     '<td>' + cus_name + '</td>' +
                     '<td>' + settle_date + '</td>' +
-                    '<td>' + settle_amount + '</td>' +
+                    '<td>' + total_amount + '</td>' +
                     '</tr>';
 
                 tbody.append(row);
@@ -138,6 +178,107 @@ function getAuctionChart(groupId) {
 
             if (!hasRows) {
                 tbody.append('<tr><td colspan="7">No data available</td></tr>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX Error: ' + status + error);
+        }
+    });
+}
+
+function auctionList(group_id) {
+    $.ajax({
+        url: 'api/group_summary_files/auction_detail_data.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            group_id: group_id,
+        },
+        success: function (response) {
+            var tbody = $('#auction_table tbody');
+            tbody.empty(); // Clear existing rows
+
+            var hasRows = false;
+
+            $.each(response, function (index, item) {
+                var auctionMonth = item.auction_month;
+                var auctionDate = item.auction_date;
+
+                // Format the values using moneyFormatIndia
+                var cus_name = item.cus_name;
+                var auction_status = item.auction_status;
+                var grp_status = item.grp_status;
+                var collection_status = item.collection_status;
+                var action = item.action; // Action button HTML from PHP
+
+                var auction_value = item.auction_value ? moneyFormatIndia(item.auction_value) : '';
+                var row = '<tr>' +
+                    '<td>' + auctionMonth + '</td>' +
+                    '<td>' + auctionDate + '</td>' +
+                    '<td>' + auction_value + '</td>' +
+                    '<td>' + cus_name + '</td>' +
+                    '<td>' + auction_status + '</td>' +
+                    '<td>' + grp_status + '</td>' +
+                    '<td>' + collection_status + '</td>' +
+                    '<td>' + action + '</td>' + // Use the action HTML here
+                    '</tr>';
+
+                tbody.append(row);
+                hasRows = true;
+            });
+
+            if (!hasRows) {
+                tbody.append('<tr><td colspan="8">No data available</td></tr>'); // Update colspan to 8
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX Error: ' + status + error);
+        }
+    });
+}
+function collectionList(group_id) {
+    $.ajax({
+        url: 'api/group_summary_files/collection_detail_data.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            group_id: group_id,
+        },
+        success: function (response) {
+            var tbody = $('#collect_chart_table tbody');
+            tbody.empty(); // Clear existing rows
+
+            var hasRows = false;
+            var serialNo = 1; // Initialize the serial number
+
+            $.each(response, function (index, item) {
+                var cus_id = item.cus_id;
+              
+                // Extract the values
+                var cus_name = item.cus_name;
+                var place = item.place;
+                var occupations = item.occupations;
+                var mobile1 = item.mobile1;
+                var action = item.action; // Action button HTML from PHP
+
+                // Create the row HTML
+                var row = '<tr>' +
+                    '<td>' + serialNo + '</td>' +  // Use serialNo instead of index
+                    '<td>' + cus_id + '</td>' +
+                    '<td>' + cus_name + '</td>' +
+                    '<td>' + place + '</td>' +
+                    '<td>' + occupations + '</td>' +
+                    '<td>' + mobile1 + '</td>' +
+                    '<td>' + action + '</td>' + 
+                    '</tr>';
+
+                tbody.append(row);
+                hasRows = true;
+                serialNo++; // Increment the serial number
+            });
+
+            if (!hasRows) {
+                tbody.append('<tr><td colspan="8">No data available</td></tr>'); // Update colspan to 8
             }
         },
         error: function (xhr, status, error) {
