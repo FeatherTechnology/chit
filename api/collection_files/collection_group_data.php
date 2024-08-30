@@ -31,10 +31,14 @@ LEFT JOIN customer_creation cc ON
 WHERE
     ad.status IN (2, 3) AND gc.status=3
     AND cc.id = :id
-    AND MONTH(ad.date) = MONTH(CURDATE()) 
-    AND YEAR(ad.date) = YEAR(CURDATE())";
+    AND YEAR(ad.date) = :currentYear
+    AND MONTH(ad.date) = :currentMonth"; // Removed extra closing parenthesis
 $statement = $pdo->prepare($query);
-$statement->execute([':id' => $id]);
+$statement->execute([
+    ':id' => $id,
+    ':currentYear' => date('Y'),  // Ensure current year and month are passed
+    ':currentMonth' => date('m')
+]);
 
 $result = [];
 
@@ -51,14 +55,14 @@ if ($statement->rowCount() > 0) {
         // Grace Period Calculation
         $chit_amount = $row['chit_amount'] ?? 0;
         $auction_month = $row['auction_month'] ?? 0;
-        $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $row['chit_amount']);
+        $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $chit_amount);
         $sub_array['status'] = $status;
 
-        $grace_period = $row['grace_period'] ?? 0; 
-        $date = $row['due_date'] ?? ''; 
-        
+        $grace_period = $row['grace_period'] ?? 0;
+        $date = $row['due_date'] ?? '';
+
         $due_date = date('Y-m-d', strtotime($date));
-        $grace_start_date = $due_date; 
+        $grace_start_date = $due_date;
         $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
 
         $payment_query = "SELECT collection_date, coll_status FROM collection 
@@ -78,7 +82,6 @@ if ($statement->rowCount() > 0) {
 
         $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
         $collection_date = $payment_row['collection_date'] ?? null;
-      //  $collection_status = $payment_row['coll_status'] ?? null;
 
         if ($status === "Paid") {
             $status_color = 'green'; // Payment is made
@@ -130,7 +133,6 @@ if ($statement->rowCount() > 0) {
 }
 
 echo json_encode($result);
-
 
 function moneyFormatIndia($num1)
 {

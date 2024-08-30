@@ -3,8 +3,11 @@ require '../../ajaxconfig.php';
 
 $group_id = $_POST['group_id'];
 $cusMappingID = $_POST['cus_mapping_id'];
-
+$currentMonth = date('m'); // Get the current month
+$currentYear = date('Y'); // Get the current year
 // Fetch current auction details including collections
+$currentMonth = date('m');
+$currentYear = date('Y');
 $current_auction_query = "SELECT
         gc.grp_name,
         ad.auction_month,
@@ -17,8 +20,7 @@ $current_auction_query = "SELECT
     LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
     LEFT JOIN collection cl ON ad.group_id = cl.group_id AND ad.auction_month = cl.auction_month AND cl.cus_mapping_id = '$cusMappingID'
     WHERE
-        ad.group_id = '$group_id'   AND MONTH(ad.date) = MONTH(CURDATE()) 
-    AND YEAR(ad.date) = YEAR(CURDATE())
+        ad.group_id = '$group_id'   AND (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth)
     GROUP BY ad.group_id, ad.auction_month 
         ";
 
