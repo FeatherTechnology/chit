@@ -55,7 +55,7 @@ LEFT JOIN group_creation gc ON
 JOIN users us ON
     FIND_IN_SET(gc.branch, us.branch)
 WHERE
-    ad.status IN (2, 3)";
+    ad.status IN (2, 3) AND gc.status=3";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];

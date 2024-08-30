@@ -29,7 +29,7 @@ LEFT JOIN group_cus_mapping gcm ON
 LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
-    ad.status IN (2, 3)
+    ad.status IN (2, 3) AND gc.status=3
     AND cc.id = :id
     AND MONTH(ad.date) = MONTH(CURDATE()) 
     AND YEAR(ad.date) = YEAR(CURDATE())";
