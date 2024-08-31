@@ -37,7 +37,7 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////Pay Start//////////////////////////////////////////////////////////
     $(document).on('click', '.add_pay', function (event) {
         event.preventDefault();
-
+    
         // Hide and show the appropriate sections
         $('.colls-cntnr, #back_to_coll_list').hide();
         $('.coll_details, #back_to_pay_list').show();
@@ -50,6 +50,7 @@ $(document).ready(function () {
         let auctionId = dataParts[2];
         let cusMappingID = dataParts[3]; // Extract cus_mapping_id from data attribute
         let cusId = dataParts[4];
+        
         $.ajax({
             url: 'api/collection_files/fetch_pay_details.php',
             type: 'POST',
@@ -60,34 +61,43 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    // Round off chit_amount and payable_amnt
-                    let roundedChitAmount = Math.round(response.chit_amount);
-                    let roundedPayableAmnt = Math.round(response.payable_amnt);
-
-                    // Populate the form fields with the fetched and rounded data
-                    $('#group_name').val(response.group_name);
-                    $('#auction_month').val(response.auction_month);
-                    $('#date').val(response.date);
-                    $('#chit_value').val(moneyFormatIndia(response.chit_value));
-                    $('#chit_amt').val(moneyFormatIndia(roundedChitAmount));
-                    $('#pending_amt').val(moneyFormatIndia(response.pending_amt));
-                    $('#payable_amnt').val(moneyFormatIndia(roundedPayableAmnt));
-                    $('#coll_mode').each(function () {
-                        $(this).val($(this).find('option:first').val());
-                    });
-                    $('#bank_name').each(function () {
-                        $(this).val($(this).find('option:first').val());
-                    });
-                    $('#collection_amount').val('');
-                    $('#transaction_id').val('');
-                    $('input').css('border', '1px solid #cecece');
-                    $('select').css('border', '1px solid #cecece');
-                    $('#transaction_container').hide();
-                    $('#bank_container').hide();
-
+                    // Check if the necessary fields are present in the response
+                    if (typeof response.chit_amount !== 'undefined' && typeof response.payable_amnt !== 'undefined') {
+                        // Round off chit_amount and payable_amnt
+                        let roundedChitAmount = Math.round(response.chit_amount || 0);
+                        let roundedPayableAmnt = Math.round(response.payable_amnt || 0);
+    
+                        // Populate the form fields with the fetched and rounded data
+                        $('#group_name').val(response.group_name);
+                        $('#auction_month').val(response.auction_month);
+                        $('#date').val(response.date);
+                        $('#chit_value').val(moneyFormatIndia(response.chit_value));
+                        $('#chit_amt').val(moneyFormatIndia(roundedChitAmount));
+                        $('#pending_amt').val(moneyFormatIndia(response.previous_pending_amt || 0));
+                        $('#payable_amnt').val(moneyFormatIndia(roundedPayableAmnt));
+                        $('#coll_mode').each(function () {
+                            $(this).val($(this).find('option:first').val());
+                        });
+                        $('#bank_name').each(function () {
+                            $(this).val($(this).find('option:first').val());
+                        });
+                        $('#collection_amount').val('');
+                        $('#transaction_id').val('');
+                        $('input').css('border', '1px solid #cecece');
+                        $('select').css('border', '1px solid #cecece');
+                        $('#transaction_container').hide();
+                        $('#bank_container').hide();
+                    } else {
+                        console.error('Required data fields are missing in the response.');
+                        swalError('Warning', 'Failed to retrieve the required payment details.');
+                    }
                 } else {
                     swalError('Warning', 'Failed to save the collection details');
                 }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                swalError('Error', 'An error occurred while fetching payment details.');
             }
         });
 
