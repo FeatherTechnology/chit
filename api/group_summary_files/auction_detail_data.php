@@ -65,7 +65,9 @@ if (isset($_POST['group_id'])) {
                 $row['grp_status'] = $status_arr[$row['grp_status']] ?? '';
                 
                 // Add the action button HTML to the row
-                $row['action'] = "<button class='btn btn-primary collectionActionBtn' value='" . $row['grp_id'] . "'>&nbsp;Collection Chart</button>";
+                $row['action'] = "<button class='btn btn-primary collectionActionBtn' data-value='{$row['grp_id']}_{$row['auction_month']}'>&nbsp;Collection Chart</button>";
+
+
             }
 
             // Return the processed data

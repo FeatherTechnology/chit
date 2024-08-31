@@ -65,15 +65,13 @@ $(document).on('click', '.settle_chart', function (event) {
 $(document).on('click', '.collectionActionBtn', function (event) {
     event.preventDefault();
     $('#collection_chart_model').modal('show');
-    let group_id = $(this).attr('value');
-    collectionList(group_id)
+    let value = $(this).data('value'); 
+    let values = value.split('_'); 
+    let group_id = values[0]; 
+    let auction_month = values[1]; 
 
+    collectionList(group_id, auction_month);
 });
-
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////Collection Chart End/////////////////////////////////////////////////////////////
 });
@@ -236,13 +234,14 @@ function auctionList(group_id) {
         }
     });
 }
-function collectionList(group_id) {
+function collectionList(group_id,auction_month) {
     $.ajax({
         url: 'api/group_summary_files/collection_detail_data.php',
         type: 'POST',
         dataType: 'json',
         data: {
             group_id: group_id,
+            auction_month:auction_month,
         },
         success: function (response) {
             var tbody = $('#collect_chart_table tbody');
