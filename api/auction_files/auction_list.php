@@ -36,7 +36,7 @@ $query = "SELECT
             branch_creation bc ON gc.branch = bc.id
         JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
         WHERE 
-            gc.status BETWEEN 2 AND 3 AND ad.auction_month <= DATE_ADD(CURDATE(), INTERVAL 2 DAY)";
+            gc.status BETWEEN 2 AND 3 AND ad.date <= DATE_ADD(CURDATE(), INTERVAL 2 DAY)";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
