@@ -46,7 +46,6 @@ class CollectStsClass
                      LEFT JOIN auction_details ad ON c.auction_id = ad.id
                      WHERE c.cus_id = :cus_id
                        AND c.group_id = :group_id
-                       AND c.auction_month = :auction_month
                        AND YEAR(ad.date) = :currentYear
                        AND MONTH(ad.date) = :currentMonth
                      ORDER BY c.created_on DESC
@@ -56,7 +55,6 @@ class CollectStsClass
             $stmt2->execute([
                 ':cus_id' => $cus_id,
                 ':group_id' => $group_id,
-                ':auction_month' => $auction_month,
                 ':currentYear' => $currentYear,
                 ':currentMonth' => $currentMonth
             ]);

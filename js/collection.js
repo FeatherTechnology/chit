@@ -73,7 +73,7 @@ $(document).ready(function () {
                         $('#date').val(response.date);
                         $('#chit_value').val(moneyFormatIndia(response.chit_value));
                         $('#chit_amt').val(moneyFormatIndia(roundedChitAmount));
-                        $('#pending_amt').val(moneyFormatIndia(response.previous_pending_amt || 0));
+                        $('#pending_amt').val(moneyFormatIndia(response.pending_amt || 0));
                         $('#payable_amnt').val(moneyFormatIndia(roundedPayableAmnt));
                         $('#coll_mode').each(function () {
                             $(this).val($(this).find('option:first').val());
