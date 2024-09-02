@@ -320,7 +320,7 @@
                                     <table id="guar_info_table" class="table custom-table">
                                         <thead>
                                             <tr>
-                                                <th width="20">S.NO</th>
+                                                <th>S.NO</th>
                                                 <th>Name</th>
                                                 <th>Relationship</th>
                                             </tr>
