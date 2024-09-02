@@ -34,6 +34,7 @@ $query = "SELECT
             auction_details ad ON gc.grp_id = ad.group_id
         JOIN 
             branch_creation bc ON gc.branch = bc.id
+        JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
         WHERE 
             ad.date = CURDATE() AND  gc.status BETWEEN 2 AND 3"; // Filter for current date only
 
@@ -70,7 +71,7 @@ function moneyFormatIndia($num) {
     }
     return $thecash;
 }
-
+$query .= " GROUP BY gc.grp_id ";
 $query .= " ORDER BY 
     CASE 
         WHEN ad.status = 1 THEN 0

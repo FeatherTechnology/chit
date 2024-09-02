@@ -65,7 +65,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['last_name']) ? $row['last_name'] : '';
     $sub_array[] = isset($row['mobile1']) ? $row['mobile1'] : '';
     $sub_array[] = isset($row['place']) ? $row['place'] : '';
-    $sub_array[] = isset($row['chit_limit']) ? $row['chit_limit'] : '';
+    $sub_array[] = isset($row['chit_limit']) ? moneyFormatIndia($row['chit_limit']): '';
     $sub_array[] = isset($row['reference_type']) && isset($reference[$row['reference_type']]) ? $reference[$row['reference_type']] : '';
     $action = "<span class='icon-border_color customerActionBtn' value='" . $row['id'] . "'></span>&nbsp;&nbsp;&nbsp;";
     $action .= "<span class='icon-delete customerDeleteBtn' value='" . $row['id'] . "'></span>";
@@ -88,3 +88,23 @@ $output = array(
 );
 
 echo json_encode($output);
+function moneyFormatIndia($num) {
+    $explrestunits = "";
+    if (strlen($num) > 3) {
+        $lastthree = substr($num, strlen($num) - 3, strlen($num));
+        $restunits = substr($num, 0, strlen($num) - 3);
+        $restunits = (strlen($restunits) % 2 == 1) ? "0" . $restunits : $restunits;
+        $expunit = str_split($restunits, 2);
+        for ($i = 0; $i < sizeof($expunit); $i++) {
+            if ($i == 0) {
+                $explrestunits .= (int)$expunit[$i] . ",";
+            } else {
+                $explrestunits .= $expunit[$i] . ",";
+            }
+        }
+        $thecash = $explrestunits . $lastthree;
+    } else {
+        $thecash = $num;
+    }
+    return $thecash;
+}

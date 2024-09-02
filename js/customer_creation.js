@@ -408,8 +408,8 @@ $(document).ready(function () {
         let native_address = $('#native_address').val();
         let pic = $('#pic')[0].files[0];
         let per_pic = $('#per_pic').val();
-        let tot_income = $('#tot_income').val();
-        let chit_limit = $('#chit_limit').val();
+        let tot_income = $('#tot_income').val().replace(/,/g, '');
+        let chit_limit = $('#chit_limit').val().replace(/,/g, '');
         let reference = $('#reference').val();
         let customer_id = $('#customer_id').val();
 
@@ -680,12 +680,13 @@ function getExistingRefCustomer() {
             if (val.id == editGId) {
                 selected = 'selected';
             }
-            appendCusOption += "<option value='" + val.id + "' " + selected + ">" + val.first_name + "</option>";
+            appendCusOption += "<option value='" + val.id + "' " + selected + ">" + val.full_name + "</option>";
         });
 
         $('#cus_name').empty().append(appendCusOption);
     }, 'json');
 }
+
 
 function getExistingCustomer() {
     $.post('api/customer_creation_files/get_existing_customer.php', function (response) {
@@ -697,7 +698,7 @@ function getExistingCustomer() {
             if (val.id == editGId) {
                 selected = 'selected';
             }
-            appendCustomerOption += "<option value='" + val.id + "' " + selected + ">" + val.first_name + "</option>";
+            appendCustomerOption  += "<option value='" + val.id + "' " + selected + ">" + val.full_name + "</option>";
         });
 
         $('#existing_cus').empty().append(appendCustomerOption);
@@ -861,7 +862,8 @@ function totalIncome() {
     let cus_id = $('#cus_id').val();
     $.post('api/customer_creation_files/total_income.php', { cus_id: cus_id }, function (response) {
         // Check if the response is valid and has the total_income property
-        $('#tot_income').val(response.total_income);
+        let formattedIncome = moneyFormatIndia(response.total_income);
+        $('#tot_income').val(formattedIncome);
 
     }, 'json');
 }
@@ -888,8 +890,8 @@ function editCustomerCreation(id) {
         $('#whatsapp').val(response[0].whatsapp);
         $('#address').val(response[0].address);
         $('#native_address').val(response[0].native_address);
-        $('#tot_income').val(response[0].tot_income);
-        $('#chit_limit').val(response[0].chit_limit);
+        $('#tot_income').val(moneyFormatIndia(response[0].tot_income));
+        $('#chit_limit').val(moneyFormatIndia(response[0].chit_limit));
         $('#reference').val(response[0].reference);
         if (response[0].whatsapp === response[0].mobile1) {
             $('#mobile1_radio').prop('checked', true);
