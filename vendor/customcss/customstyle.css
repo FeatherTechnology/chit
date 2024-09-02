@@ -175,6 +175,9 @@ border-style: none;
   font-size:14px;
 	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
+.ec-addbtn{
+  margin-top: 20px !important;
+}
 
 /*Media Query START*/
 @media (max-width: 1024px) {
