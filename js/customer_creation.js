@@ -5,6 +5,7 @@ $(document).ready(function () {
         getSourceTable()
         getGuarantorInfoTable()
         getFamilyInfoTable()
+        getPlaceDropdown(place_name_id);
         $('#imgshow').attr('src', 'img/avatar.png');
         $('.toRefresh').hide();
         $('.knowData').val('');
