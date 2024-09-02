@@ -22,8 +22,9 @@ $qry = $pdo->query("WITH aggregated_data AS (
         users u
     LEFT JOIN collection c ON
         c.insert_login_id = u.id
-        AND  $cndtn
+        AND $cndtn
     WHERE
+        DATE(c.collection_date) >= DATE(NOW()) AND
         c.collection_date > COALESCE(
             (
                 SELECT created_on
@@ -34,7 +35,6 @@ $qry = $pdo->query("WITH aggregated_data AS (
             ),
             '1970-01-01 00:00:00'
         )
-        AND c.collection_date <= NOW()
     GROUP BY
         u.id
 ),
@@ -76,8 +76,8 @@ second_query AS (
     LEFT JOIN branch_creation bc ON
         FIND_IN_SET(bc.branch_name, ac.branch)
     WHERE
-    $cndtn
-        AND DATE(ac.created_on) = CURDATE()
+        $cndtn
+        AND DATE(ac.created_on) = DATE(NOW())
         AND ac.user_id NOT IN (
             SELECT userid
             FROM first_query
@@ -115,7 +115,7 @@ if ($qry->rowCount() > 0) {
 
 echo json_encode($collection_list_arr);
 
-//Format number in Indian Format
+// Format number in Indian Format
 function moneyFormatIndia($num1)
 {
     if ($num1 < 0) {
