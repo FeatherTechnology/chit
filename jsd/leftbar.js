@@ -16,6 +16,7 @@ $(document).ready(function () {
         'customer_data':'customer_data',
         'group_summary':'group_summary',
         'enquiry_creation':'enquiry'
+
     };
 
     const current_page = localStorage.getItem('currentPage');
