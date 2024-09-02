@@ -113,44 +113,7 @@ foreach ($result as $row) {
     $due_date = date('Y-m-d', strtotime($date));
     $grace_start_date = $due_date;
     $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
-
-    //     $payment_query = "SELECT collection_date FROM collection 
-    //                       WHERE  cus_id = :cus_id 
-    //                       AND group_id = :group_id
-    //                       AND auction_month = :auction_month";
-    //     $payment_stmt = $pdo->prepare($payment_query);
-    //     $payment_stmt->execute([
-    //          ':group_id'=>$row['group_id'],
-    //         ':cus_id' => $row['cus_id'],
-    //         ':auction_month' => $row['auction_month']
-    //     ]);
-
-    //     $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-    //     $collection_date = isset($payment_row['collection_date']) ? $payment_row['collection_date'] : null;
-    //    // $collection_status = isset($payment_row['coll_status']) ? $payment_row['coll_status'] : null;
-
-    //     if ($status === "Paid") {
-    //         $status_color = 'green'; // Payment is made
-    //     } elseif ($collection_date) {
-    //         $collection_date = date('Y-m-d', strtotime($collection_date));
-    //         if ($collection_date < $due_date) {
-    //             $status_color = 'orange'; // Payment made before due date but status is payable
-    //         } elseif ($collection_date > $grace_end_date) {
-    //             $status_color = 'red'; // Missed payment after grace period
-    //         } else {
-    //             $status_color = 'orange'; // Payment made within grace period
-    //         }
-    //     } else {
-    //         $current_date = date('Y-m-d');
-    //         if ($current_date > $grace_end_date) {
-    //             $status_color = 'red'; // Missed payment after grace period
-    //         } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-    //             $status_color = 'orange'; // Payment is due or within grace period
-    //         } else {
-    //             $status_color = 'red'; // Default to red if no payment status
-    //         }
-    //     }
-    
+ 
     $current_date = date('Y-m-d');
 
     if ($status === "Paid") {

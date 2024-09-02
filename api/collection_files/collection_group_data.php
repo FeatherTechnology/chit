@@ -56,39 +56,6 @@ if ($statement->rowCount() > 0) {
         $grace_start_date = $due_date;
         $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
 
-        // // Direct interpolation of variables into the query
-        // $payment_query = "SELECT collection_date, coll_status FROM collection 
-        //                   WHERE cus_mapping_id = {$row['cus_mapping_id']} 
-        //                   AND auction_id = {$row['auction_id']}
-        //                   AND group_id = {$row['grp_id']} 
-        //                   AND cus_id = {$row['cus_id']}
-        //                   AND auction_month = {$row['auction_month']}";
-        // $payment_stmt = $pdo->query($payment_query);
-
-        // $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-        // $collection_date = $payment_row['collection_date'] ?? null;
-
-        // if ($status === "Paid") {
-        //     $status_color = 'green'; // Payment is made
-        // } elseif ($collection_date) {
-        //     $collection_date = date('Y-m-d', strtotime($collection_date));
-        //     if ($collection_date < $due_date) {
-        //         $status_color = 'orange'; // Payment made before due date but status is payable
-        //     } elseif ($collection_date > $grace_end_date) {
-        //         $status_color = 'red'; // Missed payment after grace period
-        //     } else {
-        //         $status_color = 'orange'; // Payment made within grace period
-        //     }
-        // } else {
-        //     $current_date = date('Y-m-d');
-        //     if ($current_date > $grace_end_date) {
-        //         $status_color = 'red'; // Missed payment after grace period
-        //     } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-        //         $status_color = 'orange'; // Payment is due or within grace period
-        //     } else {
-        //         $status_color = 'red'; // Default to red if no payment status
-        //     }
-        // }
         
         $current_date = date('Y-m-d');
 
