@@ -3,12 +3,14 @@ require '../../ajaxconfig.php';
 @session_start();
 
 $id = $_POST['id']; // Ensure that you have sanitized and validated this input
+$currentMonth = date('m');
+$currentYear = date('Y');
 include 'collectionStatus.php';
 
 $collectionSts = new CollectionStsClass($pdo);
 
 // Fetch auction details with customer mapping
-$query = "SELECT
+$query1 = "SELECT
     ad.id AS auction_id,
     cc.id AS customer_id,
     gc.grp_id,
@@ -29,28 +31,17 @@ LEFT JOIN group_cus_mapping gcm ON
 LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
-    ad.status IN (2, 3) AND gc.status=3
-    AND cc.id = :id
-    AND YEAR(ad.date) = :currentYear
-    AND MONTH(ad.date) = :currentMonth"; // Removed extra closing parenthesis
-$statement = $pdo->prepare($query);
-$statement->execute([
-    ':id' => $id,
-    ':currentYear' => date('Y'),  // Ensure current year and month are passed
-    ':currentMonth' => date('m')
-]);
+   gc.status=3
+    AND cc.id = '$id'
+    AND YEAR(ad.date) = '$currentYear'
+    AND MONTH(ad.date) ='$currentMonth'"; // Removed extra closing parenthesis
+$statement = $pdo->query($query1);
 
 $result = [];
 
 if ($statement->rowCount() > 0) {
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $sub_array = [];
-
-        // Debugging: Check if all expected keys are present
-        if (!isset($row['grp_id'])) {
-            error_log("Missing 'grp_id' in row data: " . print_r($row, true));
-            continue;
-        }
 
         // Grace Period Calculation
         $chit_amount = $row['chit_amount'] ?? 0;
@@ -65,44 +56,48 @@ if ($statement->rowCount() > 0) {
         $grace_start_date = $due_date;
         $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
 
-        $payment_query = "SELECT collection_date, coll_status FROM collection 
-                          WHERE cus_mapping_id = :cus_mapping_id 
-                          AND auction_id = :auction_id 
-                          AND group_id = :group_id 
-                          AND cus_id = :cus_id 
-                          AND auction_month = :auction_month";
-        $payment_stmt = $pdo->prepare($payment_query);
-        $payment_stmt->execute([
-            ':cus_mapping_id' => $row['cus_mapping_id'],
-            ':auction_id' => $row['auction_id'],
-            ':group_id' => $row['grp_id'], // Ensure group_id is correctly used here
-            ':cus_id' => $row['cus_id'],
-            ':auction_month' => $row['auction_month']
-        ]);
+        // // Direct interpolation of variables into the query
+        // $payment_query = "SELECT collection_date, coll_status FROM collection 
+        //                   WHERE cus_mapping_id = {$row['cus_mapping_id']} 
+        //                   AND auction_id = {$row['auction_id']}
+        //                   AND group_id = {$row['grp_id']} 
+        //                   AND cus_id = {$row['cus_id']}
+        //                   AND auction_month = {$row['auction_month']}";
+        // $payment_stmt = $pdo->query($payment_query);
 
-        $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-        $collection_date = $payment_row['collection_date'] ?? null;
+        // $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
+        // $collection_date = $payment_row['collection_date'] ?? null;
+
+        // if ($status === "Paid") {
+        //     $status_color = 'green'; // Payment is made
+        // } elseif ($collection_date) {
+        //     $collection_date = date('Y-m-d', strtotime($collection_date));
+        //     if ($collection_date < $due_date) {
+        //         $status_color = 'orange'; // Payment made before due date but status is payable
+        //     } elseif ($collection_date > $grace_end_date) {
+        //         $status_color = 'red'; // Missed payment after grace period
+        //     } else {
+        //         $status_color = 'orange'; // Payment made within grace period
+        //     }
+        // } else {
+        //     $current_date = date('Y-m-d');
+        //     if ($current_date > $grace_end_date) {
+        //         $status_color = 'red'; // Missed payment after grace period
+        //     } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
+        //         $status_color = 'orange'; // Payment is due or within grace period
+        //     } else {
+        //         $status_color = 'red'; // Default to red if no payment status
+        //     }
+        // }
+        
+        $current_date = date('Y-m-d');
 
         if ($status === "Paid") {
             $status_color = 'green'; // Payment is made
-        } elseif ($collection_date) {
-            $collection_date = date('Y-m-d', strtotime($collection_date));
-            if ($collection_date < $due_date) {
-                $status_color = 'orange'; // Payment made before due date but status is payable
-            } elseif ($collection_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } else {
-                $status_color = 'orange'; // Payment made within grace period
-            }
-        } else {
-            $current_date = date('Y-m-d');
-            if ($current_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-                $status_color = 'orange'; // Payment is due or within grace period
-            } else {
-                $status_color = 'red'; // Default to red if no payment status
-            }
+        } elseif ($grace_end_date >= $current_date) {
+            $status_color = 'orange'; // Payment is due but not yet
+        } elseif ($grace_end_date < $current_date) {
+            $status_color = 'red'; // Missed payment after grace period
         }
 
         $sub_array['id'] = $row['auction_id'];
@@ -165,4 +160,3 @@ function moneyFormatIndia($num1)
 
     return $thecash;
 }
-?>

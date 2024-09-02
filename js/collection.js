@@ -101,40 +101,47 @@ $(document).ready(function () {
             }
         });
 
-
         $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
-
+        
             let collectionDate = $('#collection_date').val();
-            let collectionAmount = $('#collection_amount').val(); // Get the collection amount
+            let collectionAmount = parseFloat($('#collection_amount').val()); // Parse as float for numerical comparison
             let coll_mode = $('#coll_mode').val();
             let transaction_id = $('#transaction_id').val();
-            let bank_name=$('#bank_name').val();
-            let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Get and round off the payable amount
-            let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Get and round off the chit amount
-
+            let bank_name = $('#bank_name').val();
+            let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Round off payable amount
+            let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Round off chit amount
+        
             let isValid = true; // Assume form is valid unless proven otherwise
-
+        
             // Validate the collection amount field
             if (!validateField(collectionAmount, 'collection_amount')) {
                 isValid = false;
             }
-            // Validate the collection amount field
+        
+            // Check if collection amount is zero
+            if (collectionAmount === 0) {
+                isValid = false;
+                swalError('Warning', 'Collection amount cannot be zero.');
+            }
+        
+            // Validate the collection mode field
             if (!validateField(coll_mode, 'coll_mode')) {
                 isValid = false;
-            } 
+            }
+        
             if (coll_mode === '2') {
                 if (!validateField(transaction_id, 'transaction_id') && !validateField(bank_name, 'bank_name')) {
                     isValid = false;
                 }
             }
-            
+        
             // Check if collection amount is less than or equal to payable amount
-            if (parseFloat(collectionAmount) > payableAmount) {
+            if (collectionAmount > payableAmount) {
                 isValid = false;
                 swalError('Warning', 'Collection amount cannot be greater than payable amount.');
             }
-
+        
             if (isValid) {
                 // Send the data to the server using AJAX
                 $.ajax({
@@ -152,9 +159,9 @@ $(document).ready(function () {
                         payable_amnt: payableAmount, // Use rounded payable amount
                         collection_amount: collectionAmount,
                         collection_date: collectionDate,
-                        coll_mode:coll_mode,
-                        transaction_id:transaction_id,
-                        bank_name:bank_name,
+                        coll_mode: coll_mode,
+                        transaction_id: transaction_id,
+                        bank_name: bank_name,
                     },
                     success: function (response) {
                         if (response == '1') {
@@ -167,12 +174,11 @@ $(document).ready(function () {
                         } else {
                             swalError('Warning', 'Failed to save the collection details');
                         }
-                        // Ensure response is parsed correctly
                     },
                 });
             }
         });
-    });
+    });        
 
 
     ////////////////////////////////////////////////Pay End/////////////////////////////////////////////////
