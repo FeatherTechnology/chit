@@ -109,6 +109,7 @@ $(document).ready(function () {
             let coll_mode = $('#coll_mode').val();
             let transaction_id = $('#transaction_id').val();
             let bank_name = $('#bank_name').val();
+            let pendingAmount = Math.round(parseFloat($('#pending_amt').val().replace(/,/g, '')));
             let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Round off payable amount
             let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Round off chit amount
         
@@ -155,7 +156,7 @@ $(document).ready(function () {
                         auction_month: $('#auction_month').val(),
                         chit_value: $('#chit_value').val(),
                         chit_amount: chitAmount, // Use rounded chit amount
-                        pending_amt: $('#pending_amt').val(),
+                        pending_amt:pendingAmount,
                         payable_amnt: payableAmount, // Use rounded payable amount
                         collection_amount: collectionAmount,
                         collection_date: collectionDate,
