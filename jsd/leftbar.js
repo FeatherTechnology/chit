@@ -8,7 +8,11 @@ $(document).ready(function () {
         'group_creation': 'master',
         'bank_creation': 'admin',
         'user_creation': 'admin',
-        'auction': 'auction'
+        'auction': 'auction',
+        'settlement':'settlement',
+        'collection':'collection',
+        'accounts':'accounts',
+        'balance_sheet':'accounts'
     };
 
     const current_page = localStorage.getItem('currentPage');

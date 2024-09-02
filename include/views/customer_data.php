@@ -1,8 +1,44 @@
+<style>
+    .selecto {
+  position: relative;
+  width: 35%;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.selector-item_labe {
+  position: relative;
+  height: 35px;
+  width: 100px;
+  text-align: center;
+  border-radius: 9999px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  transition-duration: .5s;
+  transition-property: transform, box-shadow;
+  transform: none;
+  box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
+  cursor: pointer;
+}
+.selector-item_radio,
+.selector-item_labe {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.selector-item_radio:checked+.selector-item_labe {
+  background-color: var(--primary-color);
+  color: var(--white);
+  box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
+  transform: translateY(-2px);
+}
+</style>
 <div class="text-right">
-    <button type="button" class="btn btn-primary " id="add_customer"><span class="fa fa-plus"></span>&nbsp; Add Customer Creation</button>
+
     <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
 </div>
- <br>
+<br>
 <div class="card customer_table_content">
     <div class="card-body">
         <div class="col-12">
@@ -28,7 +64,34 @@
         </div>
     </div>
 </div>
-<div id="customer_creation_content" style="display:none;">
+<div id="customer_data_content" style="display:none;">
+    <div class="radio-container">
+        <div class="selector">
+            <div class="selector-item">
+                <input type="radio" id="customer_profile" name="customer_data_type" class="selector-item_radio" value="cus_profile" checked>
+                <label for="customer_profile" class="selector-item_label">Customer Profile</label>
+            </div>
+            <div class="selector-item">
+                <input type="radio" id="customer_sum" name="customer_data_type" class="selector-item_radio" value="cus_summary">
+                <label for="customer_sum" class="selector-item_label">Customer Summary</label>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="radio-container" id="curr_closed" style="display: none;">
+        <div class="selecto">
+            <div class="selector-item">
+                <input type="radio" id="customer_current" name="group_type" class="selector-item_radio" value="cus_current"  checked>
+                <label for="customer_current" class="selector-item_labe">Current</label>
+            </div>
+            <div class="selector-item">
+                <input type="radio" id="customer_closed" name="group_type" class="selector-item_radio" value="cus_closed">
+                <label for="customer_closed" class="selector-item_labe">Closed</label>
+            </div>
+        </div>
+    </div>
+
+    <br>
     <form id="customer_creation" name="customer_creation" action="" method="post" enctype="multipart/form-data">
         <input type="hidden" id="customer_id">
 
@@ -342,8 +405,69 @@
             </div>
         </div>
     </form>
+    <form id="customer_summary" name="customer_summary" style="display: none;">
+    <div class="col-12">
+        <div class="card group_current">
+            <div class="card-header">
+                <h5 class="card-title">Group List</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <table id="group_list_table" class=" table custom-table">
+                            <thead>
+                                <th width="50">S.No.</th>
+                                <th>Group ID</th>
+                                <th>Group Name</th>
+                                <th>Chit Value</th>
+                                <th>Group Status</th>
+                                <th>Collection Status</th>
+                                <th>Grace Period</th>
+                                <th>Customer Status</th>
+                                <th>Charts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card group_close"style="display: none;" >
+            <div class="card-header">
+                <h5 class="card-title">Group List</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <table id="group_close_table" class=" table custom-table">
+                            <thead>
+                                <th width="50">S.No.</th>
+                                <th>Group ID</th>
+                                <th>Group Name</th>
+                                <th>Chit Value</th>
+                                <th>Group Status</th>
+                                <th>Collection Status</th>
+                                <th>Customer Status</th>
+                                <th>Charts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+
 </div>
 
+<!--------------------------------------------Customer Profile and Customer Summary End--------------------------------------------------------------------->
 <!-- /////////////////////////////////////////////////////////////////// Place Modal Start ////////////////////////////////////////////////////////////////////// -->
 <div class="modal fade" id="add_place_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
@@ -609,3 +733,71 @@
 </div>
 
 <!--Guarantor Modal End-->
+<!-- /////////////////////////////////////////////////////////////////// Due Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
+<div class="modal fade bd-example-modal-lg" id="due_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dueChartTitle">Due Chart</h5>
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="closeChartsModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid" id="due_chart_table_div">
+                    <table id="due_chart_table" class="table custom-table">
+                        <thead>
+                            <th>Auction Month</th>
+                            <th>Date</th>
+                            <th>Chit Amount</th>
+                            <th>Payable</th>
+                            <th>Collection Date</th>
+                            <th>Collection Amount</th>
+                            <th>Pending</th>
+                            <th>Action</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()" tabindex="4">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /////////////////////////////////////////////////////////////////// Due Chart Modal END ////////////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////////// Commitement Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
+<div class="modal fade bd-example-modal-lg" id="commitment_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dueChartTitle">Commitement Chart</h5>
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="closeChartsModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid" id="commitment_chart_table_div">
+                    <table id='commitment_chart_table' class="table custom-table">
+                        <thead>
+                            <th width="20">S.No</th>
+                            <th>Date</th>
+                            <th>Label</th>
+                            <th>Remark</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()" tabindex="4">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /////////////////////////////////////////////////////////////////// Commitement Chart Modal END ////////////////////////////////////////////////////////////////////// -->

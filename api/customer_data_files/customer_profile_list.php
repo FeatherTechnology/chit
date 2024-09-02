@@ -67,8 +67,8 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['place']) ? $row['place'] : '';
     $sub_array[] = isset($row['chit_limit']) ? moneyFormatIndia($row['chit_limit']): '';
     $sub_array[] = isset($row['reference_type']) && isset($reference[$row['reference_type']]) ? $reference[$row['reference_type']] : '';
-    $action = "<span class='icon-border_color customerActionBtn' value='" . $row['id'] . "'></span>&nbsp;&nbsp;&nbsp;";
-    $action .= "<span class='icon-delete customerDeleteBtn' value='" . $row['id'] . "'></span>";
+    $action =  "<button class='btn btn-primary customerActionBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
+   
     $sub_array[] = $action;
     $data[] = $sub_array;
 }

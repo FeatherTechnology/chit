@@ -149,7 +149,7 @@
                 </div>
             </div>
             <!-- /////////////////////////////////////////////////// Collection Info  START ///////////////////////////////////////// -->
-            <div class="card coll_details"style="display: none;">
+            <div class="card coll_details" style="display: none;">
                 <div class="card-header">
                     <h5 class="card-title">Collection Info</h5>
                 </div>
@@ -216,7 +216,7 @@
             <!-- /////////////////////////////////////////////////// Collection Info END ///////////////////////////////////////// -->
 
             <!-- /////////////////////////////////////////////////// Collection Track START ///////////////////////////////////////// -->
-            <div class="card coll_details"style="display: none;">
+            <div class="card coll_details" style="display: none;">
                 <div class="card-header">
                     <div class="card-title">Collection Track</div>
                 </div>
@@ -228,16 +228,40 @@
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                     <div class="form-group">
                                         <label for="collection_date">Collection Date</label>&nbsp;<span class="text-danger">*</span>
-                                        <input type="text" class="form-control" id="collection_date" name="collection_date"  readonly tabindex='8'>
+                                        <input type="text" class="form-control" id="collection_date" name="collection_date" readonly tabindex='8'>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                    <div class="form-group">
+                                        <label for="coll_mode">Collection Mode</label><span class="text-danger">*</span>
+                                        <select type="text" class="form-control" id="coll_mode" name="coll_mode" tabindex="9">
+                                            <option value="">Select Collection Mode</option>
+                                            <option value="1">Cash</option>
+                                            <option value="2">Bank Transfer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="bank_container" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="bank_name">Bank Name</label>
+                                        <select class="form-control" id="bank_name" name="bank_name" tabindex="10">
+                                            <option value="">Select Bank</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 " id="transaction_container" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="transaction_id">Transaction ID</label>&nbsp;<span class="text-danger">*</span>
+                                        <input type="number" class="form-control" id="transaction_id" name="transaction_id" value='' placeholder='Enter Transaction ID' tabindex='11'>
                                     </div>
                                 </div>
                                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 intLoanDiv">
                                     <div class="form-group">
                                         <label for="collection_amount">Collection Amount</label>&nbsp;<span class="text-danger">*</span>
-                                        <input type="number" class="form-control clearFields" id="collection_amount" name="collection_amount" value='' placeholder='Enter Collection Amount' tabindex='9'>
+                                        <input type="number" class="form-control clearFields" id="collection_amount" name="collection_amount" value='' placeholder='Enter Collection Amount' tabindex='12'>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
 
                         </div>
                     </div>
@@ -322,7 +346,7 @@
             </div>
             <div class="modal-body">
                 <div class="container-fluid" id="due_chart_table_div">
-                    <table id = "due_chart_table" class="table custom-table">
+                    <table id="due_chart_table" class="table custom-table">
                         <thead>
                             <th>Auction Month</th>
                             <th>Date</th>
