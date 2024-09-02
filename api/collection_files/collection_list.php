@@ -1,7 +1,8 @@
 <?php
 @session_start();
 require '../../ajaxconfig.php';
-
+$currentMonth = date('m');
+$currentYear = date('Y');
 $user_id = $_SESSION['user_id'];
 include './collection_list_sts.php';
 
@@ -55,7 +56,9 @@ LEFT JOIN group_creation gc ON
 JOIN users us ON
     FIND_IN_SET(gc.branch, us.branch)
 WHERE
-    ad.status IN (2, 3)";
+    ad.status IN (2, 3) AND gc.status=3
+    AND YEAR(ad.date) = '$currentYear'
+    AND MONTH(ad.date) ='$currentMonth'";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
@@ -101,51 +104,24 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
 
     // Fetch status using the correct method call
-    $status = $collectionSts->updateCollectStatus( $row['cus_id'], $row['auction_month']);
+    $status = $collectionSts->updateCollectStatus($row['cus_id'], $row['auction_month']);
     $sub_array[] = $status;
 
-    $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0; 
-    $date = isset($row['date']) ? $row['date'] : ''; 
-    
+    $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0;
+    $date = isset($row['date']) ? $row['date'] : '';
+
     $due_date = date('Y-m-d', strtotime($date));
-    $grace_start_date = $due_date; 
+    $grace_start_date = $due_date;
     $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
-
-    $payment_query = "SELECT collection_date FROM collection 
-                      WHERE  cus_id = :cus_id 
-                      AND group_id = :group_id
-                      AND auction_month = :auction_month";
-    $payment_stmt = $pdo->prepare($payment_query);
-    $payment_stmt->execute([
-         ':group_id'=>$row['group_id'],
-        ':cus_id' => $row['cus_id'],
-        ':auction_month' => $row['auction_month']
-    ]);
-
-    $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-    $collection_date = isset($payment_row['collection_date']) ? $payment_row['collection_date'] : null;
-   // $collection_status = isset($payment_row['coll_status']) ? $payment_row['coll_status'] : null;
+ 
+    $current_date = date('Y-m-d');
 
     if ($status === "Paid") {
         $status_color = 'green'; // Payment is made
-    } elseif ($collection_date) {
-        $collection_date = date('Y-m-d', strtotime($collection_date));
-        if ($collection_date < $due_date) {
-            $status_color = 'orange'; // Payment made before due date but status is payable
-        } elseif ($collection_date > $grace_end_date) {
-            $status_color = 'red'; // Missed payment after grace period
-        } else {
-            $status_color = 'orange'; // Payment made within grace period
-        }
-    } else {
-        $current_date = date('Y-m-d');
-        if ($current_date > $grace_end_date) {
-            $status_color = 'red'; // Missed payment after grace period
-        } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-            $status_color = 'orange'; // Payment is due or within grace period
-        } else {
-            $status_color = 'red'; // Default to red if no payment status
-        }
+    } elseif ($grace_end_date >= $current_date) {
+        $status_color = 'orange'; // Payment is due but not yet
+    } elseif ($grace_end_date < $current_date) {
+        $status_color = 'red'; // Missed payment after grace period
     }
     $sub_array[] = "<span style='display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: $status_color;'></span>";
 
@@ -170,4 +146,3 @@ $output = array(
 );
 
 echo json_encode($output);
-?>
