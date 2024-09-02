@@ -11,7 +11,8 @@ $(document).ready(function () {
         'auction': 'auction',
         'settlement':'settlement',
         'collection':'collection',
-        'accounts':'accounts'
+        'accounts':'accounts',
+        'enquiry_creation':'enquiry'
     };
 
     const current_page = localStorage.getItem('currentPage');
