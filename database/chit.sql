@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 27, 2024 at 03:03 PM
+-- Generation Time: Sep 03, 2024 at 06:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,7 +48,7 @@ CREATE TABLE `accounts_collect_entry` (
 CREATE TABLE `auction_details` (
   `id` int(11) NOT NULL,
   `group_id` varchar(100) NOT NULL,
-  `date` varchar(100) NOT NULL,
+  `date` date NOT NULL,
   `auction_month` int(11) NOT NULL,
   `low_value` varchar(100) NOT NULL,
   `high_value` varchar(100) NOT NULL,
@@ -149,7 +149,10 @@ CREATE TABLE `collection` (
   `pending` varchar(100) NOT NULL,
   `payable` bigint(100) NOT NULL,
   `coll_status` varchar(100) NOT NULL,
-  `collection_date` date NOT NULL,
+  `collection_date` datetime DEFAULT current_timestamp(),
+  `coll_mode` int(11) NOT NULL,
+  `transaction_id` varchar(100) DEFAULT NULL,
+  `bank_id` int(11) DEFAULT NULL,
   `collection_amount` bigint(100) NOT NULL,
   `insert_login_id` int(11) DEFAULT NULL,
   `update_login_id` int(11) DEFAULT NULL,
@@ -311,6 +314,38 @@ INSERT INTO `districts` (`id`, `state_id`, `district_name`, `status`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `enquiry_creation`
+--
+
+CREATE TABLE `enquiry_creation` (
+  `id` int(11) NOT NULL,
+  `chit_value` int(150) NOT NULL,
+  `total_month` int(50) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `created_on` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `enquiry_creation_customer`
+--
+
+CREATE TABLE `enquiry_creation_customer` (
+  `id` int(11) NOT NULL,
+  `enquiry_creation_id` int(11) NOT NULL,
+  `cus_name` varchar(150) NOT NULL,
+  `cus_status` int(11) NOT NULL,
+  `mobile_number` varchar(250) NOT NULL,
+  `place` varchar(150) NOT NULL,
+  `remarks` varchar(250) NOT NULL,
+  `insert_login_id` int(11) NOT NULL,
+  `creater_on` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `expenses`
 --
 
@@ -436,10 +471,13 @@ INSERT INTO `menu_list` (`id`, `menu`, `link`, `icon`) VALUES
 (1, 'Dashboard', 'dashboard', 'developer_board'),
 (2, 'Master', 'master', 'camera1'),
 (3, 'Administration', 'admin', 'layers'),
-(4, 'Auction', 'auction', 'credit'),
+(4, 'Auction', 'auction', 'wallet'),
 (5, 'Settlement', 'settlement', 'uninstall'),
 (6, 'Collection', 'collection', 'credit'),
-(7, 'Accounts', 'accounts', 'credit');
+(7, 'Accounts', 'accounts', 'domain'),
+(8, 'Customer Data', 'customer_data', 'folder_shared'),
+(9, 'Group Summary', 'group_summary', 'share1'),
+(16, 'Enquiry', 'enquiry', 'globe');
 
 -- --------------------------------------------------------
 
@@ -521,7 +559,7 @@ CREATE TABLE `settlement_info` (
   `settle_balance` varchar(100) NOT NULL,
   `payment_type` varchar(100) NOT NULL,
   `settle_type` varchar(100) NOT NULL,
-  `bank_name` varchar(100) NOT NULL,
+  `bank_id` int(11) DEFAULT NULL,
   `settle_cash` varchar(100) NOT NULL,
   `cheque_no` varchar(100) NOT NULL,
   `cheque_val` varchar(100) NOT NULL,
@@ -600,13 +638,17 @@ INSERT INTO `sub_menu_list` (`id`, `main_menu`, `sub_menu`, `link`, `icon`) VALU
 (2, 2, 'Company Creation', 'company_creation', 'domain'),
 (3, 2, 'Branch Creation', 'branch_creation', 'add-to-list'),
 (4, 2, 'Customer Creation', 'customer_creation', 'recent_actors'),
-(5, 2, 'Group Creation', 'group_creation', 'upload-to-cloud'),
+(5, 2, 'Group Creation', 'group_creation', 'person_add'),
 (6, 3, 'Bank Creation', 'bank_creation', 'store_mall_directory'),
 (7, 3, 'User Creation', 'user_creation', 'group_add'),
-(8, 4, 'Auction', 'auction', 'credit'),
+(8, 4, 'Auction', 'auction', 'local_library'),
 (9, 5, 'Settlement', 'settlement', 'circle-with-cross'),
 (10, 6, 'Collection', 'collection', 'devices_other'),
-(11, 7, 'Accounts', 'accounts', 'credit');
+(11, 7, 'Accounts', 'accounts', 'rate_review'),
+(12, 8, 'Customer Data', 'customer_data', 'person_pin'),
+(13, 9, 'Group Summary', 'group_summary', 'event_available'),
+(14, 16, 'Enquiry Creation', 'enquiry_creation', 'globe'),
+(15, 7, 'Balance Sheet', 'balance_sheet', 'colours');
 
 -- --------------------------------------------------------
 
@@ -980,10 +1022,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `user_code`, `role`, `address`, `place`, `email`, `mobile`, `user_name`, `password`, `branch`, `designation`, `occ_detail`, `screens`, `insert_login_id`, `update_login_id`, `created_on`, `updated_on`) VALUES
-(1, 'Super Admin', 'US-001', 2, '', 2, '', '', 'admin', '123', '1,2', 3, '1,2', '2,3,4,5,6,7,8,9,10,11', '1', '1', '2024-06-13', '2024-07-13'),
-(10, 'Tester', 'US-003', 3, '', 2, '', '', 'Testing', '123', '1,4', 3, 'TCS', '1,3,6,7', '1', '1', '2024-07-25', '2024-07-25'),
-(11, 'test1', 'US-004', 2, '', 5, '', '', 'test', '123', '4,1,2', 3, '', '1,2,3,7', '1', '', '2024-07-25', '0000-00-00'),
-(12, 'Develop', 'US-005', 4, 'MN nagar', 5, '', '', 'dev', '123', '1,4', 8, '', '2,3,4,6,7', '1', '1', '2024-07-31', '2024-07-31');
+(1, 'Super Admin', 'US-001', 1, '', 1, '', '', 'admin', '123', '1,2', 1, '1,2', '2,3,4,5,6,7,8,9,10,11,15,12,13,14', '1', '1', '2024-06-13', '2024-08-30'),
+(13, 'Tester', 'US-002', 2, 'Gandhi road', 3, '', '', 'tester', '123', '1,2', 3, '', '1,2,3,4,5,6,7', '1', '', '2024-09-02', '0000-00-00');
 
 --
 -- Indexes for dumped tables
@@ -1063,6 +1103,18 @@ ALTER TABLE `designation`
 ALTER TABLE `districts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `State id` (`state_id`);
+
+--
+-- Indexes for table `enquiry_creation`
+--
+ALTER TABLE `enquiry_creation`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `enquiry_creation_customer`
+--
+ALTER TABLE `enquiry_creation_customer`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `expenses`
@@ -1237,6 +1289,18 @@ ALTER TABLE `districts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
+-- AUTO_INCREMENT for table `enquiry_creation`
+--
+ALTER TABLE `enquiry_creation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `enquiry_creation_customer`
+--
+ALTER TABLE `enquiry_creation_customer`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `expenses`
 --
 ALTER TABLE `expenses`
@@ -1270,7 +1334,7 @@ ALTER TABLE `guarantor_info`
 -- AUTO_INCREMENT for table `menu_list`
 --
 ALTER TABLE `menu_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `other_transaction`
@@ -1318,7 +1382,7 @@ ALTER TABLE `states`
 -- AUTO_INCREMENT for table `sub_menu_list`
 --
 ALTER TABLE `sub_menu_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `taluks`
@@ -1330,7 +1394,7 @@ ALTER TABLE `taluks`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Constraints for dumped tables
@@ -1351,6 +1415,12 @@ ALTER TABLE `company_creation`
   ADD CONSTRAINT `District ids` FOREIGN KEY (`district`) REFERENCES `districts` (`id`),
   ADD CONSTRAINT `State ids` FOREIGN KEY (`state`) REFERENCES `states` (`id`),
   ADD CONSTRAINT `Taluk ids` FOREIGN KEY (`taluk`) REFERENCES `taluks` (`id`);
+
+--
+-- Constraints for table `customer_creation`
+--
+ALTER TABLE `customer_creation`
+  ADD CONSTRAINT `place` FOREIGN KEY (`place`) REFERENCES `place` (`id`) ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `districts`
