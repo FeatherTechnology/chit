@@ -246,7 +246,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="chit_limit">Chit Limit</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="25">
+                                    <input type="text" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="25">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -320,7 +320,7 @@
                                     <table id="guar_info_table" class="table custom-table">
                                         <thead>
                                             <tr>
-                                                <th width="20">S.NO</th>
+                                                <th>S.NO</th>
                                                 <th>Name</th>
                                                 <th>Relationship</th>
                                             </tr>

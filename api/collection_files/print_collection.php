@@ -20,6 +20,10 @@ if ($qry->rowCount() > 0) {
         // Ensure pending is not negative
         $row['pending'] = max($row['pending'], 0);
 
+        // Convert and format collection_date to dd-mm-yyyy
+        $date = new DateTime($row['collection_date']);
+        $row['collection_date'] = $date->format('d-m-Y');
+
         $due_list_arr[$i] = $row;
         $i++;
     }

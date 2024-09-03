@@ -9,7 +9,7 @@ $(document).ready(function () {
         event.preventDefault();
         $('.colls-cntnr,#back_to_coll_list').show();
         $('.coll_details,#back_to_pay_list').hide();
-
+        $('#transaction_container').hide();
 
     })
 
@@ -23,14 +23,26 @@ $(document).ready(function () {
         viewCustomerGroups(id);
         editCustomerCreation(id)
     })
+    $('#coll_mode').change(function () {
+        var coll_mode = $(this).val();
+        $('#transaction_container').hide();
+        $('#bank_container').hide();
+        if (coll_mode == '2') {
+          
+            getBankName()
+            $('#bank_container').show();
+            $('#transaction_container').show();
+        }
+    });
     /////////////////////////////////////////////////////Pay Start//////////////////////////////////////////////////////////
     $(document).on('click', '.add_pay', function (event) {
         event.preventDefault();
-
+    
         // Hide and show the appropriate sections
         $('.colls-cntnr, #back_to_coll_list').hide();
         $('.coll_details, #back_to_pay_list').show();
         collectDate();
+        
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
@@ -38,6 +50,7 @@ $(document).ready(function () {
         let auctionId = dataParts[2];
         let cusMappingID = dataParts[3]; // Extract cus_mapping_id from data attribute
         let cusId = dataParts[4];
+        
         $.ajax({
             url: 'api/collection_files/fetch_pay_details.php',
             type: 'POST',
@@ -48,48 +61,88 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    // Round off chit_amount and payable_amnt
-                    let roundedChitAmount = Math.round(response.chit_amount);
-                    let roundedPayableAmnt = Math.round(response.payable_amnt);
-        
-                    // Populate the form fields with the fetched and rounded data
-                    $('#group_name').val(response.group_name);
-                    $('#auction_month').val(response.auction_month);
-                    $('#date').val(response.date);
-                    $('#chit_value').val(response.chit_value);
-                    $('#chit_amt').val(roundedChitAmount);
-                    $('#pending_amt').val(response.pending_amt);
-                    $('#payable_amnt').val(roundedPayableAmnt);
-                    $('#collection_amount').val('');
-        
+                    // Check if the necessary fields are present in the response
+                    if (typeof response.chit_amount !== 'undefined' && typeof response.payable_amnt !== 'undefined') {
+                        // Round off chit_amount and payable_amnt
+                        let roundedChitAmount = Math.round(response.chit_amount || 0);
+                        let roundedPayableAmnt = Math.round(response.payable_amnt || 0);
+    
+                        // Populate the form fields with the fetched and rounded data
+                        $('#group_name').val(response.group_name);
+                        $('#auction_month').val(response.auction_month);
+                        $('#date').val(response.date);
+                        $('#chit_value').val(moneyFormatIndia(response.chit_value));
+                        $('#chit_amt').val(moneyFormatIndia(roundedChitAmount));
+                        $('#pending_amt').val(moneyFormatIndia(response.pending_amt || 0));
+                        $('#payable_amnt').val(moneyFormatIndia(roundedPayableAmnt));
+                        $('#coll_mode').each(function () {
+                            $(this).val($(this).find('option:first').val());
+                        });
+                        $('#bank_name').each(function () {
+                            $(this).val($(this).find('option:first').val());
+                        });
+                        $('#collection_amount').val('');
+                        $('#transaction_id').val('');
+                        $('input').css('border', '1px solid #cecece');
+                        $('select').css('border', '1px solid #cecece');
+                        $('#transaction_container').hide();
+                        $('#bank_container').hide();
+                    } else {
+                        console.error('Required data fields are missing in the response.');
+                        swalError('Warning', 'Failed to retrieve the required payment details.');
+                    }
                 } else {
                     swalError('Warning', 'Failed to save the collection details');
                 }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                swalError('Error', 'An error occurred while fetching payment details.');
             }
         });
-        
 
         $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
-
+        
             let collectionDate = $('#collection_date').val();
-            let collectionAmount = $('#collection_amount').val(); // Get the collection amount
-            let payableAmount = Math.round(parseFloat($('#payable_amnt').val())); // Get and round off the payable amount
-            let chitAmount = Math.round(parseFloat($('#chit_amt').val())); // Get and round off the chit amount
-
+            let collectionAmount = parseFloat($('#collection_amount').val()); // Parse as float for numerical comparison
+            let coll_mode = $('#coll_mode').val();
+            let transaction_id = $('#transaction_id').val();
+            let bank_name = $('#bank_name').val();
+            let pendingAmount = Math.round(parseFloat($('#pending_amt').val().replace(/,/g, '')));
+            let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Round off payable amount
+            let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Round off chit amount
+        
             let isValid = true; // Assume form is valid unless proven otherwise
-
+        
             // Validate the collection amount field
             if (!validateField(collectionAmount, 'collection_amount')) {
                 isValid = false;
             }
-
+        
+            // Check if collection amount is zero
+            if (collectionAmount === 0) {
+                isValid = false;
+                swalError('Warning', 'Collection amount cannot be zero.');
+            }
+        
+            // Validate the collection mode field
+            if (!validateField(coll_mode, 'coll_mode')) {
+                isValid = false;
+            }
+        
+            if (coll_mode === '2') {
+                if (!validateField(transaction_id, 'transaction_id') && !validateField(bank_name, 'bank_name')) {
+                    isValid = false;
+                }
+            }
+        
             // Check if collection amount is less than or equal to payable amount
-            if (parseFloat(collectionAmount) > payableAmount) {
+            if (collectionAmount > payableAmount) {
                 isValid = false;
                 swalError('Warning', 'Collection amount cannot be greater than payable amount.');
             }
-
+        
             if (isValid) {
                 // Send the data to the server using AJAX
                 $.ajax({
@@ -103,10 +156,13 @@ $(document).ready(function () {
                         auction_month: $('#auction_month').val(),
                         chit_value: $('#chit_value').val(),
                         chit_amount: chitAmount, // Use rounded chit amount
-                        pending_amt: $('#pending_amt').val(),
+                        pending_amt:pendingAmount,
                         payable_amnt: payableAmount, // Use rounded payable amount
                         collection_amount: collectionAmount,
-                        collection_date: collectionDate
+                        collection_date: collectionDate,
+                        coll_mode: coll_mode,
+                        transaction_id: transaction_id,
+                        bank_name: bank_name,
                     },
                     success: function (response) {
                         if (response == '1') {
@@ -119,39 +175,38 @@ $(document).ready(function () {
                         } else {
                             swalError('Warning', 'Failed to save the collection details');
                         }
-                        // Ensure response is parsed correctly
                     },
                 });
             }
         });
-    });
+    });        
 
 
     ////////////////////////////////////////////////Pay End/////////////////////////////////////////////////
     ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////
     $(document).on('click', '.add_commitment', function (event) {
         event.preventDefault();
-    
+
         // Show the modal
         $('#add_commitment_modal').modal('show');
-    
+
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
         let cusMappingID = dataParts[1];
         getCommitmentInfoTable(cusMappingID, groupId);
-    
+
         // Unbind any existing click event to prevent multiple submissions
         $('#add_commit').off('click').on('click', function (event) {
             event.preventDefault();
-    
+
             // Validation
             let label = $('#label').val();
             let remark = $('#remark').val();
-    
+
             var isValid = true;
-    
+
             // Validate each field
             if (!validateField(label, 'label')) {
                 isValid = false;
@@ -159,7 +214,7 @@ $(document).ready(function () {
             if (!validateField(remark, 'remark')) {
                 isValid = false;
             }
-    
+
             // If all fields are valid, proceed with the AJAX call
             if (isValid) {
                 $.post('api/collection_files/submit_commitement.php', {
@@ -179,7 +234,7 @@ $(document).ready(function () {
                 });
             }
         });
-    
+
         $(document).on('click', '.commitDeleteBtn', function () {
             var id = $(this).attr('value');
             swalConfirm('Delete', 'Do you want to Delete the Commitment Details?', function () {
@@ -187,7 +242,7 @@ $(document).ready(function () {
             });
         });
     });
-    
+
 
     ///////////////////////////////////////////////////////Commitement  End/////////////////////////////////////////////////
     ///////////////////////////////////////////////////////Due Start/////////////////////////////////////////////
@@ -233,11 +288,11 @@ $(document).ready(function () {
                             </tr>
                             <tr>
                                 <td><strong>Chit Amount</strong></td>
-                                <td>${row.chit_amount}</td>
+                                <td>${moneyFormatIndia(row.chit_amount)}</td>
                             </tr>
                             <tr>
                                 <td><strong>Payable</strong></td>
-                                <td>${row.payable}</td>
+                                <td>${moneyFormatIndia(row.payable)}</td>
                             </tr>
                             <tr>
                                 <td><strong>Collection Date</strong></td>
@@ -245,18 +300,18 @@ $(document).ready(function () {
                             </tr>
                             <tr>
                                 <td><strong>Collection Amount</strong></td>
-                                <td>${row.collection_amount}</td>
+                                <td>${moneyFormatIndia(row.collection_amount)}</td>
                             </tr>
                             <tr>
                                 <td><strong>Pending</strong></td>
-                                <td>${row.pending}</td>
+                                <td>${moneyFormatIndia(row.pending)}</td>
                             </tr>
                         `).join('');
-            
+
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="img/auction.png" width="25" height="25" style="margin-right: 10px;">
+                                    <img src="img/auction1.jpg" width="25" height="25" style="margin-right: 10px;">
                                     Chit Company
                                 </h2>
                                 <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
@@ -264,7 +319,7 @@ $(document).ready(function () {
                                 </table>
                             </div>
                         `;
-            
+
                         // Create a temporary iframe to hold the content for printing
                         const printWindow = window.open('', '_blank');
                         printWindow.document.write(`
@@ -284,7 +339,7 @@ $(document).ready(function () {
                             </html>
                         `);
                         printWindow.document.close();
-            
+
                         // Trigger the print dialog
                         printWindow.focus();
                         printWindow.print();
@@ -292,7 +347,7 @@ $(document).ready(function () {
                     },
                 });
             });
-            
+
         }, 1000);
 
 
@@ -352,8 +407,11 @@ function editCustomerCreation(id) {
 function viewCustomerGroups(id) {
     $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {
         // Iterate through the response to round off chit_amount
-        response.forEach(function(item) {
-            item.chit_amount = Math.round(item.chit_amount); // Round off chit_amount
+        response.forEach(function (item) {
+            item.chit_amount = Math.round(item.chit_amount);
+
+            // Format the rounded chit_amount
+            item.chit_amount = moneyFormatIndia(item.chit_amount)// Round off chit_amount
         });
 
         let cashList = [
@@ -429,7 +487,6 @@ function getDueChart(groupId, cusMappingID, auction_month) {
             auction_month: auction_month
         },
         success: function (response) {
-            console.log(response);
             var tbody = $('#due_chart_table tbody');
             tbody.empty(); // Clear existing rows
 
@@ -441,7 +498,7 @@ function getDueChart(groupId, cusMappingID, auction_month) {
                 var auctionDate = item.auction_date;
 
                 // Format the values using moneyFormatIndia
-                var chitAmount = item.chit_amount ? moneyFormatIndia(item.chit_amount) : '';
+                var chitAmount = item.chit_amount ? moneyFormatIndia(Math.round(item.chit_amount)) : '';
                 var payable = item.payable ? moneyFormatIndia(item.payable) : '';
                 var collectionDate = item.collection_date ? item.collection_date : '';
                 var collectionAmount = item.collection_amount ? moneyFormatIndia(item.collection_amount) : '';
@@ -486,4 +543,17 @@ function getDueChart(groupId, cusMappingID, auction_month) {
         }
     });
 }
-
+function getBankName() {
+    $.post('api/settlement_files/get_bank_name.php', function (response) {
+        let appendBankOption = "<option value=''>Select Bank Name</option>";
+        $.each(response, function (index, val) {
+            let selected = '';
+            let editGId = $('#bank_name_edit').val(); // Existing guarantor ID (if any)
+            if (val.id == editGId) {
+                selected = 'selected';
+            }
+            appendBankOption += "<option value='" + val.id + "' " + selected + ">" + val.bank_name + "</option>";
+        });
+        $('#bank_name').empty().append(appendBankOption);
+    }, 'json');
+}
