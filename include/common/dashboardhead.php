@@ -31,3 +31,5 @@
 
 	<!-- multiselect stylesheet -->
 	<link rel="stylesheet" href="vendor/multiselect/public/assets/styles/choices.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
