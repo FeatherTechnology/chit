@@ -31,6 +31,7 @@ $current_auction_query = "SELECT
     GROUP BY ad.group_id, ad.auction_month";
 
 // Fetch previous auction details to calculate pending amount
+
 $previous_auction_query = "SELECT
     ad.auction_month,
     ad.chit_amount,

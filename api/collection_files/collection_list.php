@@ -104,7 +104,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
 
     // Fetch status using the correct method call
-    $status = $collectionSts->updateCollectStatus($row['cus_id'], $row['auction_month']);
+    $status = $collectionSts->updateCollectStatus($row['cus_id'], $row['auction_month'],$row['id']);
     $sub_array[] = $status;
 
     $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0;
