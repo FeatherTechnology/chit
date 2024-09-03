@@ -55,47 +55,16 @@ if ($statement->rowCount() > 0) {
         $due_date_formatted = date('Y-m-d', strtotime($due_date));
         $grace_end_date = date('Y-m-d', strtotime($due_date_formatted . ' + ' . $grace_period . ' days'));
 
-        // Fetch payment status
-        $payment_query = "SELECT collection_date FROM collection 
-                          WHERE cus_mapping_id = :cus_mapping_id 
-                          AND auction_id = :auction_id 
-                          AND group_id = :group_id 
-                          AND cus_id = :cus_id 
-                          AND auction_month = :auction_month";
-        $payment_stmt = $pdo->prepare($payment_query);
-        $payment_stmt->execute([
-            ':cus_mapping_id' => $row['cus_mapping_id'],
-            ':auction_id' => $row['auction_id'],
-            ':group_id' => $row['grp_id'],
-            ':cus_id' => $row['cus_id'],
-            ':auction_month' => $row['auction_month']
-        ]);
-
-        $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-        $collection_date = $payment_row['collection_date'] ?? null;
-
-        // Determine payment status color
-        $status_color = 'red'; // Default to red if no payment status
+        $current_date = date('Y-m-d');
 
         if ($status === "Paid") {
             $status_color = 'green'; // Payment is made
-        } elseif ($collection_date) {
-            $collection_date = date('Y-m-d', strtotime($collection_date));
-            if ($collection_date < $due_date_formatted) {
-                $status_color = 'orange'; // Payment made before due date but status is payable
-            } elseif ($collection_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } else {
-                $status_color = 'orange'; // Payment made within grace period
-            }
-        } else {
-            $current_date = date('Y-m-d');
-            if ($current_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } elseif ($current_date >= $due_date_formatted && $current_date <= $grace_end_date) {
-                $status_color = 'orange'; // Payment is due or within grace period
-            }
+        } elseif ($grace_end_date >= $current_date) {
+            $status_color = 'orange'; // Payment is due but not yet
+        } elseif ($grace_end_date < $current_date) {
+            $status_color = 'red'; // Missed payment after grace period
         }
+
 
         // Check payment status for all customers in the group
         $customer_mapping_query = "SELECT id FROM group_cus_mapping 
