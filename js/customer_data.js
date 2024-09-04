@@ -15,17 +15,17 @@ $(document).ready(function () {
         }
     })
     $('input[name=group_type]').click(function () {
-        let customerType = $(this).val();
-        if (customerType == 'cus_current') {
-            $('#customer_summary').show()
-            $('.group_close').hide()
-            $('.group_current').show()
-        } else if (customerType == 'cus_closed') {
+        let groupType = $(this).val();
+        if (groupType == 'cus_current') {
+            $('#customer_summary').show();
+            $('.group_close').hide();
+            $('.group_current').show();
+        } else if (groupType == 'cus_closed') {
             $('.group_close').show();
-            $('.group_current').hide()
-
+            $('.group_current').hide();
         }
-    })
+    });
+    
     $(document).on('click', '#customer_profile', function () {
 
         $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide();
@@ -693,6 +693,7 @@ function swapTableAndCreation() {
         $('#back_btn').hide();
         $('#customer_data_content').hide();
         $('#customer_profile').trigger('click');
+        $('#customer_current').trigger('click');
     }
 }
 
