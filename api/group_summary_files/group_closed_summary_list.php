@@ -95,7 +95,7 @@ foreach ($result as $row) {
     }
 
     // Determine the collection status
-    $collection_status = $all_paid ? 'Completed' : 'InCollection';
+    $collection_status = $all_paid ? 'Completed' : 'In Collection';
 
     $sub_array = array(
         $sno++,
