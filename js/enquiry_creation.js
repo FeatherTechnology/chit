@@ -260,8 +260,13 @@ function deletcustomer(id) {
       }
     );
   }
-
-
+  
+  $('button[type="reset"], #back_btn').click(function () {
+    event.preventDefault();
+    $('textarea').css('border', '1px solid #cecece');
+    $('input').css('border', '1px solid #cecece');
+    $('select').css('border', '1px solid #cecece');
+});
 
   
 
