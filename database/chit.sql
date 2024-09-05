@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 03, 2024 at 06:20 AM
+-- Generation Time: Sep 05, 2024 at 02:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -477,7 +477,7 @@ INSERT INTO `menu_list` (`id`, `menu`, `link`, `icon`) VALUES
 (7, 'Accounts', 'accounts', 'domain'),
 (8, 'Customer Data', 'customer_data', 'folder_shared'),
 (9, 'Group Summary', 'group_summary', 'share1'),
-(16, 'Enquiry', 'enquiry', 'globe');
+(16, 'Enquiry', 'enquiry', 'ring_volume');
 
 -- --------------------------------------------------------
 
@@ -568,7 +568,7 @@ CREATE TABLE `settlement_info` (
   `transaction_val` varchar(100) NOT NULL,
   `transaction_remark` varchar(100) NOT NULL,
   `balance_amount` varchar(100) NOT NULL,
-  `guarantor_name` varchar(100) NOT NULL,
+  `guarantor_name` int(11) NOT NULL,
   `guarantor_relationship` varchar(100) NOT NULL,
   `insert_login_id` int(11) DEFAULT NULL,
   `update_login_id` int(11) DEFAULT NULL,
@@ -647,7 +647,7 @@ INSERT INTO `sub_menu_list` (`id`, `main_menu`, `sub_menu`, `link`, `icon`) VALU
 (11, 7, 'Accounts', 'accounts', 'rate_review'),
 (12, 8, 'Customer Data', 'customer_data', 'person_pin'),
 (13, 9, 'Group Summary', 'group_summary', 'event_available'),
-(14, 16, 'Enquiry Creation', 'enquiry_creation', 'globe'),
+(14, 16, 'Enquiry Creation', 'enquiry_creation', 'phone'),
 (15, 7, 'Balance Sheet', 'balance_sheet', 'colours');
 
 -- --------------------------------------------------------
@@ -1022,7 +1022,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `user_code`, `role`, `address`, `place`, `email`, `mobile`, `user_name`, `password`, `branch`, `designation`, `occ_detail`, `screens`, `insert_login_id`, `update_login_id`, `created_on`, `updated_on`) VALUES
-(1, 'Super Admin', 'US-001', 1, '', 1, '', '', 'admin', '123', '1,2', 1, '1,2', '2,3,4,5,6,7,8,9,10,11,15,12,13,14', '1', '1', '2024-06-13', '2024-08-30'),
+(1, 'Super Admin', 'US-001', 1, '', 1, '', '', 'admin', '123', '1,2', 1, '1,2', '1,2,3,4,5,6,7,8,9,10,11,15,12,13,14', '1', '1', '2024-06-13', '2024-08-30'),
 (13, 'Tester', 'US-002', 2, 'Gandhi road', 3, '', '', 'tester', '123', '1,2', 3, '', '1,2,3,4,5,6,7', '1', '', '2024-09-02', '0000-00-00');
 
 --
@@ -1138,7 +1138,8 @@ ALTER TABLE `group_creation`
 -- Indexes for table `group_cus_mapping`
 --
 ALTER TABLE `group_cus_mapping`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cus_id` (`cus_id`);
 
 --
 -- Indexes for table `guarantor_info`
@@ -1427,6 +1428,12 @@ ALTER TABLE `customer_creation`
 --
 ALTER TABLE `districts`
   ADD CONSTRAINT `State id` FOREIGN KEY (`state_id`) REFERENCES `states` (`id`);
+
+--
+-- Constraints for table `group_cus_mapping`
+--
+ALTER TABLE `group_cus_mapping`
+  ADD CONSTRAINT `cus_id` FOREIGN KEY (`cus_id`) REFERENCES `customer_creation` (`id`) ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `sub_menu_list`
