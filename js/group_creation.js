@@ -489,6 +489,7 @@ function getDateDropDown(editDId) {
 function hideSubmitButton(status) {
     if (status >2) {
         // Hide the reset button and submit buttons
+        $('#back_btn').show();
         $('#reset_clear').hide();
         $('#group_clear').hide(); // Hide reset button
         $('#submit_group_info').hide();
@@ -496,6 +497,7 @@ function hideSubmitButton(status) {
         $('#submit_cus_map').hide();
     } else {
         // Show the reset button and submit buttons
+        $('#back_btn').show();
         $('#reset_clear').show();
         $('#group_clear').show(); // Show reset button
         $('#submit_group_info').show();
