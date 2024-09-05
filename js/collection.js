@@ -66,7 +66,7 @@ $(document).ready(function () {
                         // Round off chit_amount and payable_amnt
                         let roundedChitAmount = Math.round(response.chit_amount || 0);
                         let roundedPayableAmnt = Math.round(response.payable_amnt || 0);
-    
+        
                         // Populate the form fields with the fetched and rounded data
                         $('#group_name').val(response.group_name);
                         $('#auction_month').val(response.auction_month);
@@ -100,7 +100,7 @@ $(document).ready(function () {
                 swalError('Error', 'An error occurred while fetching payment details.');
             }
         });
-
+        
         $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
         
