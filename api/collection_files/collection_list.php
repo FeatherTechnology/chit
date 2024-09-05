@@ -21,7 +21,6 @@ $column = array(
 );
 
 $query = "SELECT
-    ad.id,
     cc.id,
     ad.id AS auction_id,
     ad.group_id,
@@ -56,7 +55,7 @@ LEFT JOIN group_creation gc ON
 JOIN users us ON
     FIND_IN_SET(gc.branch, us.branch)
 WHERE
-    ad.status IN (2, 3) AND gc.status=3
+    gc.status=3
     AND YEAR(ad.date) = '$currentYear'
     AND MONTH(ad.date) ='$currentMonth'";
 
@@ -104,7 +103,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
 
     // Fetch status using the correct method call
-    $status = $collectionSts->updateCollectStatus($row['cus_id'], $row['auction_month']);
+    $status = $collectionSts->updateCollectStatus($row['cus_id'],$row['id']);
     $sub_array[] = $status;
 
     $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0;
