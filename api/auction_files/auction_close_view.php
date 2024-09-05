@@ -22,7 +22,7 @@ try {
                 FIND_IN_SET(cc.id, al.cus_name) > 0 
             WHERE 
                 al.group_id = :group_id
-                AND al.date = :date ORDER BY al.id ASC" ;
+                AND al.date = :date ORDER BY al.value ASC" ;
     
     $stmt = $pdo->prepare($qry);
     
