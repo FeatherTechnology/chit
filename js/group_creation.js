@@ -243,7 +243,29 @@ $(document).ready(function () {
 
 $(function () {
     getGroupCreationTable();
+    checkDashboardData();
 });
+
+function checkDashboardData() {
+    let fromDashboard = localStorage.getItem('dashboardGrp');
+
+    if (fromDashboard) { // Ensure fromDashboard is not null or empty
+        console.log('Dashboard data found:', fromDashboard);
+
+        // Find all <a> tags with the class 'edit-group-creation'
+        let links = document.querySelectorAll('.edit-group-creation');
+
+        links.forEach(link => {
+            if (link.getAttribute('value') === fromDashboard) {
+                console.log('Match found, triggering click for value:', fromDashboard);
+                // link.click(); // Trigger click event
+                $(link).trigger('click');
+            }
+        });
+    } else {
+        console.log('No matching data in localStorage.');
+    }
+}
 
 function getGroupCreationTable() {
     serverSideTable('#group_creation_table', '', 'api/group_creation_files/get_grp_creation_list.php');
@@ -263,6 +285,8 @@ function swapTableAndCreation() {
         $('#group_creation_content').hide();
         $('#back_btn').hide();
         $('#customer_mapping').trigger('click');
+
+        localStorage.setItem('dashboardGrp','');
     }
 }
 function getAutoGenGroupId(id) {
