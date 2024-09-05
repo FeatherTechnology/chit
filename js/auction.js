@@ -11,12 +11,13 @@ $(document).ready(function () {
         $('.auction_detail_content,.back_btn').hide();
         $('.today').show();
         $('.this_month').show();
-        getAuctionTodayTable()
-        getAuctionMonthTable()
+        // getAuctionTodayTable()
+        // getAuctionMonthTable()
         getAuctionTable();
         $('#cus_mapping_table tbody').empty(); 
         $('#pageHeaderName').text(` - Auction`);
 
+        localStorage.setItem('dashboardAuc','');
     });
     $(document).on('click', '.today', function () {
         getAuctionTodayTable()
@@ -27,12 +28,12 @@ $(document).ready(function () {
 
     $(document).on('click', '.auctionListBtn', function (event) {
         event.preventDefault();
-        let dataValue = $(this).data('value');
-        let values = dataValue.split('_'); // Assuming you used '_' as the delimiter
+        // let dataValue = $(this).data('value');
+        // let values = dataValue.split('_'); // Assuming you used '_' as the delimiter
 
-        let groupId = values[0]; // First part is group ID
-        let groupName = values[1]; // Second part is group name
-        let chitValue = values[2]; // Third part is chit value
+        let groupId = $(this).attr('data-grpid'); // First part is group ID
+        let groupName = $(this).attr('data-grpname'); // Second part is group name
+        let chitValue = $(this).attr('data-chitval'); // Third part is chit value
 
         // Convert chitValue to a string before formatting
         const formattedChitValue = moneyFormatIndia(chitValue.toString());
@@ -401,6 +402,22 @@ $(function () {
 function getAuctionTable() {
     serverSideTable('#auction_list_table', '', 'api/auction_files/auction_list.php');
 
+    $('#auction_list_table').on('init.dt', function(){
+        checkDashboardData(); //call function after the table loaded.
+    });
+}
+
+function checkDashboardData(){
+    let fromDashboard = localStorage.getItem('dashboardAuc');
+    if(fromDashboard){
+        let links = document.querySelectorAll('.auctionListBtn');
+
+        links.forEach(link => {
+            if(link.getAttribute('data-grpid') == fromDashboard){
+                $(link).trigger('click');
+            }
+        });
+    }
 }
 
 function getAuctionMonthTable() {

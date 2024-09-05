@@ -51,6 +51,14 @@ $(document).ready(function () {
         localStorage.setItem('dashboardGrp', grpId);
         setlocalvariable(this);
     });
+
+    $(document).on('click','.open-auction-list',function(event){
+        event.preventDefault();
+        let grpId = $(this).attr('data-grpid');
+        localStorage.setItem('dashboardAuc', grpId);
+        setlocalvariable(this);
+    });
+
 });
 
 $(function () {
@@ -100,7 +108,7 @@ function getProcessingGroupList() {
 
 function getApprovalCounts() {
     let branchId = $('#branch_id :selected').val();
-    serverSideTable('#auction_list_table', branchId , 'api/dashboard_files/get_auction_list.php');
+    serverSideTable('#auction_list_table', branchId , 'api/dashboard_files/get_dashboard_auction_list.php');
 }
 
 function getCollectionCounts() {
