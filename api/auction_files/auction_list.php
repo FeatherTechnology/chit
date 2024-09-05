@@ -84,21 +84,21 @@ $result = $statement->fetchAll();
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];
 foreach ($result as $row) {
-$sub_array = array();
-$sub_array[] = $sno++;
-$sub_array[] = isset($row['grp_id']) ? $row['grp_id'] : '';
-$sub_array[] = isset($row['grp_name']) ? $row['grp_name'] : '';
-$sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
-$sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
-$sub_array[] = isset($row['date']) ? $row['date'] : '';
-$sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
-$sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
-$sub_array[] = isset($row['status']) ? $auction_status[$row['status']] : '';
-$unique = $row['grp_id'] . '_' . $row['grp_name'] . '_' . $row['chit_value'];
-$action = "<button class='btn btn-primary auctionListBtn'  data-value='" . $unique . "'>&nbsp;View</button>";
-
-$sub_array[] = $action;
-$data[] = $sub_array;
+    $sub_array = array();
+    $sub_array[] = $sno++;
+    $sub_array[] = isset($row['grp_id']) ? $row['grp_id'] : '';
+    $sub_array[] = isset($row['grp_name']) ? $row['grp_name'] : '';
+    $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
+    $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
+    $sub_array[] = isset($row['date']) ? $row['date'] : '';
+    $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
+    $sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
+    $sub_array[] = isset($row['status']) ? $auction_status[$row['status']] : '';
+    $unique = $row['grp_id'] . '_' . $row['grp_name'] . '_' . $row['chit_value'];
+    $action = "<button class='btn btn-primary auctionListBtn'  data-grpid='" . $row['grp_id']. "' data-grpname='".$row['grp_name']."' data-chitval='".$row['chit_value']."'>&nbsp;View</button>";
+   
+    $sub_array[] = $action;
+    $data[] = $sub_array;
 }
 
 function count_all_data($pdo)

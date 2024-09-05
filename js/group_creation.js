@@ -243,10 +243,51 @@ $(document).ready(function () {
 
 $(function () {
     getGroupCreationTable();
+    checkDashboardData();
 });
+
+function checkDashboardData() {
+    let fromDashboard = localStorage.getItem('dashboardGrp');
+
+    if (fromDashboard) { // Ensure fromDashboard is not null or empty
+        console.log('Dashboard data found:', fromDashboard);
+
+        // Find all <a> tags with the class 'edit-group-creation'
+        let links = document.querySelectorAll('.edit-group-creation');
+
+        links.forEach(link => {
+            if (link.getAttribute('value') === fromDashboard) {
+                console.log('Match found, triggering click for value:', fromDashboard);
+                // link.click(); // Trigger click event
+                $(link).trigger('click');
+            }
+        });
+    } else {
+        console.log('No matching data in localStorage.');
+    }
+}
 
 function getGroupCreationTable() {
     serverSideTable('#group_creation_table', '', 'api/group_creation_files/get_grp_creation_list.php');
+    
+    $('#group_creation_table').on('init.dt', function(){
+        checkDashboardData(); //Call function after the table loaded.
+    });
+}
+
+function checkDashboardData() {
+    let fromDashboard = localStorage.getItem('dashboardGrp');
+
+    if (fromDashboard) { // Ensure fromDashboard is not null or empty
+        // Find all <a> tags with the class 'edit-group-creation'
+        let links = document.querySelectorAll('.edit-group-creation');
+
+        links.forEach(link => {
+            if (link.getAttribute('value') === fromDashboard) {
+                $(link).trigger('click');
+            }
+        });
+    }
 }
 
 function swapTableAndCreation() {
@@ -263,6 +304,8 @@ function swapTableAndCreation() {
         $('#group_creation_content').hide();
         $('#back_btn').hide();
         $('#customer_mapping').trigger('click');
+
+        localStorage.setItem('dashboardGrp','');
     }
 }
 function getAutoGenGroupId(id) {
@@ -489,6 +532,7 @@ function getDateDropDown(editDId) {
 function hideSubmitButton(status) {
     if (status >2) {
         // Hide the reset button and submit buttons
+        $('#back_btn').show();
         $('#reset_clear').hide();
         $('#group_clear').hide(); // Hide reset button
         $('#submit_group_info').hide();
@@ -496,6 +540,7 @@ function hideSubmitButton(status) {
         $('#submit_cus_map').hide();
     } else {
         // Show the reset button and submit buttons
+        $('#back_btn').show();
         $('#reset_clear').show();
         $('#group_clear').show(); // Show reset button
         $('#submit_group_info').show();

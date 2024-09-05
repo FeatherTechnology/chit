@@ -2,6 +2,8 @@
 require '../../ajaxconfig.php';
 @session_start();
 $user_id = $_SESSION['user_id'];
+$currentMonth = date('m'); // Get the current month
+$currentYear = date('Y');
 $column = array(
     'ad.id',
     'ad.group_id',
@@ -33,7 +35,7 @@ $query = "SELECT
             customer_creation cc ON ad.cus_name = cc.id
         JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
         WHERE 
-            ad.status = 2";
+            ad.status = 2 ";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
@@ -46,7 +48,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
                       OR CONCAT(cc.first_name, ' ', cc.last_name) LIKE '%" . $search . "%'
                       OR ad.auction_value LIKE '%" . $search . "%')";
 }
-$query .= " GROUP BY gc.grp_id ";
+$query .= " GROUP BY ad.id ";
 if (isset($_POST['order'])) {
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
 } else {
