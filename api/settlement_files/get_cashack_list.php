@@ -6,8 +6,7 @@ $auction_id = isset($_POST['auction_id']) ? $_POST['auction_id'] : null;
 
 if ($auction_id !== null) {
     // Directly embed the auction_id into the query
-    $qry = $pdo->query("
-        SELECT 
+    $qry = $pdo->query("SELECT 
             si.id, 
             si.settle_date, 
             si.settle_cash, 
