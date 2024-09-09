@@ -99,7 +99,7 @@ foreach ($auctionData as $auctionDetails) {
 
     // Fetch collection details for the auction month
     $qry2 = $pdo->query("SELECT 
-        ad.chit_amount,
+        c.chit_amount,
         c.payable,
         c.collection_date, 
         c.collection_amount, 
