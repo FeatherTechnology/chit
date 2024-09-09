@@ -51,8 +51,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
     $query .= " AND ( gc.grp_id LIKE '%" . $search . "%'
                       OR gc.grp_name LIKE '%" . $search . "%'
                       OR gc.chit_value LIKE '%" . $search . "%'
-                      OR ad.chit_amount LIKE '%" . $search . "%'
-                      OR status LIKE '%" . $search . "%')";
+                      OR ad.chit_amount LIKE '%" . $search . "%')";
 }
 
 $query .= " ORDER BY gc.grp_id";
@@ -72,8 +71,9 @@ foreach ($result as $row) {
     $sub_array[] = $row['grp_id'];
     $sub_array[] = $row['grp_name'];
     $sub_array[] = moneyFormatIndia($row['chit_value']);
-    $roundedAmount = round($row['chit_amount']);
-    $sub_array[] = moneyFormatIndia($roundedAmount);
+    $chit_amount = isset($row['chit_amount']) && is_numeric($row['chit_amount']) ? $row['chit_amount'] : 0;
+    $roundedAmount = round($chit_amount);
+    $sub_array[] = moneyFormatIndia($roundedAmount);    
     $chit_amount = $row['chit_amount'] ?? 0;
     $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $chit_amount);
     $sub_array[] = $status;
