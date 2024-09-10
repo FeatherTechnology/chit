@@ -124,12 +124,13 @@ $(document).ready(function () {
         let cus_name = $('#cus_name').val();
         let group_id = $('#group_id').val();
         let total_members = $('#total_members').val();
-
+          let chit_value= $('#chit_value').val();
         if (cus_name !== '' && group_id !== '') {
             $.post('api/group_creation_files/submit_cus_mapping.php', {
                 cus_name: cus_name,
                 group_id: group_id,
-                total_members: total_members
+                total_members: total_members,
+                chit_value:chit_value,
             }, function (response) {
                 let result = response.result;
 
