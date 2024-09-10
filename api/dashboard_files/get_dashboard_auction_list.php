@@ -7,7 +7,8 @@ if(isset($_POST['params']) && $_POST['params'] !='' && $_POST['params'] !='0'){
 }else{
     $branch_id = '';
 }
-
+$currentMonth = date('m');
+$currentYear = date('Y');
 $auction_status = [1 => 'In Auction', 2 => 'Finished',3 =>'Finished'];
 
 $column = array(
@@ -24,6 +25,8 @@ $column = array(
 );
 
 // Adjusted the query to remove the date condition and only filter by gc.status
+
+
 $query = "WITH RankedDates AS (
     SELECT 
         gc.id,
@@ -46,27 +49,67 @@ $query = "WITH RankedDates AS (
     JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch)
     WHERE 
-        gc.status BETWEEN 2 AND 3 AND (ad.date >= CURDATE()) $branch_id
+        gc.status BETWEEN 2 AND 3 
+        AND ad.status = 1 
+        AND YEAR(ad.date) = '$currentYear'
+        AND MONTH(ad.date) = '$currentMonth'
+),
+UpcomingAuctions AS (
+    SELECT 
+        rd.id,
+        rd.grp_id,
+        rd.grp_name,
+        rd.chit_value,
+        rd.total_months,
+        rd.creation_date,
+        rd.auction_date,
+        rd.auction_month,
+        rd.branch_name,
+        rd.status,
+        ROW_NUMBER() OVER (PARTITION BY rd.grp_id ORDER BY rd.auction_date ASC) AS rn_within_month
+    FROM 
+        RankedDates rd
+    WHERE 
+        rd.auction_date >= CURDATE()
+),
+FilteredAuctions AS (
+    SELECT 
+        ua.id,
+        ua.grp_id,
+        ua.grp_name,
+        ua.chit_value,
+        ua.total_months,
+        ua.creation_date,
+        ua.auction_date,
+        ua.auction_month,
+        ua.branch_name,
+        ua.status,
+        ROW_NUMBER() OVER (ORDER BY ua.auction_date ASC) AS final_rn
+    FROM 
+        UpcomingAuctions ua
+    WHERE 
+        ua.auction_date = CURDATE()
+        OR ua.auction_date = (
+            SELECT MIN(a.auction_date)
+            FROM UpcomingAuctions a
+            WHERE a.auction_date > CURDATE()
+        )
 )
-SELECT 
-    rd.id,
-    rd.grp_id,
-    rd.grp_name,
-    rd.chit_value,
-    rd.total_months,
-    rd.creation_date,
-    rd.auction_date,
-    rd.auction_month,
-    rd.branch_name,
-    rd.status
+SELECT DISTINCT
+    fa.id,
+    fa.grp_id,
+    fa.grp_name,
+    fa.chit_value,
+    fa.total_months,
+    fa.creation_date,
+    fa.auction_date,
+    fa.auction_month,
+    fa.branch_name,
+    fa.status
 FROM 
-    RankedDates rd
-WHERE 
-    rd.rn <= 2
-GROUP BY 
-    rd.grp_id, rd.auction_date
+    FilteredAuctions fa
 ORDER BY 
-    rd.grp_id, rd.auction_date ASC 
+    fa.grp_id, fa.auction_date ASC;
 ";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
@@ -84,9 +127,9 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 // $query .= $column[$_POST['order']['0']['column']] . " " . $_POST['order']['0']['dir'];
 
 $query1 = '';
-if (isset($_POST['length']) && $_POST['length'] != -1) {
-    $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
-}
+// if (isset($_POST['length']) && $_POST['length'] != -1) {
+//     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
+// }
 
 $stmt = $pdo->prepare($query);
 $stmt->execute();

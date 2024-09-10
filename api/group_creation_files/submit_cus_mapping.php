@@ -4,16 +4,48 @@ require "../../ajaxconfig.php";
 $user_id = $_SESSION['user_id'];
 $total_members = intval($_POST['total_members']);
 $group_id = $pdo->quote($_POST['group_id']); // Properly quote to prevent SQL injection
-$cus_name = $pdo->quote($_POST['cus_name']); // Properly quote to prevent SQL injection
+$cus_id = intval($_POST['cus_name']); // Assuming cus_name is actually cus_id
+$chit_value = intval($_POST['chit_value']); // Chit value of the new group
+
+// Initialize response
+$response = ['result' => 2]; // Default to failure
+
+// Get the customer's chit limit
+$cusStmt = $pdo->query("SELECT chit_limit FROM customer_creation WHERE id = $cus_id");
+$cusChitLimit = $cusStmt->fetchColumn();
+
+// Check how many times the customer is added to the same group
+$existingGroupsStmt = $pdo->query("SELECT COUNT(*) FROM group_cus_mapping WHERE cus_id = $cus_id AND grp_creation_id = $group_id");
+$existingGroupsCount = $existingGroupsStmt->fetchColumn();
+
+// Calculate the total chit value of all groups the customer is currently in
+$chitValueSum = 0;
+$existingGroupsStmt = $pdo->query("SELECT grp_creation_id FROM group_cus_mapping WHERE cus_id = $cus_id");
+$existingGroups = $existingGroupsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+foreach ($existingGroups as $grp_id) {
+    $groupChitStmt = $pdo->query("SELECT chit_value FROM group_creation WHERE grp_id = '$grp_id'");
+    $grpChitValue = $groupChitStmt->fetchColumn();
+    $chitValueSum += $grpChitValue;
+}
+
+// Add the chit value of the new group, adjusted if the customer is already in the same group
+$chitValueSum += ($existingGroupsCount + 1) * $chit_value; // +1 because we're adding this new instance
+
+// Check if adding the new group will exceed the customer's chit limit
+if ($chitValueSum > $cusChitLimit) {
+    $response = ['result' => 3, 'message' => 'Adding this group would exceed the customer\'s chit limit.'];
+    echo json_encode($response);
+    exit();
+}
 
 // Check the current count of customer mappings for the group
 $stmt = $pdo->query("SELECT COUNT(*) FROM group_cus_mapping WHERE grp_creation_id = $group_id");
 $current_count = $stmt->fetchColumn();
 
-$response = ['result' => 2]; // Default to failure
-
+// Add the new group to the mapping
 if ($current_count < $total_members) {
-    $qry = $pdo->query("INSERT INTO group_cus_mapping (grp_creation_id, cus_id, insert_login_id, created_on) VALUES ($group_id, $cus_name, '$user_id', NOW())");
+    $qry = $pdo->query("INSERT INTO group_cus_mapping (grp_creation_id, cus_id, insert_login_id, created_on) VALUES ($group_id, $cus_id, '$user_id', NOW())");
     
     if ($qry) {
         // Check if count now equals total members
