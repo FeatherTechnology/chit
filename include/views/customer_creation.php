@@ -361,13 +361,13 @@
                         <div class="col-sm-4 col-md-4 col-lg-4">
                             <div class="form-group">
                                 <label for="add_place">Place</label><span class="text-danger">*</span>
-                                <input class="form-control" name="add_place" id="add_place" tabindex="2" placeholder="Enter Place">
+                                <input class="form-control" name="add_place" id="add_place" tabindex="1" placeholder="Enter Place">
                                 <input type="hidden" id="add_place_id" value='0'>
                             </div>
                         </div>
                         <div class="col-sm-4 col-md-4 col-lg-4">
                             <div class="form-group">
-                                <button name="submit_place" id="submit_place" class="btn btn-primary" tabindex="3" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
+                                <button name="submit_place" id="submit_place" class="btn btn-primary" tabindex="1" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
                             </div>
                         </div>
                     </div>
@@ -389,7 +389,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="17" onclick="getPlaceDropdown()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getPlaceDropdown()">Close</button>
             </div>
         </div>
     </div>
@@ -444,7 +444,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="fam_live">Live/Deceased</label><span class="text-danger">*</span>
-                                    <select class="form-control" id="fam_live" name="fam_live" tabindex="17">
+                                    <select class="form-control" id="fam_live" name="fam_live" tabindex="1">
                                         <option value="">Select Live/Deceased</option>
                                         <option value="1">Live</option>
                                         <option value="2">Deceased</option>
@@ -572,7 +572,7 @@
                                 <div class="form-group">
                                     <label for="gu_pic">Photo</label><br>
                                     <img id='gur_imgshow' class="img_show" src='img/avatar.png' />
-                                    <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="12">
+                                    <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="1">
                                     <input type="hidden" id="gur_pic">
                                 </div>
                             </div>

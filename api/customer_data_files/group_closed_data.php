@@ -29,7 +29,7 @@ LEFT JOIN group_cus_mapping gcm ON
 LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
-    ad.status IN (2, 3) AND gc.status = 4
+     gc.status = 4
     AND cc.id = '$id'  AND YEAR(ad.date) = '" . date('Y') . "'
     AND MONTH(ad.date) = '" . date('m') . "'";
 
@@ -73,7 +73,7 @@ if ($statement->rowCount() > 0) {
         if ($all_paid) {
             $sub_array['collection_status'] = 'Completed';
         } else {
-            $sub_array['collection_status'] = 'InCollection';
+            $sub_array['collection_status'] = 'In Collection';
         }
 
         // Add other relevant data to sub_array

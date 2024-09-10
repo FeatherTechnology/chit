@@ -66,7 +66,7 @@ $(document).ready(function () {
                         // Round off chit_amount and payable_amnt
                         let roundedChitAmount = Math.round(response.chit_amount || 0);
                         let roundedPayableAmnt = Math.round(response.payable_amnt || 0);
-    
+        
                         // Populate the form fields with the fetched and rounded data
                         $('#group_name').val(response.group_name);
                         $('#auction_month').val(response.auction_month);
@@ -100,7 +100,7 @@ $(document).ready(function () {
                 swalError('Error', 'An error occurred while fetching payment details.');
             }
         });
-
+        
         $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
         
@@ -499,12 +499,12 @@ function getDueChart(groupId, cusMappingID, auction_month) {
 
                 // Format the values using moneyFormatIndia
                 var chitAmount = item.chit_amount ? moneyFormatIndia(Math.round(item.chit_amount)) : '';
-                var payable = item.payable ? moneyFormatIndia(item.payable) : '';
+              var payable = item.payable ? moneyFormatIndia(item.payable) : '';
                 var collectionDate = item.collection_date ? item.collection_date : '';
                 var collectionAmount = item.collection_amount ? moneyFormatIndia(item.collection_amount) : '';
                 //  var pending = item.pending;
                 var pending = item.pending !== null && item.pending !== undefined ? moneyFormatIndia(item.pending) : '';
-
+                //  var initialPayableAmount = item.initial_payable_amount ? moneyFormatIndia(item.initial_payable_amount) : '';
                 var action = item.action ? item.action : '';
 
                 var row = '<tr>' +
