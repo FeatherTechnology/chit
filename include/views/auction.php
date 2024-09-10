@@ -1,3 +1,23 @@
+
+<style>
+    .input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-control {
+        padding-right: 30px; /* Add padding to prevent text overlap with delete icon */
+    }
+
+    .delete-icon {
+        position: absolute;
+        right: 10px; /* Adjust as needed to align with the input field */
+        cursor: pointer;
+        color: balack; /* Or any color you want */
+        font-size: 16px; /* Adjust size if needed */
+    }
+</style>
 <div class="col-12  text-center">
     <button class="btn btn-primary mx-4  today text-center">&nbsp;Today</button>
     <button class="btn btn-primary mx-4  this_month text-center">&nbsp;This Month</button>
@@ -283,3 +303,5 @@
 </div>
 
 <!------------------------------------------------------------Calculation Modal End------------------------------------------------------------------------>
+
+
