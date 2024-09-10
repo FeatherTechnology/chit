@@ -8,7 +8,7 @@ $chit_month=$_POST['chitmonth'];
 $enquiry_id=$_POST['enquiryid'];
 $result=0;
 if($enquiry_id !='0' && $enquiry_id!=''){
-    $sql = $pdo->query("UPDATE `enquiry_creation` SET `chit_value`='$chit_value',`total_month`='$chit_month' WHERE `id`='$enquiry_id',");
+    $sql = $pdo->query("UPDATE `enquiry_creation` SET `chit_value`='$chit_value',`total_month`='$chit_month' WHERE `id`='$enquiry_id' ");
     if($sql){
         $result = 1; 
     }

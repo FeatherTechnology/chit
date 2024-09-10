@@ -110,6 +110,7 @@
                                 <div class="col-12">
                                     <table id="group_list_table" class=" table custom-table">
                                         <thead>
+                                            <tr>
                                             <th width="50">S.No.</th>
                                             <th>Group ID</th>
                                             <th>Group Name</th>

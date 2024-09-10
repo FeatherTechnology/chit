@@ -1,30 +1,36 @@
 <?php
+//Showing Group list in status process.
 require '../../ajaxconfig.php';
-@session_start();
-$user_id = $_SESSION['user_id'];
+
+if(isset($_POST['params']) && $_POST['params'] !='' && $_POST['params'] !='0'){
+    $branch_id = "AND gc.branch = '".$_POST['params']."'";
+}else{
+    $branch_id = '';
+}
 
 // Define status mapping array
-$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current',4=>'Closed'];
-$currentMonth = date('m'); // Get the current month
-$currentYear = date('Y'); // Get the current year
+$status_arr = [1 => 'Process', 2 => 'Created',3=>'Current'];
+
 // Define column names for sorting
 $column = array(
     'gc.id',
     'gc.grp_id',
     'gc.grp_name',
     'gc.chit_value',
+    'gc.total_months',
     'gc.date',
+    'gc.commission',
     'bc.branch_name',
-    'gc.status'
+    'gc.id',
+    'gc.id'
+    
 );
 
 // Base query with JOIN
-$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branch_name, gc.status, ad.auction_month,ad.id as auction_id
-          FROM group_creation gc 
-          JOIN branch_creation bc ON gc.branch = bc.id 
-          LEFT JOIN auction_details ad ON gc.grp_id = ad.group_id
-          WHERE gc.status = 4 AND
-          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth)";
+$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.total_months, gc.date, gc.commission, bc.branch_name,gc.status
+        FROM group_creation gc 
+        JOIN branch_creation bc ON gc.branch = bc.id 
+        WHERE gc.status = 1  $branch_id";
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {
@@ -32,13 +38,17 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
     $query .= " AND (gc.grp_id LIKE :search
                     OR gc.grp_name LIKE :search
                     OR gc.chit_value LIKE :search
+                    OR gc.total_months LIKE :search
                     OR gc.date LIKE :search
+                    OR gc.commission LIKE :search
                     OR bc.branch_name LIKE :search
                     OR gc.status LIKE :search)";
 }
 
 // Add ordering condition
-$query .= " ORDER BY gc.grp_id"; // Order by group ID
+if (isset($_POST['order'])) {
+    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+}
 
 // Add pagination
 $query1 = '';
@@ -66,63 +76,20 @@ $result = $statement->fetchAll();
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];
 foreach ($result as $row) {
-    // Fetch all customer IDs mapped to the group
-    $customer_mapping_query = "SELECT id FROM group_cus_mapping 
-                               WHERE grp_creation_id = :grp_creation_id";
-    $customer_mapping_stmt = $pdo->prepare($customer_mapping_query);
-    $customer_mapping_stmt->execute([':grp_creation_id' => $row['grp_id']]);
-    $customer_ids = $customer_mapping_stmt->fetchAll(PDO::FETCH_COLUMN);
-
-    // Check if all customers have Paid status
-    $all_paid = true;
-    foreach ($customer_ids as $cus_id) {
-        $payment_status_query = "SELECT coll_status FROM collection 
-                                 WHERE group_id = :group_id 
-                                 AND auction_month = :auction_month 
-                                 AND cus_mapping_id = :cus_mapping_id 
-                                 ORDER BY created_on DESC LIMIT 1";
-        $payment_status_stmt = $pdo->prepare($payment_status_query);
-        $payment_status_stmt->execute([
-            ':group_id' => $row['grp_id'],
-            ':auction_month' => $row['auction_month'],
-            ':cus_mapping_id' => $cus_id
-        ]);
-        $payment_status = $payment_status_stmt->fetchColumn();
-        if ($payment_status !== 'Paid') {
-            $all_paid = false;
-            break;
-        }
-    }
-
-    // Determine the collection status
-    $collection_status = $all_paid ? 'Completed' : 'In Collection';
-
     $sub_array = array(
         $sno++,
         isset($row['grp_id']) ? $row['grp_id'] : '',
         isset($row['grp_name']) ? $row['grp_name'] : '',
-        isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : '',
+        isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']): '',
+        isset($row['total_months']) ? $row['total_months'] : '',
         isset($row['date']) ? $row['date'] : '',
+        isset($row['commission']) ? $row['commission'] : '',
         isset($row['branch_name']) ? $row['branch_name'] : '',
-        isset($row['status']) ? $status_arr[$row['status']] : '',
-        $collection_status // Add collection status to the array
+        isset($row['status']) ? $status_arr[$row['status']] : '', // Fix for status mapping
+        "<a href='group_creation' class='open-group-creation' value='" . $row['id'] . "' title='Edit details'><span class='icon-border_color'></span></a>"
     );
-  // Charts dropdown
-    $sub_array[] = "<div class='dropdown'>
-        <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
-        <div class='dropdown-content'>
-            <a href='#' class='auction_chart' data-value='{$row['grp_id']}_{$row['auction_month']}'>Auction Chart</a>
-            <a href='#' class='settle_chart' data-value='{$row['grp_id']}_{$row['auction_id']}'>Settlement Chart</a>
-        </div>
-    </div>";
-    // Action button
-    $sub_array[] = "<button class='btn btn-primary customerActionBtn' value='" . $row['grp_id'] . "'>&nbsp;View</button>";
-
-  
-
     $data[] = $sub_array;
 }
-
 
 // Function to count all data
 function count_all_data($pdo)
@@ -142,8 +109,6 @@ $output = array(
 );
 
 echo json_encode($output);
-
-// Function to format money as per Indian convention
 function moneyFormatIndia($num1)
 {
     if ($num1 < 0) {
@@ -175,4 +140,3 @@ function moneyFormatIndia($num1)
 
     return $thecash;
 }
-?>
