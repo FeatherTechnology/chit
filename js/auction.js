@@ -15,6 +15,7 @@ $(document).ready(function () {
         // getAuctionMonthTable()
         getAuctionTable();
         $('#cus_mapping_table tbody').empty(); 
+        $('.auction_close').addClass('d-none');
         $('#pageHeaderName').text(` - Auction`);
 
         localStorage.setItem('dashboardAuc','');
@@ -25,32 +26,34 @@ $(document).ready(function () {
     $(document).on('click', '.this_month', function () {
         getAuctionMonthTable()
     });
-
     $(document).on('click', '.auctionListBtn', function (event) {
         event.preventDefault();
-        // let dataValue = $(this).data('value');
-        // let values = dataValue.split('_'); // Assuming you used '_' as the delimiter
-
+    
         let groupId = $(this).attr('data-grpid'); // First part is group ID
         let groupName = $(this).attr('data-grpname'); // Second part is group name
         let chitValue = $(this).attr('data-chitval'); // Third part is chit value
-
-        // Convert chitValue to a string before formatting
-        const formattedChitValue = moneyFormatIndia(chitValue.toString());
-
-        // Update the page header with the dynamic values
-        $('#pageHeaderName').text(` - Auction - Group ID: ${groupId}, Group Name: ${groupName}, Chit Value: ${formattedChitValue}`);
-
+    
+        if (chitValue !== undefined && chitValue !== null) {
+            // Convert chitValue to a string before formatting
+            const formattedChitValue = moneyFormatIndia(chitValue.toString());
+    
+            // Update the page header with the dynamic values
+            $('#pageHeaderName').text(` - Auction - Group ID: ${groupId}, Group Name: ${groupName}, Chit Value: ${formattedChitValue}`);
+        } else {
+            console.error('Chit value is undefined or null');
+            // Handle the case where chitValue is not provided
+        }
+    
         // Hide and show the necessary sections
         $('.auction_table_content').hide();
         $('.auction_detail_content,.back_btn').show();
         $('.today').hide();
         $('.this_month').hide();
-
+    
         // Fetch auction details based on the selected group ID
         fetchAuctionDetails(groupId);
     });
-
+    
 
     ///////////////////////////////////////////////////////Auction Modal Start/////////////////////////////////////////////////////////////////  
     $(document).on('click', '.auctionBtn', function (event) {
@@ -73,65 +76,113 @@ $(document).ready(function () {
         getCusName(groupId); // Fetch customer names based on groupId
     });
 
-    $('#submit_cus_map').on('click', function (e) {
-        e.preventDefault();
-
-        // Get the selected customers (can be multiple)
-        var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
-        if (selectedCustomers && selectedCustomers.length > 0) {
-            // Iterate over each selected customer
-            selectedCustomers.forEach(function (cusId) {
-                // Get the customer name for the given ID
-                var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim(); // Trim to remove extra spaces
-
-                // Create a unique identifier for each entry using timestamp and index
-                var uniqueIdentifier = cusId + '_' + new Date().getTime(); // Using timestamp to ensure uniqueness
-
-                // Append the selected customer to the table as a new row
-                $('#cus_mapping_table tbody').append(`
-                    <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
-                        <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-                        <td class="cus-name-column">${cusName}</td>
-                        <td><input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value"></td>
-                    </tr>
-                `);
-            });
-
-            // Clear the selection
-            cus_name.removeActiveItems();
-            let groupId = $(this).attr('data-group_id');
-            getCusName(groupId); // Re-fetch the customer list if needed
-            if ($('#cus_mapping_table tbody tr').length > 0) {
-                $('.auction_close').removeClass('d-none'); // Show the button
-            }
-        }
+// Function to update delete icon to appear only in the last row and in the correct column
+function updateDeleteIcon() {
+    // Remove any existing delete icons from all rows
+    $('#cus_mapping_table tbody tr').each(function () {
+        $(this).find('.delete-icon').remove(); // Remove previous delete icon
     });
-    
 
+    // Add delete icon to the last row's value column
+    $('#cus_mapping_table tbody tr:last .value-column .input-container').append('<i class="icon-delete delete-icon" style="width:25px;"></i>');
+}
 
-    // Event handler for re-adding a customer from the table
-    $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function () {
-        var $row = $(this).closest('tr');
-        var cusId = $row.data('cus-id');
-        var cusName = $row.find('td.cus-name-column').text();
+// Event handler for adding new rows
+$('#submit_cus_map').on('click', function (e) {
+    e.preventDefault();
 
-        // Create a new unique identifier for the re-added row
-        var uniqueIdentifier = cusId + '_' + new Date().getTime(); // Ensure new uniqueness
+    // Get the selected customers (can be multiple)
+    var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
+    if (selectedCustomers && selectedCustomers.length > 0) {
+        // Iterate over each selected customer
+        selectedCustomers.forEach(function (cusId) {
+            // Get the customer name for the given ID
+            var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim(); // Trim to remove extra spaces
 
-        // Append the same customer to the table as a new row
-        $('#cus_mapping_table tbody').append(`
-            <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
-                <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-                <td class="cus-name-column">${cusName}</td>
-                <td><input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value"></td>
-            </tr>
-        `);
+            // Create a unique identifier for each entry using timestamp
+            var uniqueIdentifier = cusId + '_' + new Date().getTime(); // Using timestamp to ensure uniqueness
+
+            // Append the selected customer to the table as a new row
+            $('#cus_mapping_table tbody').append(`
+                <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
+                    <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
+                    <td class="cus-name-column">${cusName}</td>
+                    <td class="value-column">
+                        <div class="input-container">
+                            <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
+                            <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Add delete icon here -->
+                        </div>
+                    </td>
+                </tr>
+            `);
+        });
+
+        // Clear the selection
+        $('#cus_name').removeClass('active'); // Assuming this is how you clear the selection
+        let groupId = $(this).attr('data-group_id');
+        getCusName(groupId); // Re-fetch the customer list if needed
+
+        // Show the auction close button if rows exist
         if ($('#cus_mapping_table tbody tr').length > 0) {
-            $('.auction_close').removeClass('d-none'); // Show the button
+            $('.auction_close').removeClass('d-none');
         }
+
+        // Update delete icon to appear only in the last row
+        updateDeleteIcon();
+    }
+});
+
+// Event handler for clicking on customer name
+$(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function () {
+    var $row = $(this).closest('tr');
+    var cusId = $row.data('cus-id');
+    var cusName = $row.find('td.cus-name-column').text();
+
+    // Create a new unique identifier for the re-added row
+    var uniqueIdentifier = cusId + '_' + new Date().getTime(); // Ensure new uniqueness
+
+    // Append the same customer to the table as a new row
+    $('#cus_mapping_table tbody').append(`
+        <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
+            <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
+            <td class="cus-name-column">${cusName}</td>
+            <td class="value-column">
+                <div class="input-container">
+                    <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
+                    <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Add delete icon here -->
+                </div>
+            </td>
+        </tr>
+    `);
+
+    // Show the auction close button if rows exist
+    if ($('#cus_mapping_table tbody tr').length > 0) {
+        $('.auction_close').removeClass('d-none');
+    }
+
+    // Update delete icon to appear only in the last row
+    updateDeleteIcon();
+});
+
+// Function to handle the delete icon click event
+$(document).on('click', '.icon-delete', function () {
+    $(this).closest('tr').remove(); // Remove the row
+
+    // After deletion, update the row numbers
+    $('#cus_mapping_table tbody tr').each(function (index) {
+        $(this).find('td:first').text(index + 1); // Update row numbers
     });
+
+    // After deletion, ensure the delete icon is updated in the new last row
+    updateDeleteIcon();
+});
+
+
+    
     $(document).on('change', '#cus_mapping_table tbody input[type="number"]', function () {
         var inputValue = parseFloat($(this).val());
+        var $currentRow = $(this).closest('tr');
+        var $prevRow = $currentRow.prev('tr'); // Get the previous row
         var submitBtn = $('#submit_cus_map');
         var lowValue = parseFloat(submitBtn.attr('data-low_value'));
         var highValue = parseFloat(submitBtn.attr('data-high_value'));
@@ -143,8 +194,16 @@ $(document).ready(function () {
         if (inputValue < lowValue || inputValue > highValue) {
             swalError('Warning', `Please enter a value between ${formattedLowValue} and ${formattedHighValue}.`);
             $(this).val(''); // Clear the invalid value
+        } else if ($prevRow.length > 0) { // Check if there is a previous row
+            var prevValue = parseFloat($prevRow.find('input[type="number"]').val());
+            if (inputValue <= prevValue) {
+                swalError('Warning', 'The value cannot be smaller than the value in the previous row.');
+                $(this).val(''); // Clear the invalid value
+            } else {
+                $(this).prop('readonly', true); // Make the input readonly if the value is valid
+            }
         } else {
-            $(this).prop('readonly', true); // Make the input readonly if the value is valid
+            $(this).prop('readonly', true); // No previous row, value is valid, make readonly
         }
     });
 
@@ -579,7 +638,9 @@ function calculationModal(groupId, date) {
             $('#auction_value').val(moneyFormatIndia(response.auction_value));
             $('#Commission').val(moneyFormatIndia(response.commission));
             $('#total_value').val(moneyFormatIndia(response.total_value));
-            $('#chit_amount').val(moneyFormatIndia(response.chit_amount));
+            let roundAmount = Math.round(response.chit_amount); 
+            let formattAmount = moneyFormatIndia(roundAmount);
+            $('#chit_amount').val(formattAmount);
         },
         error: function (xhr, status, error) {
             console.error('AJAX Error:', status, error);
