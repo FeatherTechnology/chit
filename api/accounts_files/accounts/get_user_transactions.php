@@ -1,17 +1,16 @@
 <?php
 require "../../../ajaxconfig.php";
 
-$coll_mode = isset($_POST['coll_mode']) ? $_POST['coll_mode'] : '';
+// $coll_mode = isset($_POST['coll_mode']) ? $_POST['coll_mode'] : '';
 $other_trans_name = isset($_POST['other_trans_name']) ? $_POST['other_trans_name'] : '';
 
 $result = [];
 $total_type_1_amount = 0; // Credit amount (type=1)
 $total_type_2_amount = 0; // Debit amount (type=2)
 
-$qry = $pdo->query("SELECT coll_mode, type, amount
+$qry = $pdo->query("SELECT type, amount
                     FROM other_transaction
-                    WHERE coll_mode = '$coll_mode' 
-                    AND name = '$other_trans_name'");
+                    WHERE name = '$other_trans_name'");
 
 if ($qry->rowCount() > 0) {
     $transactions = $qry->fetchAll(PDO::FETCH_ASSOC);
