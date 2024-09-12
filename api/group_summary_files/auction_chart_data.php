@@ -18,7 +18,7 @@ if (isset($_POST['group_id'])) {
                     ad.chit_amount
                 FROM auction_details ad
                 JOIN group_creation gc ON ad.group_id = gc.grp_id
-                WHERE ad.group_id = '$group_id'
+                WHERE ad.group_id = '$group_id' AND ad.status >=2
                 AND (
     YEAR(ad.date) < $currentYear
     OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <=$currentMonth )

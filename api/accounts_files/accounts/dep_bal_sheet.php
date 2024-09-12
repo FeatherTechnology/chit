@@ -429,7 +429,7 @@ if ($IDEtype == 1 and $IDEview_type == 1 and $IDE_name_id == '') { //Deposit wit
     $tabBodyEnd .= "<tr><td colspan='3'><b>Difference</b></td><td colspan='2'>" . moneyFormatIndia($difference) . "</td></tr>";
     $tabBodyEnd .= "<tr><td colspan='3'><b>Closing Balance</b></td><td colspan='2'>" . moneyFormatIndia($closing_bal) . "</td></tr>";
 
-}else if ($IDEtype == 2 and $IDEview_type == 1 and $IDE_name_id == '') {//EL without name
+}else if ($IDEtype == 3 and $IDEview_type == 1 and $IDE_name_id == '') {//EL without name
     {
         $opening_qry = $pdo->query("SELECT
         IFNULL(SUM(Credit), 0) - IFNULL(SUM(Debit), 0) AS opening_balance
@@ -634,7 +634,7 @@ if ($IDEtype == 1 and $IDEview_type == 1 and $IDE_name_id == '') { //Deposit wit
     $tabBodyEnd .= "<tr><td colspan='3'><b>Difference</b></td><td colspan='2'>" . moneyFormatIndia($difference) . "</td></tr>";
     $tabBodyEnd .= "<tr><td colspan='3'><b>Closing Balance</b></td><td colspan='2'>" . moneyFormatIndia($closing_bal) . "</td></tr>";
 
-}else if ($IDEtype == 2 and $IDEview_type == 2 and $IDE_name_id != '') {//EL with name
+}else if ($IDEtype == 3 and $IDEview_type == 2 and $IDE_name_id != '') {//EL with name
     {
         $opening_qry = $pdo->query("SELECT
         IFNULL(SUM(Credit), 0) - IFNULL(SUM(Debit), 0) AS opening_balance
@@ -839,7 +839,7 @@ if ($IDEtype == 1 and $IDEview_type == 1 and $IDE_name_id == '') { //Deposit wit
     $tabBodyEnd .= "<tr><td colspan='3'><b>Difference</b></td><td colspan='2'>" . moneyFormatIndia($difference) . "</td></tr>";
     $tabBodyEnd .= "<tr><td colspan='3'><b>Closing Balance</b></td><td colspan='2'>" . moneyFormatIndia($closing_bal) . "</td></tr>";
 
-}else if ($IDEtype == 3 and $IDEview_type == 1 and $IDE_name_id == '') {//Exchange without name
+}else if ($IDEtype == 4 and $IDEview_type == 1 and $IDE_name_id == '') {//Exchange without name
     {
         $opening_qry = $pdo->query("SELECT
         IFNULL(SUM(Credit), 0) - IFNULL(SUM(Debit), 0) AS opening_balance
@@ -1044,7 +1044,7 @@ if ($IDEtype == 1 and $IDEview_type == 1 and $IDE_name_id == '') { //Deposit wit
     $tabBodyEnd .= "<tr><td colspan='3'><b>Difference</b></td><td colspan='2'>" . moneyFormatIndia($difference) . "</td></tr>";
     $tabBodyEnd .= "<tr><td colspan='3'><b>Closing Balance</b></td><td colspan='2'>" . moneyFormatIndia($closing_bal) . "</td></tr>";
 
-}else if ($IDEtype == 3 and $IDEview_type == 2 and $IDE_name_id != '') {//Exchange with name
+}else if ($IDEtype == 4 and $IDEview_type == 2 and $IDE_name_id != '') {//Exchange with name
     {
         $opening_qry = $pdo->query("SELECT
         IFNULL(SUM(Credit), 0) - IFNULL(SUM(Debit), 0) AS opening_balance

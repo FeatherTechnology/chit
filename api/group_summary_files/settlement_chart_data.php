@@ -7,7 +7,6 @@ $auction_id = $_POST['auction_id'];
 $currentMonth = date('m'); // Get the current month
 $currentYear = date('Y'); // Get the current year
 
-// Perform the query
 $qry = $pdo->query("SELECT ad.auction_month, ad.group_id, gc.grp_name, cc.cus_id, si.id AS settlement_id, si.settle_date, si.settle_cash, si.cheque_val, si.transaction_val, gi.guarantor_name, si.guarantor_relationship 
     FROM settlement_info si
     LEFT JOIN auction_details ad ON si.auction_id = ad.id
@@ -41,12 +40,20 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     $row['balance_amount'] = $total_amount;
 
     // Check if guarantor_name is -1 or null
-    if ($row['guarantor_name'] === null || $row['guarantor_name'] == -1) {
+    if ($row['guarantor_name'] === null || $row['guarantor_name'] == -1 || $row['guarantor_name'] == 0) {
         $row['guarantor_name'] = 'Customer';
+       
+        // Fetch the corresponding customer name for the current auction_month
         $customerQuery = $pdo->query("SELECT CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name 
             FROM auction_details ad 
             JOIN customer_creation cc ON ad.cus_name = cc.id  
-            WHERE ad.id = '$auction_id'");
+            WHERE ad.group_id = '$group_id' 
+            AND ad.auction_month = '{$row['auction_month']}' 
+            AND (
+                YEAR(ad.date) < $currentYear
+                OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <= $currentMonth)
+            )
+            ORDER BY ad.auction_month ASC");
         
         if ($customerQuery->rowCount() > 0) {
             $customerRow = $customerQuery->fetch(PDO::FETCH_ASSOC);
