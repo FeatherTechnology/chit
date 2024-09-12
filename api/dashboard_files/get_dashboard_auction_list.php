@@ -1,15 +1,16 @@
 <?php
-//Today Auction List and next Auction date on future.
+// Today Auction List and next Auction date in the future.
 require '../../ajaxconfig.php';
 
-if(isset($_POST['params']) && $_POST['params'] !='' && $_POST['params'] !='0'){
-    $branch_id = "AND gc.branch = '".$_POST['params']."'";
-}else{
+if (isset($_POST['params']) && $_POST['params'] != '' && $_POST['params'] != '0') {
+    $branch_id = "AND gc.branch = '" . $_POST['params'] . "'";
+} else {
     $branch_id = '';
 }
+
 $currentMonth = date('m');
 $currentYear = date('Y');
-$auction_status = [1 => 'In Auction', 2 => 'Finished',3 =>'Finished'];
+$auction_status = [1 => 'In Auction', 2 => 'Finished', 3 => 'Finished'];
 
 $column = array(
     'gc.id',
@@ -24,9 +25,22 @@ $column = array(
     'gc.id'
 );
 
-// Adjusted the query to remove the date condition and only filter by gc.status
+// Check if search term is set and handle search query
+$searchQuery = "";
 
+if (isset($_POST['search']) && $_POST['search'] != "") {
+    $search = $_POST['search'];
+    $searchQuery = " AND (gc.grp_id LIKE '%" . $search . "%'
+                         OR gc.grp_name LIKE '%" . $search . "%'
+                         OR gc.chit_value LIKE '%" . $search . "%'
+                         OR gc.total_months LIKE '%" . $search . "%'
+                         OR gc.date LIKE '%" . $search . "%'
+                         OR ad.auction_month LIKE '%" . $search . "%'
+                         OR bc.branch_name LIKE '%" . $search . "%'
+                         OR ad.status LIKE '%" . $search . "%')";
+}
 
+// Main query
 $query = "WITH RankedDates AS (
     SELECT 
         gc.id,
@@ -53,6 +67,7 @@ $query = "WITH RankedDates AS (
         AND ad.status = 1 
         AND YEAR(ad.date) = '$currentYear'
         AND MONTH(ad.date) = '$currentMonth'
+        $searchQuery
 ),
 UpcomingAuctions AS (
     SELECT 
@@ -109,22 +124,7 @@ SELECT DISTINCT
 FROM 
     FilteredAuctions fa
 ORDER BY 
-    fa.grp_id, fa.auction_date ASC;
-";
-
-if (isset($_POST['search']) && $_POST['search'] != "") {
-    $search = $_POST['search'];
-    $query .= " AND (gc.grp_id LIKE '%" . $search . "%'
-                    OR gc.grp_name LIKE '%" . $search . "%'
-                    OR gc.chit_value LIKE '%" . $search . "%'
-                    OR gc.total_months LIKE '%" . $search . "%'
-                    OR gc.date LIKE '%" . $search . "%'
-                    OR ad.auction_month LIKE '%" . $search . "%'
-                    OR bc.branch_name LIKE '%" . $search . "%'
-                    OR ad.status LIKE '%" . $search . "%')";
-}
-
-// $query .= $column[$_POST['order']['0']['column']] . " " . $_POST['order']['0']['dir'];
+    fa.grp_id, fa.auction_date ASC;";
 
 $query1 = '';
 // if (isset($_POST['length']) && $_POST['length'] != -1) {
@@ -178,21 +178,21 @@ $output = array(
 echo json_encode($output);
 
 function moneyFormatIndia($num) {
-    $explrestunits = "" ;
-    if(strlen($num)>3){
-        $lastthree = substr($num, strlen($num)-3, strlen($num));
-        $restunits = substr($num, 0, strlen($num)-3); // extracts the last three digits
-        $restunits = (strlen($restunits)%2 == 1) ? "0".$restunits : $restunits; 
+    $explrestunits = "";
+    if (strlen($num) > 3) {
+        $lastthree = substr($num, strlen($num) - 3, strlen($num));
+        $restunits = substr($num, 0, strlen($num) - 3); // extracts the last three digits
+        $restunits = (strlen($restunits) % 2 == 1) ? "0" . $restunits : $restunits; 
         $expunit = str_split($restunits, 2);
-        for($i=0; $i < sizeof($expunit); $i++){
+        for ($i = 0; $i < sizeof($expunit); $i++) {
             // creates each of the 2 unit pairs, adds a comma
-            if($i==0){
-                $explrestunits .= (int)$expunit[$i].","; // if first value , convert into integer
-            }else{
-                $explrestunits .= $expunit[$i].",";
+            if ($i == 0) {
+                $explrestunits .= (int)$expunit[$i] . ","; // if first value , convert into integer
+            } else {
+                $explrestunits .= $expunit[$i] . ",";
             }
         }
-        $thecash = $explrestunits.$lastthree;
+        $thecash = $explrestunits . $lastthree;
     } else {
         $thecash = $num;
     }
