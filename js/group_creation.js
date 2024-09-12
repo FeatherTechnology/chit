@@ -24,7 +24,7 @@ $(document).ready(function () {
     });
 
 
-    $('#total_members').change(function () {
+    $('#total_members,#chit_value').change(function () {
         getCusModal()
     });
 
@@ -124,7 +124,7 @@ $(document).ready(function () {
         let cus_name = $('#cus_name').val();
         let group_id = $('#group_id').val();
         let total_members = $('#total_members').val();
-          let chit_value= $('#chit_value').val();
+          let chit_value= $('#chit_value').val().replace(/,/g, '');
         if (cus_name !== '' && group_id !== '') {
             $.post('api/group_creation_files/submit_cus_mapping.php', {
                 cus_name: cus_name,
@@ -350,8 +350,9 @@ function getCustomerList() {
 
 function getCusMapTable() {
     let total_members = $('#total_members').val();
-    if (total_members === '') {
-        swalError('Alert', 'Kindly Select the Total Members!')
+    let chit_value= $('#chit_value').val().replace(/,/g, '');
+    if (total_members === '' || chit_value ==='') {
+        swalError('Alert', 'Kindly Fill the Total Members and Chit Value!')
         return;
     }
     let group_id = $('#group_id').val();
@@ -396,7 +397,8 @@ function getModalAttr() {
 
 function getCusModal() {
     let total_members = $('#total_members').val();
-    if (total_members != '') {
+    let chit_value= $('#chit_value').val().replace(/,/g, '');
+    if (total_members != '' && chit_value !='' ) {
         $('#add_cus_map')
             .attr('data-toggle', 'modal')
             .attr('data-target', '#add_cus_map_modal');
