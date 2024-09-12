@@ -1,13 +1,25 @@
 <?php
 require '../../ajaxconfig.php';
 @session_start();
-
-$id = $_POST['id']; // Ensure that you have sanitized and validated this input
+$id = $_POST['params']['id'];
+$currentMonth = date('m');
+$currentYear = date('Y');
 include 'collectionStatus.php';
 
 $collectionSts = new CollectionStsClass($pdo);
 
-// Fetch auction details with customer mapping
+$column = array(
+    'cc.id',
+    'gc.grp_id',
+    'gc.grp_name',
+    'gc.chit_value',
+    'ad.chit_amount',
+    'status',
+    'gc.grace_period',
+    'cc.id',
+    'cc.id'
+);
+
 $query = "SELECT
     ad.id AS auction_id,
     cc.id AS customer_id,
@@ -29,109 +41,97 @@ LEFT JOIN group_cus_mapping gcm ON
 LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
-    ad.status IN (2, 3)
-    AND cc.id = :id
-    AND MONTH(ad.date) = MONTH(CURDATE()) 
-    AND YEAR(ad.date) = YEAR(CURDATE())";
-$statement = $pdo->prepare($query);
-$statement->execute([':id' => $id]);
+   gc.status=3
+    AND cc.id = '$id'
+    AND YEAR(ad.date) = '$currentYear'
+    AND MONTH(ad.date) ='$currentMonth'";
 
-$result = [];
-
-if ($statement->rowCount() > 0) {
-    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-        $sub_array = [];
-
-        // Debugging: Check if all expected keys are present
-        if (!isset($row['grp_id'])) {
-            error_log("Missing 'grp_id' in row data: " . print_r($row, true));
-            continue;
-        }
-
-        // Grace Period Calculation
-        $chit_amount = $row['chit_amount'] ?? 0;
-        $auction_month = $row['auction_month'] ?? 0;
-        $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $row['chit_amount']);
-        $sub_array['status'] = $status;
-
-        $grace_period = $row['grace_period'] ?? 0; 
-        $date = $row['due_date'] ?? ''; 
-        
-        $due_date = date('Y-m-d', strtotime($date));
-        $grace_start_date = $due_date; 
-        $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
-
-        $payment_query = "SELECT collection_date, coll_status FROM collection 
-                          WHERE cus_mapping_id = :cus_mapping_id 
-                          AND auction_id = :auction_id 
-                          AND group_id = :group_id 
-                          AND cus_id = :cus_id 
-                          AND auction_month = :auction_month";
-        $payment_stmt = $pdo->prepare($payment_query);
-        $payment_stmt->execute([
-            ':cus_mapping_id' => $row['cus_mapping_id'],
-            ':auction_id' => $row['auction_id'],
-            ':group_id' => $row['grp_id'], // Ensure group_id is correctly used here
-            ':cus_id' => $row['cus_id'],
-            ':auction_month' => $row['auction_month']
-        ]);
-
-        $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-        $collection_date = $payment_row['collection_date'] ?? null;
-      //  $collection_status = $payment_row['coll_status'] ?? null;
-
-        if ($status === "Paid") {
-            $status_color = 'green'; // Payment is made
-        } elseif ($collection_date) {
-            $collection_date = date('Y-m-d', strtotime($collection_date));
-            if ($collection_date < $due_date) {
-                $status_color = 'orange'; // Payment made before due date but status is payable
-            } elseif ($collection_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } else {
-                $status_color = 'orange'; // Payment made within grace period
-            }
-        } else {
-            $current_date = date('Y-m-d');
-            if ($current_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-                $status_color = 'orange'; // Payment is due or within grace period
-            } else {
-                $status_color = 'red'; // Default to red if no payment status
-            }
-        }
-
-        $sub_array['id'] = $row['auction_id'];
-        $sub_array['cus_mapping_id'] = $row['cus_mapping_id'];
-        $sub_array['customer_id'] = $row['customer_id'];
-        $sub_array['grp_id'] = $row['grp_id'];
-        $sub_array['grp_name'] = $row['grp_name'];
-        $sub_array['chit_value'] = moneyFormatIndia($row['chit_value']);
-        $sub_array['chit_amount'] = $row['chit_amount'];
-        $sub_array['grace_period'] = "<span style='display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: $status_color;'></span>";
-        $sub_array['charts'] = "<div class='dropdown'>
-                                    <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
-                                    <div class='dropdown-content'>
-                                        <a href='#' class='add_due' data-value='{$row['grp_id']}_{$row['cus_mapping_id']}_{$row['auction_month']}'>Due Chart</a>
-                                        <a href='#' class='commitment_chart' data-value='{$row['grp_id']}_{$row['cus_mapping_id']}'>Commitment Chart</a>
-                                    </div>
-                                </div>";
-        $sub_array['action'] = "<div class='dropdown'>
-                                    <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
-                                    <div class='dropdown-content'>
-                                        <a href='#' class='add_pay' data-value='{$row['grp_id']}_{$row['cus_id']}_{$row['auction_id']}_{$row['cus_mapping_id']}_{$row['customer_id']}'> Pay</a>
-                                        <a href='#' class='add_commitment' data-value='{$row['grp_id']}_{$row['cus_mapping_id']}'>Commitment</a>
-                                    </div>
-                                </div>";
-
-        $result[] = $sub_array;
-    }
+if (isset($_POST['search']) && $_POST['search'] != "") {
+    $search = $_POST['search'];
+    $query .= " AND ( gc.grp_id LIKE '%" . $search . "%'
+                      OR gc.grp_name LIKE '%" . $search . "%'
+                      OR gc.chit_value LIKE '%" . $search . "%'
+                      OR ad.chit_amount LIKE '%" . $search . "%')";
 }
 
-echo json_encode($result);
+$query .= " ORDER BY gc.grp_id";
 
+$statement = $pdo->prepare($query);
+$statement->execute();
+$number_filter_row = $statement->rowCount();
 
+$result = $statement->fetchAll();
+
+$sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
+$data = [];
+
+foreach ($result as $row) {
+    $sub_array = [];
+    $sub_array[] = $sno++;
+    $sub_array[] = $row['grp_id'];
+    $sub_array[] = $row['grp_name'];
+    $sub_array[] = moneyFormatIndia($row['chit_value']);
+    $chit_amount = isset($row['chit_amount']) && is_numeric($row['chit_amount']) ? $row['chit_amount'] : 0;
+    $roundedAmount = round($chit_amount);
+    $sub_array[] = moneyFormatIndia($roundedAmount);    
+    $chit_amount = $row['chit_amount'] ?? 0;
+    $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $chit_amount);
+    $sub_array[] = $status;
+
+        // Grace Period Calculation
+        $auction_month = $row['auction_month'] ?? 0;
+        $grace_period = $row['grace_period'] ?? 0;
+        $date = $row['due_date'] ?? ''; 
+        $due_date = date('Y-m-d', strtotime($date));
+        $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
+        
+        $current_date = date('Y-m-d');
+        if ($status === "Paid") {
+            $status_color = 'green'; // Payment is made
+        } elseif ($grace_end_date >= $current_date) {
+            $status_color = 'orange'; // Payment is due but not yet
+        } elseif ($grace_end_date < $current_date) {
+            $status_color = 'red'; // Missed payment after grace period
+        }
+        
+    $sub_array[] = "<span style='display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: $status_color;'></span>";
+    
+    $sub_array[] = "<div class='dropdown'>
+                        <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
+                        <div class='dropdown-content'>
+                            <a href='#' class='add_due' data-value='{$row['grp_id']}_{$row['cus_mapping_id']}_{$row['auction_month']}'>Due Chart</a>
+                            <a href='#' class='commitment_chart' data-value='{$row['grp_id']}_{$row['cus_mapping_id']}'>Commitment Chart</a>
+                        </div>
+                    </div>";
+    $sub_array[] = "<div class='dropdown'>
+                        <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
+                        <div class='dropdown-content'>
+                            <a href='#' class='add_pay' data-value='{$row['grp_id']}_{$row['cus_id']}_{$row['auction_id']}_{$row['cus_mapping_id']}_{$row['customer_id']}'> Pay</a>
+                            <a href='#' class='add_commitment' data-value='{$row['grp_id']}_{$row['cus_mapping_id']}'>Commitment</a>
+                        </div>
+                    </div>";
+    
+    $data[] = $sub_array;
+}
+
+function count_all_data($pdo)
+{
+    $query = "SELECT COUNT(*) FROM group_creation";
+    $statement = $pdo->prepare($query);
+    $statement->execute();
+    return $statement->fetchColumn();
+}
+
+$output = array(
+    'draw' => isset($_POST['draw']) ? intval($_POST['draw']) : 0,
+    'recordsTotal' => count_all_data($pdo),
+    'recordsFiltered' => $number_filter_row,
+    'data' => $data
+);
+
+echo json_encode($output); // Added missing semicolon
+
+// Money format function
 function moneyFormatIndia($num1)
 {
     if ($num1 < 0) {
@@ -163,4 +163,3 @@ function moneyFormatIndia($num1)
 
     return $thecash;
 }
-?>

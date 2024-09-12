@@ -12,7 +12,10 @@ $(document).ready(function () {
         'settlement':'settlement',
         'collection':'collection',
         'accounts':'accounts',
-        'balance_sheet':'accounts'
+        'balance_sheet':'accounts',
+        'customer_data':'customer_data',
+        'group_summary':'group_summary',
+        'enquiry_creation':'enquiry'
     };
 
     const current_page = localStorage.getItem('currentPage');

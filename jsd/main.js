@@ -293,7 +293,7 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 				$('<td>').text(index + 1).appendTo(row); // Add serial number
 			} else if (item.hasOwnProperty(value)) {
 
-				if (value === 'action' || value === 'upload' || value === 'charts' || value === 'info'|| value==='grace_period') {
+				if (value === 'action' || value === 'upload' || value === 'charts' || value === 'info' || value === 'grace_period') {
 					// If the key is 'action' or 'upload', insert the HTML content directly
 					$('<td>').html(item[value]).appendTo(row);
 				} else {
@@ -319,7 +319,7 @@ function serverSideTable(tableSelector, params, apiUrl) {
 		'ajax': {
 			'url': apiUrl,
 			'data': function (data) {
-				var search = $('input[type=search]').val();
+				var search = $(tableSelector + '_search').val();
 				data.search = search;
 				data.params = params;
 			}
@@ -340,7 +340,9 @@ function serverSideTable(tableSelector, params, apiUrl) {
 			[10, 25, 50, "All"]
 		],
 		'drawCallback': function () {
-			setDropdownScripts()
+			setDropdownScripts();
+			let new_id = tableSelector.split("#").pop();
+			$(tableSelector + '_filter input').attr('id', new_id + '_search');
 		}
 	});
 

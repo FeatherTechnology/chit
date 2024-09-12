@@ -34,11 +34,7 @@ if (isset($_POST['search'])) {
     }
 }
 
-// if (isset($_POST['order'])) {
-//     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
-// } else {
-//     $query .= ' ';
-// }
+
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);

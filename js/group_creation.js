@@ -24,7 +24,7 @@ $(document).ready(function () {
     });
 
 
-    $('#total_members').change(function () {
+    $('#total_members,#chit_value').change(function () {
         getCusModal()
     });
 
@@ -124,12 +124,13 @@ $(document).ready(function () {
         let cus_name = $('#cus_name').val();
         let group_id = $('#group_id').val();
         let total_members = $('#total_members').val();
-
+          let chit_value= $('#chit_value').val().replace(/,/g, '');
         if (cus_name !== '' && group_id !== '') {
             $.post('api/group_creation_files/submit_cus_mapping.php', {
                 cus_name: cus_name,
                 group_id: group_id,
-                total_members: total_members
+                total_members: total_members,
+                chit_value:chit_value,
             }, function (response) {
                 let result = response.result;
 
@@ -243,10 +244,51 @@ $(document).ready(function () {
 
 $(function () {
     getGroupCreationTable();
+    checkDashboardData();
 });
+
+function checkDashboardData() {
+    let fromDashboard = localStorage.getItem('dashboardGrp');
+
+    if (fromDashboard) { // Ensure fromDashboard is not null or empty
+        console.log('Dashboard data found:', fromDashboard);
+
+        // Find all <a> tags with the class 'edit-group-creation'
+        let links = document.querySelectorAll('.edit-group-creation');
+
+        links.forEach(link => {
+            if (link.getAttribute('value') === fromDashboard) {
+                console.log('Match found, triggering click for value:', fromDashboard);
+                // link.click(); // Trigger click event
+                $(link).trigger('click');
+            }
+        });
+    } else {
+        console.log('No matching data in localStorage.');
+    }
+}
 
 function getGroupCreationTable() {
     serverSideTable('#group_creation_table', '', 'api/group_creation_files/get_grp_creation_list.php');
+    
+    $('#group_creation_table').on('init.dt', function(){
+        checkDashboardData(); //Call function after the table loaded.
+    });
+}
+
+function checkDashboardData() {
+    let fromDashboard = localStorage.getItem('dashboardGrp');
+
+    if (fromDashboard) { // Ensure fromDashboard is not null or empty
+        // Find all <a> tags with the class 'edit-group-creation'
+        let links = document.querySelectorAll('.edit-group-creation');
+
+        links.forEach(link => {
+            if (link.getAttribute('value') === fromDashboard) {
+                $(link).trigger('click');
+            }
+        });
+    }
 }
 
 function swapTableAndCreation() {
@@ -263,6 +305,8 @@ function swapTableAndCreation() {
         $('#group_creation_content').hide();
         $('#back_btn').hide();
         $('#customer_mapping').trigger('click');
+
+        localStorage.setItem('dashboardGrp','');
     }
 }
 function getAutoGenGroupId(id) {
@@ -306,8 +350,9 @@ function getCustomerList() {
 
 function getCusMapTable() {
     let total_members = $('#total_members').val();
-    if (total_members === '') {
-        swalError('Alert', 'Kindly Select the Total Members!')
+    let chit_value= $('#chit_value').val().replace(/,/g, '');
+    if (total_members === '' || chit_value ==='') {
+        swalError('Alert', 'Kindly Fill the Total Members and Chit Value!')
         return;
     }
     let group_id = $('#group_id').val();
@@ -352,7 +397,8 @@ function getModalAttr() {
 
 function getCusModal() {
     let total_members = $('#total_members').val();
-    if (total_members != '') {
+    let chit_value= $('#chit_value').val().replace(/,/g, '');
+    if (total_members != '' && chit_value !='' ) {
         $('#add_cus_map')
             .attr('data-toggle', 'modal')
             .attr('data-target', '#add_cus_map_modal');
@@ -489,6 +535,7 @@ function getDateDropDown(editDId) {
 function hideSubmitButton(status) {
     if (status >2) {
         // Hide the reset button and submit buttons
+        $('#back_btn').show();
         $('#reset_clear').hide();
         $('#group_clear').hide(); // Hide reset button
         $('#submit_group_info').hide();
@@ -496,6 +543,7 @@ function hideSubmitButton(status) {
         $('#submit_cus_map').hide();
     } else {
         // Show the reset button and submit buttons
+        $('#back_btn').show();
         $('#reset_clear').show();
         $('#group_clear').show(); // Show reset button
         $('#submit_group_info').show();

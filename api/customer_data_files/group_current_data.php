@@ -6,6 +6,7 @@ $id = $_POST['id']; // Ensure that you have sanitized and validated this input
 include '../collection_files/collectionStatus.php';
 $collectionSts = new CollectionStsClass($pdo);
 $group_status = [3 => 'Current'];
+
 // Fetch auction details with customer mapping
 $query = "SELECT
     ad.id AS auction_id,
@@ -29,7 +30,7 @@ LEFT JOIN group_cus_mapping gcm ON
 LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
-    ad.status IN (2, 3) AND gc.status=3
+    gc.status = 3
     AND cc.id = :id
     AND MONTH(ad.date) = MONTH(CURDATE()) 
     AND YEAR(ad.date) = YEAR(CURDATE())";
@@ -42,12 +43,6 @@ if ($statement->rowCount() > 0) {
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $sub_array = [];
 
-        // Debugging: Check if all expected keys are present
-        if (!isset($row['grp_id'])) {
-            error_log("Missing 'grp_id' in row data: " . print_r($row, true));
-            continue;
-        }
-
         // Grace Period Calculation
         $chit_amount = $row['chit_amount'] ?? 0;
         $auction_month = $row['auction_month'] ?? 0;
@@ -55,70 +50,44 @@ if ($statement->rowCount() > 0) {
         $sub_array['status'] = $status;
 
         $grace_period = $row['grace_period'] ?? 0;
-        $date = $row['due_date'] ?? '';
+        $due_date = $row['due_date'] ?? '';
 
-        $due_date = date('Y-m-d', strtotime($date));
-        $grace_start_date = $due_date;
-        $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
+        $due_date_formatted = date('Y-m-d', strtotime($due_date));
+        $grace_end_date = date('Y-m-d', strtotime($due_date_formatted . ' + ' . $grace_period . ' days'));
 
-        $payment_query = "SELECT collection_date, coll_status FROM collection 
-                          WHERE cus_mapping_id = :cus_mapping_id 
-                          AND auction_id = :auction_id 
-                          AND group_id = :group_id 
-                          AND cus_id = :cus_id 
-                          AND auction_month = :auction_month";
-        $payment_stmt = $pdo->prepare($payment_query);
-        $payment_stmt->execute([
-            ':cus_mapping_id' => $row['cus_mapping_id'],
-            ':auction_id' => $row['auction_id'],
-            ':group_id' => $row['grp_id'], // Ensure group_id is correctly used here
-            ':cus_id' => $row['cus_id'],
-            ':auction_month' => $row['auction_month']
-        ]);
-
-        $payment_row = $payment_stmt->fetch(PDO::FETCH_ASSOC);
-        $collection_date = $payment_row['collection_date'] ?? null;
-        //  $collection_status = $payment_row['coll_status'] ?? null;
+        $current_date = date('Y-m-d');
 
         if ($status === "Paid") {
             $status_color = 'green'; // Payment is made
-        } elseif ($collection_date) {
-            $collection_date = date('Y-m-d', strtotime($collection_date));
-            if ($collection_date < $due_date) {
-                $status_color = 'orange'; // Payment made before due date but status is payable
-            } elseif ($collection_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } else {
-                $status_color = 'orange'; // Payment made within grace period
-            }
-        } else {
-            $current_date = date('Y-m-d');
-            if ($current_date > $grace_end_date) {
-                $status_color = 'red'; // Missed payment after grace period
-            } elseif ($current_date >= $due_date && $current_date <= $grace_end_date) {
-                $status_color = 'orange'; // Payment is due or within grace period
-            } else {
-                $status_color = 'red'; // Default to red if no payment status
-            }
+        } elseif ($grace_end_date >= $current_date) {
+            $status_color = 'orange'; // Payment is due but not yet
+        } elseif ($grace_end_date < $current_date) {
+            $status_color = 'red'; // Missed payment after grace period
         }
-        
-        // Fetch all customers' payment statuses for the group
-        $group_payment_query = "SELECT coll_status FROM collection 
-   WHERE group_id = :group_id 
-   AND auction_month = :auction_month   ORDER BY created_on DESC
-                     LIMIT 1";
-        $group_payment_stmt = $pdo->prepare($group_payment_query);
-        $group_payment_stmt->execute([
-            ':group_id' => $row['grp_id'],
-            ':auction_month' => $row['auction_month']
-        ]);
 
-        $group_payment_statuses = $group_payment_stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // Check if all customers have paid
+        // Check payment status for all customers in the group
+        $customer_mapping_query = "SELECT id FROM group_cus_mapping 
+                                   WHERE grp_creation_id = :grp_creation_id";
+        $customer_mapping_stmt = $pdo->prepare($customer_mapping_query);
+        $customer_mapping_stmt->execute([':grp_creation_id' => $row['grp_id']]);
+        $customer_ids = $customer_mapping_stmt->fetchAll(PDO::FETCH_COLUMN);
+
         $all_paid = true;
-        foreach ($group_payment_statuses as $status) {
-            if ($status !== 'Paid') {
+        foreach ($customer_ids as $cus_id) {
+            $payment_status_query = "SELECT coll_status FROM collection 
+                                     WHERE group_id = :group_id 
+                                     AND auction_month = :auction_month 
+                                     AND cus_mapping_id = :cus_mapping_id 
+                                     ORDER BY created_on DESC LIMIT 1";
+            $payment_status_stmt = $pdo->prepare($payment_status_query);
+            $payment_status_stmt->execute([
+                ':group_id' => $row['grp_id'],
+                ':auction_month' => $row['auction_month'],
+                ':cus_mapping_id' => $cus_id
+            ]);
+            $payment_status = $payment_status_stmt->fetchColumn();
+            if ($payment_status !== 'Paid') {
                 $all_paid = false;
                 break;
             }
@@ -128,8 +97,10 @@ if ($statement->rowCount() > 0) {
         if ($all_paid) {
             $sub_array['collection_status'] = 'Completed';
         } else {
-            $sub_array['collection_status'] = 'InCollection';
+            $sub_array['collection_status'] = 'In Collection';
         }
+
+        // Add other relevant data to sub_array
         $sub_array['id'] = $row['auction_id'];
         $sub_array['cus_mapping_id'] = $row['cus_mapping_id'];
         $sub_array['customer_id'] = $row['customer_id'];
@@ -184,3 +155,4 @@ function moneyFormatIndia($num1)
 
     return $thecash;
 }
+?>

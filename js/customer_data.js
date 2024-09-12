@@ -1,5 +1,5 @@
 $(document).ready(function () {
-   
+
     $(document).on('click', '#back_btn', function () {
         swapTableAndCreation();
     });
@@ -7,29 +7,42 @@ $(document).ready(function () {
     $('input[name=customer_data_type]').click(function () {
         let customerType = $(this).val();
         if (customerType == 'cus_profile') {
-            $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide(); 
+            $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide();
 
         } else if (customerType == 'cus_summary') {
-            $('#customer_creation').hide();$('#curr_closed').show();$('#customer_summary').show();
+            $('#customer_creation').hide(); $('#curr_closed').show(); $('#customer_summary').show();
 
         }
     })
+    $('input[name=group_type]').click(function () {
+        let groupType = $(this).val();
+        if (groupType == 'cus_current') {
+            $('#customer_summary').show();
+            $('.group_close').hide();
+            $('.group_current').show();
+        } else if (groupType == 'cus_closed') {
+            $('.group_close').show();
+            $('.group_current').hide();
+        }
+    });
+    
     $(document).on('click', '#customer_profile', function () {
-      
-        $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide(); 
+
+        $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide();
     })
     $(document).on('click', '#customer_sum', function () {
         $('#customer_creation').hide(); $('#customer_summary').show(); $('#curr_closed').show();
         $('#customer_summary').show()
         $('.group_current').show()
-        let id = $('#customer_id').val(); 
+        $('.group_close').hide()
+        let id = $('#customer_id').val();
         viewCustomerGroups(id);
     })
     $(document).on('click', '.customerActionBtn', function () {
         let id = $(this).attr('value');
         $('#customer_id').val(id);
         $('#customer_creation').show();
-        $('#curr_closed').hide(); 
+        $('#curr_closed').hide();
         swapTableAndCreation();
         editCustomerCreation(id)
         // viewCustomerGroups(id);
@@ -115,296 +128,296 @@ $(document).ready(function () {
             swalError('Warning', 'Kindly Enter Valid Aadhaar Number');
         }
     });
-        ////////////////////////////////////////////////////////// Place Modal START ///////////////////////////////////////////////////////////////////////
-        $('#submit_place').click(function (event) {
-            event.preventDefault();
-            let place = $('#add_place').val(); let id = $('#add_place_id').val();
-            var data = ['add_place']
-            var isValid = true;
-            data.forEach(function (entry) {
-                var fieldIsValid = validateField($('#' + entry).val(), entry);
-                if (!fieldIsValid) {
-                    isValid = false;
-                }
-            });
-            if (place != '') {
-                if (isValid) {
-                    $.post('api/user_creation_files/submit_place.php', { place, id }, function (response) {
-                        if (response == '0') {
-                            swalError('Warning', 'Place Already Exists!');
-                        } else if (response == '1') {
-                            swalSuccess('Success', 'Place Updated Successfully!');
-                        } else if (response == '2') {
-                            swalSuccess('Success', 'Place Added Successfully!');
-                        }
-    
-                        getPlaceTable();
-                    }, 'json');
-                    clearPlace(); //To Clear All Fields in Place creation.
-                }
+    ////////////////////////////////////////////////////////// Place Modal START ///////////////////////////////////////////////////////////////////////
+    $('#submit_place').click(function (event) {
+        event.preventDefault();
+        let place = $('#add_place').val(); let id = $('#add_place_id').val();
+        var data = ['add_place']
+        var isValid = true;
+        data.forEach(function (entry) {
+            var fieldIsValid = validateField($('#' + entry).val(), entry);
+            if (!fieldIsValid) {
+                isValid = false;
             }
         });
-    
-        $(document).on('click', '.placeActionBtn', function () {
-            var id = $(this).attr('value'); // Get value attribute
-            $.post('api/user_creation_files/get_place_data.php', { id }, function (response) {
-                $('#add_place_id').val(id);
-                $('#add_place').val(response[0].place);
-            }, 'json');
-        });
-    
-        $(document).on('click', '.placeDeleteBtn', function () {
-            var id = $(this).attr('value'); // Get value attribute
-            swalConfirm('Delete', 'Do you want to Delete the Place?', deletePlace, id);
-            return;
-        });
-        /////////////////////////////////////////////////////////// Place Modal END ///////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////Source Start/////////////////////////////////////////////////////////////////////////
-    
-        $('#add_src').click(function (event) {
-            event.preventDefault();
-            // Validation
-            let cus_id = $('#cus_id').val()
-            let occupation = $('#occupation').val();
-            let occ_detail = $('#occ_detail').val();
-            let source = $('#source').val();
-            let income = $('#income').val();
-            var data = ['occupation', 'occ_detail', 'source', 'income']
-    
-            var isValid = true;
-            data.forEach(function (entry) {
-                var fieldIsValid = validateField($('#' + entry).val(), entry);
-                if (!fieldIsValid) {
-                    isValid = false;
-                }
-            });
-    
+        if (place != '') {
             if (isValid) {
-                $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail, source, income }, function (response) {
-                    getSourceTable();
-                    totalIncome()
-                });
-                $('#occupation').val('');
-                $('#occ_detail').val('');
-                $('#source').val('');
-                $('#income').val('');
-            }
-        });
-    
-    
-        $(document).on('click', '.sourceDeleteBtn', function () {
-            var id = $(this).attr('value'); // Get value attribute
-            $.post('api/customer_creation_files/delete_source.php', { id }, function (response) {
-                if (response == '0') {
-                    // swalSuccess('Success', 'Document Need Deleted Successfully.');
-    
-                    getSourceTable();
-                    totalIncome()
-                } else {
-                    // swalError('Error', 'Document Need Delete Failed.');
-                }
-            }, 'json');
-        })
-    
-        ///////////////////////////////////////////////////////////////////Source End/////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////Family modal Start ///////////////////////////////////////////////////////////////////
-        $('#submit_family').click(function (event) {
-            event.preventDefault();
-            // Validation
-            let cus_id = $('#cus_id').val();// Remove spaces from cus_id
-            let fam_name = $('#fam_name').val();
-            let fam_relationship = $('#fam_relationship').val();
-            let fam_age = $('#fam_age').val();
-            let fam_live = $('#fam_live').val();
-            let fam_occupation = $('#fam_occupation').val();
-            let fam_aadhar = $('#fam_aadhar').val().replace(/\s/g, '');
-            let fam_mobile = $('#fam_mobile').val();
-            let family_id = $('#family_id').val();
-    
-            var data = ['fam_name', 'fam_relationship', 'fam_live', 'fam_aadhar', 'fam_mobile']
-    
-            var isValid = true;
-            data.forEach(function (entry) {
-                var fieldIsValid = validateField($('#' + entry).val(), entry);
-                if (!fieldIsValid) {
-                    isValid = false;
-                }
-            });
-    
-            if (isValid) {
-                $.post('api/customer_creation_files/submit_family_info.php', { cus_id, fam_name, fam_relationship, fam_age, fam_live, fam_occupation, fam_aadhar, fam_mobile, family_id }, function (response) {
-                    if (response == '1') {
-                        swalSuccess('Success', 'Family Info Added Successfully!');
-                    } else {
-                        swalSuccess('Success', 'Family Info Updated Successfully!');
+                $.post('api/user_creation_files/submit_place.php', { place, id }, function (response) {
+                    if (response == '0') {
+                        swalError('Warning', 'Place Already Exists!');
+                    } else if (response == '1') {
+                        swalSuccess('Success', 'Place Updated Successfully!');
+                    } else if (response == '2') {
+                        swalSuccess('Success', 'Place Added Successfully!');
                     }
-                    // Refresh the family table
-                    getFamilyTable();
-                });
+
+                    getPlaceTable();
+                }, 'json');
+                clearPlace(); //To Clear All Fields in Place creation.
+            }
+        }
+    });
+
+    $(document).on('click', '.placeActionBtn', function () {
+        var id = $(this).attr('value'); // Get value attribute
+        $.post('api/user_creation_files/get_place_data.php', { id }, function (response) {
+            $('#add_place_id').val(id);
+            $('#add_place').val(response[0].place);
+        }, 'json');
+    });
+
+    $(document).on('click', '.placeDeleteBtn', function () {
+        var id = $(this).attr('value'); // Get value attribute
+        swalConfirm('Delete', 'Do you want to Delete the Place?', deletePlace, id);
+        return;
+    });
+    /////////////////////////////////////////////////////////// Place Modal END ///////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////Source Start/////////////////////////////////////////////////////////////////////////
+
+    $('#add_src').click(function (event) {
+        event.preventDefault();
+        // Validation
+        let cus_id = $('#cus_id').val()
+        let occupation = $('#occupation').val();
+        let occ_detail = $('#occ_detail').val();
+        let source = $('#source').val();
+        let income = $('#income').val();
+        var data = ['occupation', 'occ_detail', 'source', 'income']
+
+        var isValid = true;
+        data.forEach(function (entry) {
+            var fieldIsValid = validateField($('#' + entry).val(), entry);
+            if (!fieldIsValid) {
+                isValid = false;
             }
         });
-        $(document).on('click', '.familyActionBtn', function () {
-            var id = $(this).attr('value'); // Get value attribute
-            $.post('api/customer_creation_files/family_creation_data.php', { id: id }, function (response) {
-                $('#family_id').val(id);
-                $('#fam_name').val(response[0].fam_name);
-                $('#fam_relationship').val(response[0].fam_relationship);
-                $('#fam_age').val(response[0].fam_age);
-                $('#fam_live').val(response[0].fam_live);
-                $('#fam_occupation').val(response[0].fam_occupation);
-                $('#fam_aadhar').val(response[0].fam_aadhar);
-                $('#fam_mobile').val(response[0].fam_mobile);
-            }, 'json');
-        });
-    
-        $(document).on('click', '.familyDeleteBtn', function () {
-            var id = $(this).attr('value');
-            swalConfirm('Delete', 'Do you want to Delete the Family Details?', getFamilyDelete, id);
-            return;
-        });
-        //////////////////////////////////////////////////////////////////////Family Modal end //////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
-        $('#submit_guarantor').click(function (event) {
-            event.preventDefault();
-    
-            let cus_id = $('#cus_id').val();
-            let gua_name = $('#gua_name').val();
-            let gua_name_val = $('#gua_name :selected').text();
-            let fam_name = $("#guarantor1_name").val();
-            let other_name = $("#other_name").val();
-            let existing_cus = $('#existing_cus').val();
-            let existing_cus_name = $('#existing_cus :selected').text();
-            let details = $('#details').val();
-            let gu_pic = $('#gu_pic')[0].files[0];
-            let gur_pic = $('#gur_pic').val();
-            let guarantor_id = $('#guarantor_id').val();
-    
-            let relationship_type;
-            let existing_cus_id = ''; // Initialize
-            let family_id = ''; // Initialize
-            let guarantor_relationship = '';
-            let guarantor_name = '';
-    
-            if (gua_name === '-1') {
-                relationship_type = 1;
-                existing_cus_id = existing_cus;
-                guarantor_relationship = 'Existing Customer'; // Set fixed text
-                guarantor_name = existing_cus_name;
-            } else if (gua_name === '-2') {
-                relationship_type = 2;
-                guarantor_relationship = 'Other';
-                guarantor_name = other_name;
+
+        if (isValid) {
+            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail, source, income }, function (response) {
+                getSourceTable();
+                totalIncome()
+            });
+            $('#occupation').val('');
+            $('#occ_detail').val('');
+            $('#source').val('');
+            $('#income').val('');
+        }
+    });
+
+
+    $(document).on('click', '.sourceDeleteBtn', function () {
+        var id = $(this).attr('value'); // Get value attribute
+        $.post('api/customer_creation_files/delete_source.php', { id }, function (response) {
+            if (response == '0') {
+                // swalSuccess('Success', 'Document Need Deleted Successfully.');
+
+                getSourceTable();
+                totalIncome()
             } else {
-                relationship_type = 3;
-                family_id = gua_name;
-                guarantor_relationship = fam_name;
-                guarantor_name = gua_name_val;
+                // swalError('Error', 'Document Need Delete Failed.');
             }
-    
-            let guaDetail = new FormData();
-            guaDetail.append('cus_id', cus_id);
-            guaDetail.append('relationship_type', relationship_type);
-            guaDetail.append('guarantor_name', guarantor_name); // Store correct guarantor name here
-            guaDetail.append('guarantor_relationship', guarantor_relationship);
-            guaDetail.append('existing_cus_id', existing_cus_id);
-            guaDetail.append('family_id', family_id);
-            guaDetail.append('details', details);
-            guaDetail.append('gu_pic', gu_pic);
-            guaDetail.append('gur_pic', gur_pic);
-            guaDetail.append('guarantor_id', guarantor_id);
-            guaDetail.append('gua_name', gua_name);
-            guaDetail.append('guarantor1_name', guarantor1_name);
-            guaDetail.append('existing_cus', existing_cus);
-            guaDetail.append('other_name', other_name);
-    
-    
-            if (isFormDataValid(guaDetail)) {
-                $.ajax({
-                    url: 'api/customer_creation_files/submit_guarantor.php',
-                    type: 'post',
-                    data: guaDetail,
-                    contentType: false,
-                    processData: false,
-                    cache: false,
-                    success: function (response) {
-                        response = JSON.parse(response);
-                        if (response === 'Success') {
-                            if (guarantor_id === '') {
-                                swalSuccess('Success', 'Guarantor Info Added Successfully!');
-                            } else {
-                                swalSuccess('Success', 'Guarantor Info Updated Successfully!');
-                            }
-                        } else {
-                            swalError('Error', 'Error in table');
-                        }
-                        getGuarantorTable();
-                    }
-                });
+        }, 'json');
+    })
+
+    ///////////////////////////////////////////////////////////////////Source End/////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////Family modal Start ///////////////////////////////////////////////////////////////////
+    $('#submit_family').click(function (event) {
+        event.preventDefault();
+        // Validation
+        let cus_id = $('#cus_id').val();// Remove spaces from cus_id
+        let fam_name = $('#fam_name').val();
+        let fam_relationship = $('#fam_relationship').val();
+        let fam_age = $('#fam_age').val();
+        let fam_live = $('#fam_live').val();
+        let fam_occupation = $('#fam_occupation').val();
+        let fam_aadhar = $('#fam_aadhar').val().replace(/\s/g, '');
+        let fam_mobile = $('#fam_mobile').val();
+        let family_id = $('#family_id').val();
+
+        var data = ['fam_name', 'fam_relationship', 'fam_live', 'fam_aadhar', 'fam_mobile']
+
+        var isValid = true;
+        data.forEach(function (entry) {
+            var fieldIsValid = validateField($('#' + entry).val(), entry);
+            if (!fieldIsValid) {
+                isValid = false;
             }
         });
-    
-        $(document).on('click', '.guaranatorActionBtn', function () {
-            let id = $(this).attr('value'); // Get value attribute
-    
-            $.post('api/customer_creation_files/guarantor_creation_data.php', { id: id }, function (response) {
-                if (response && response.length > 0) {
-                    // Assuming response is an array with one object
-                    var data = response[0];
-                    $('#guarantor_id').val(id);
-                    $('#cus_id').val(data.cus_id);
-                    $('#details').val(data.details);
-                    //  $('#gur_pic').val(data.gu_pic);
-                    $('#existing_cus').val(data.existing_cus);
-                    let relationship_type = data.relationship_type;
-                    let guarantor_relationship = data.guarantor_relationship
-                    let gua_name_val = data.guarantor_name;
-                    let existing_cus_id = data.existing_cus_id;
-                    let family_id = data.family_id;
-                    let gu_pic = data.gu_pic;
-                    let guarantor_name = data.guarantor_name;
-    
-                    // Hide all containers initially
-                    $('#name1_container, #existing_cus_container, #details_container, #name2_container').hide();
-    
-                    if (relationship_type === '1') {
-                        $('#gua_name').val('-1');
-                        getExistingCustomer(); // Fetch and populate existing customers
-                        setTimeout(() => {
-                            $('#customer_name_edit').val(existing_cus_id);
-                            $('#existing_cus').val(existing_cus_id).trigger('change'); // Update and trigger change
-                        }, 1000);
-                        $('#existing_cus_container').show();
-                    } else if (relationship_type === '2') {
-                        $('#gua_name').val('-2');
-                        $('#other_name').val(guarantor_name);
-                        $('#name2_container').show();
-                        $('#details_container').show();
-                    } else {
-                        $('#gua_name').val(family_id);
-                        $('#guarantor1_name').val(guarantor_relationship);
-                        $('#name1_container').show();
-                    }
-                    let paths = "uploads/customer_creation/gu_pic/";
-                    if (data.gu_pic) {
-                        $('#gur_pic').val(data.gu_pic);
-                        $('#gur_imgshow').attr('src', paths + data.gu_pic);
-                    } else {
-                        $('#gur_imgshow').attr('src', 'img/avatar.png');
-                    }
+
+        if (isValid) {
+            $.post('api/customer_creation_files/submit_family_info.php', { cus_id, fam_name, fam_relationship, fam_age, fam_live, fam_occupation, fam_aadhar, fam_mobile, family_id }, function (response) {
+                if (response == '1') {
+                    swalSuccess('Success', 'Family Info Added Successfully!');
                 } else {
-                    console.error('No data found for ID:', id);
+                    swalSuccess('Success', 'Family Info Updated Successfully!');
                 }
-            }, 'json');
-        });
-    
-    
-        $(document).on('click', '.guarantorDeleteBtn', function () {
-            var id = $(this).attr('value');
-            swalConfirm('Delete', 'Do you want to Delete the Guarantor Details?', getGuaDelete, id);
-            return;
-        });
-        ///////////////////////////////////////////////////////////////////////Guarantor Modal End////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////Customer creation Start/////////////////////////////////////////////////////////
+                // Refresh the family table
+                getFamilyTable();
+            });
+        }
+    });
+    $(document).on('click', '.familyActionBtn', function () {
+        var id = $(this).attr('value'); // Get value attribute
+        $.post('api/customer_creation_files/family_creation_data.php', { id: id }, function (response) {
+            $('#family_id').val(id);
+            $('#fam_name').val(response[0].fam_name);
+            $('#fam_relationship').val(response[0].fam_relationship);
+            $('#fam_age').val(response[0].fam_age);
+            $('#fam_live').val(response[0].fam_live);
+            $('#fam_occupation').val(response[0].fam_occupation);
+            $('#fam_aadhar').val(response[0].fam_aadhar);
+            $('#fam_mobile').val(response[0].fam_mobile);
+        }, 'json');
+    });
+
+    $(document).on('click', '.familyDeleteBtn', function () {
+        var id = $(this).attr('value');
+        swalConfirm('Delete', 'Do you want to Delete the Family Details?', getFamilyDelete, id);
+        return;
+    });
+    //////////////////////////////////////////////////////////////////////Family Modal end //////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
+    $('#submit_guarantor').click(function (event) {
+        event.preventDefault();
+
+        let cus_id = $('#cus_id').val();
+        let gua_name = $('#gua_name').val();
+        let gua_name_val = $('#gua_name :selected').text();
+        let fam_name = $("#guarantor1_name").val();
+        let other_name = $("#other_name").val();
+        let existing_cus = $('#existing_cus').val();
+        let existing_cus_name = $('#existing_cus :selected').text();
+        let details = $('#details').val();
+        let gu_pic = $('#gu_pic')[0].files[0];
+        let gur_pic = $('#gur_pic').val();
+        let guarantor_id = $('#guarantor_id').val();
+
+        let relationship_type;
+        let existing_cus_id = ''; // Initialize
+        let family_id = ''; // Initialize
+        let guarantor_relationship = '';
+        let guarantor_name = '';
+
+        if (gua_name === '-1') {
+            relationship_type = 1;
+            existing_cus_id = existing_cus;
+            guarantor_relationship = 'Existing Customer'; // Set fixed text
+            guarantor_name = existing_cus_name;
+        } else if (gua_name === '-2') {
+            relationship_type = 2;
+            guarantor_relationship = 'Other';
+            guarantor_name = other_name;
+        } else {
+            relationship_type = 3;
+            family_id = gua_name;
+            guarantor_relationship = fam_name;
+            guarantor_name = gua_name_val;
+        }
+
+        let guaDetail = new FormData();
+        guaDetail.append('cus_id', cus_id);
+        guaDetail.append('relationship_type', relationship_type);
+        guaDetail.append('guarantor_name', guarantor_name); // Store correct guarantor name here
+        guaDetail.append('guarantor_relationship', guarantor_relationship);
+        guaDetail.append('existing_cus_id', existing_cus_id);
+        guaDetail.append('family_id', family_id);
+        guaDetail.append('details', details);
+        guaDetail.append('gu_pic', gu_pic);
+        guaDetail.append('gur_pic', gur_pic);
+        guaDetail.append('guarantor_id', guarantor_id);
+        guaDetail.append('gua_name', gua_name);
+        guaDetail.append('guarantor1_name', guarantor1_name);
+        guaDetail.append('existing_cus', existing_cus);
+        guaDetail.append('other_name', other_name);
+
+
+        if (isFormDataValid(guaDetail)) {
+            $.ajax({
+                url: 'api/customer_creation_files/submit_guarantor.php',
+                type: 'post',
+                data: guaDetail,
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function (response) {
+                    response = JSON.parse(response);
+                    if (response === 'Success') {
+                        if (guarantor_id === '') {
+                            swalSuccess('Success', 'Guarantor Info Added Successfully!');
+                        } else {
+                            swalSuccess('Success', 'Guarantor Info Updated Successfully!');
+                        }
+                    } else {
+                        swalError('Error', 'Error in table');
+                    }
+                    getGuarantorTable();
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.guaranatorActionBtn', function () {
+        let id = $(this).attr('value'); // Get value attribute
+
+        $.post('api/customer_creation_files/guarantor_creation_data.php', { id: id }, function (response) {
+            if (response && response.length > 0) {
+                // Assuming response is an array with one object
+                var data = response[0];
+                $('#guarantor_id').val(id);
+                $('#cus_id').val(data.cus_id);
+                $('#details').val(data.details);
+                //  $('#gur_pic').val(data.gu_pic);
+                $('#existing_cus').val(data.existing_cus);
+                let relationship_type = data.relationship_type;
+                let guarantor_relationship = data.guarantor_relationship
+                let gua_name_val = data.guarantor_name;
+                let existing_cus_id = data.existing_cus_id;
+                let family_id = data.family_id;
+                let gu_pic = data.gu_pic;
+                let guarantor_name = data.guarantor_name;
+
+                // Hide all containers initially
+                $('#name1_container, #existing_cus_container, #details_container, #name2_container').hide();
+
+                if (relationship_type === '1') {
+                    $('#gua_name').val('-1');
+                    getExistingCustomer(); // Fetch and populate existing customers
+                    setTimeout(() => {
+                        $('#customer_name_edit').val(existing_cus_id);
+                        $('#existing_cus').val(existing_cus_id).trigger('change'); // Update and trigger change
+                    }, 1000);
+                    $('#existing_cus_container').show();
+                } else if (relationship_type === '2') {
+                    $('#gua_name').val('-2');
+                    $('#other_name').val(guarantor_name);
+                    $('#name2_container').show();
+                    $('#details_container').show();
+                } else {
+                    $('#gua_name').val(family_id);
+                    $('#guarantor1_name').val(guarantor_relationship);
+                    $('#name1_container').show();
+                }
+                let paths = "uploads/customer_creation/gu_pic/";
+                if (data.gu_pic) {
+                    $('#gur_pic').val(data.gu_pic);
+                    $('#gur_imgshow').attr('src', paths + data.gu_pic);
+                } else {
+                    $('#gur_imgshow').attr('src', 'img/avatar.png');
+                }
+            } else {
+                console.error('No data found for ID:', id);
+            }
+        }, 'json');
+    });
+
+
+    $(document).on('click', '.guarantorDeleteBtn', function () {
+        var id = $(this).attr('value');
+        swalConfirm('Delete', 'Do you want to Delete the Guarantor Details?', getGuaDelete, id);
+        return;
+    });
+    ///////////////////////////////////////////////////////////////////////Guarantor Modal End////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////Customer creation Start/////////////////////////////////////////////////////////
 
     $('#submit_cus_creation').click(function (event) {
         event.preventDefault();
@@ -460,7 +473,7 @@ $(document).ready(function () {
         cusDetail.append('reference', reference);
         cusDetail.append('customer_id', customer_id);
 
-        var data = ['cus_id', 'first_name', 'last_name', 'aadhar_number', 'mobile1','place','address', 'chit_limit', 'reference']
+        var data = ['cus_id', 'first_name', 'last_name', 'aadhar_number', 'mobile1', 'place', 'address', 'chit_limit', 'reference']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -533,15 +546,15 @@ $(document).ready(function () {
         $('#customer_summary').show()
         $('.group_close').hide()
         $('.group_current').show()
-        let id = $('#customer_id').val(); 
+        let id = $('#customer_id').val();
         viewCustomerGroups(id);
     })
     $(document).on('click', '#customer_closed', function () {
         $('.group_close').show();
         $('.group_current').hide()
-        let id = $('#customer_id').val(); 
+        let id = $('#customer_id').val();
         viewCustomerClosedGroups(id);
-        
+
     })
     ///////////////////////////////////////////////////////Due Start/////////////////////////////////////////////
     $(document).on('click', '.add_due', function (event) {
@@ -680,11 +693,12 @@ function swapTableAndCreation() {
         $('#back_btn').hide();
         $('#customer_data_content').hide();
         $('#customer_profile').trigger('click');
+        $('#customer_current').trigger('click');
     }
 }
 
 function getCustomerEntryTable() {
-    serverSideTable('#customer_create', '', 'api/customer_data_files/customer_profile_list.php'); 
+    serverSideTable('#customer_create', '', 'api/customer_data_files/customer_profile_list.php');
 }
 function clearPlace() {
     $('#add_place').val('');
@@ -841,7 +855,7 @@ function getExistingCustomer() {
             if (val.id == editGId) {
                 selected = 'selected';
             }
-            appendCustomerOption  += "<option value='" + val.id + "' " + selected + ">" + val.full_name + "</option>";
+            appendCustomerOption += "<option value='" + val.id + "' " + selected + ">" + val.full_name + "</option>";
         });
 
         $('#existing_cus').empty().append(appendCustomerOption);
@@ -1043,9 +1057,9 @@ function editCustomerCreation(id) {
             getPlaceDropdown(response[0].place);
             $('#cus_name').trigger('change');
         }, 1000);
-            getFamilyInfoTable()
-            getGuarantorInfoTable()
-            getSourceTable()
+        getFamilyInfoTable()
+        getGuarantorInfoTable()
+        getSourceTable()
         if (response[0].reference_type == '1') {
             $('#declaration_container').show();
             $('#cus_name_container').hide();
@@ -1112,11 +1126,11 @@ function viewCustomerGroups(id) {
             "grp_name",
             "chit_value",
             "grp_status",
-            "collection_status", 
+            "collection_status",
             "grace_period",
             "status",
             "charts",
-           
+
         ];
         appendDataToTable('#group_list_table', response, cashList);
         setdtable('#group_list_table');
@@ -1133,10 +1147,10 @@ function viewCustomerClosedGroups(id) {
             "grp_name",
             "chit_value",
             "grp_status",
-            "collection_status", 
+            "collection_status",
             "status",
             "charts",
-           
+
         ];
         appendDataToTable('#group_close_table', response, cashList);
         setdtable('#group_close_table');

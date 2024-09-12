@@ -24,15 +24,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td><button type="button" class="btn btn-primary" id="collectionListBtn" name="collectionListBtn" tabindex='16'>&nbsp;View</button></td> -->
                             </tbody>
                         </table>
                     </div>
@@ -119,6 +110,7 @@
                                 <div class="col-12">
                                     <table id="group_list_table" class=" table custom-table">
                                         <thead>
+                                            <tr>
                                             <th width="50">S.No.</th>
                                             <th>Group ID</th>
                                             <th>Group Name</th>
@@ -131,15 +123,6 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <!-- <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td><button type="button" class="btn btn-primary" id="add_due" name="add_due" data-toggle="modal" data-target="#due_chart_model" tabindex='16'>&nbsp;Due</button><button type="button" class="btn btn-primary" id="commitment_chart" name="commitment_chart" data-toggle="modal" data-target="#commitment_chart_model" tabindex='16'><span class="icon-add"></span>&nbsp;Commitment</button></td>
-                                            <td><button type="button" class="btn btn-primary" id="add_pay" name="add_pay" tabindex='16'>&nbsp;Pay</button><button type="button" class="btn btn-primary" id="add_commitment" name="add_commitment" data-toggle="modal" data-target="#add_commitment_modal" tabindex='16'><span class="icon-add"></span>&nbsp;Commitment</button></td> -->
                                         </tbody>
                                     </table>
                                 </div>
