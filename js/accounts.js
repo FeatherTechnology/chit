@@ -87,35 +87,6 @@ $(document).ready(function () {
 
 
 
-    // $('#submit_expenses_creation').click(function(event){
-    //     event.preventDefault();
-    //     let expensesData = {
-    //         'coll_mode' : $("input[name='expenses_cash_type']:checked").val(),
-    //         'bank_id' : $('#expenses_bank_name :selected').val(),
-    //         'invoice_id' : $('#invoice_id').val(),
-    //         'branch_name' : $('#branch_name :selected').val(),
-    //         'expenses_category' : $('#expenses_category :selected').val(),
-    //         'description' : $('#description').val(),
-    //         'expenses_amnt' : $('#expenses_amnt').val(),
-    //         'expenses_trans_id' : $('#expenses_trans_id').val(),
-
-    //     }
-    //     if(expensesFormValid(expensesData)){
-    //         $.post('api/accounts_files/accounts/submit_expenses.php',expensesData,function(response){
-    //             if(response =='1'){
-    //                 swalSuccess('Success', 'Expenses added successfully.');
-    //                 expensesTable('#expenses_creation_table');
-    //                 getInvoiceNo();
-    //                 getClosingBal();
-    //             }else{
-    //                 swalError('Error', 'Failed.');
-    //             }
-    //         },'json');
-    //     }else{
-    //         swalError('Warning', 'Kindly Fill Mandatory Fields.');
-    //     }
-    // });
-
     $('#submit_expenses_creation').click(function (event) {
         event.preventDefault();
 
@@ -271,96 +242,6 @@ $(document).ready(function () {
         }, 'json');
     });
 
-    // $('#submit_other_transaction').click(function (event) {
-    //     event.preventDefault();
-
-    //     let otherTransData = {
-    //         'coll_mode': $("input[name='othertransaction_cash_type']:checked").val(),
-    //         'bank_id': $('#othertransaction_bank_name :selected').val(),
-    //         'trans_category': $('#trans_category :selected').val(),
-    //         'other_trans_name': $('#other_trans_name :selected').val(),
-    //         'cat_type': $('#cat_type :selected').val(),
-    //         'other_ref_id': $('#other_ref_id').val(),
-    //         'other_trans_id': $('#other_trans_id').val(),
-    //         'other_amnt': $('#other_amnt').val(),
-    //         'other_remark': $('#other_remark').val()
-    //     };
-
-    //     let otherAmount = parseFloat(otherTransData.other_amnt);
-    //     let collMode = otherTransData.coll_mode;
-    //     let catType = otherTransData.cat_type;
-    //     let transCategory = parseInt(otherTransData.trans_category); // Transaction category
-
-    //     // Fetch the user's credit (type=1) and debit (type=2) amounts from the database
-    //     $.post('api/accounts_files/accounts/get_user_transactions.php', {
-    //         'coll_mode': otherTransData.coll_mode,
-    //         'other_trans_name': otherTransData.other_trans_name
-    //     }, function (response) {
-    //         let total_type_1_amount = response.total_type_1_amount || 0; // Credit amount
-    //         let total_type_2_amount = response.total_type_2_amount || 0; // Debit amount
-    //         let balance = total_type_1_amount - total_type_2_amount; // Calculate the balance
-
-    //         // If transaction category is between 3 and 9, apply specific validations
-    //         if (transCategory >= 3 && transCategory <= 9) {
-    //             // Only validate debit/credit if balance is not 0
-    //             if (balance !== 0) {
-    //                 // Condition 1: Debit first, then credit validation
-    //                 if (catType == '1' && total_type_2_amount > 0) {
-    //                     let maxCreditAmount = total_type_2_amount; // Remaining debit amount
-    //                     if (otherAmount > maxCreditAmount) {
-    //                         swalError('Warning', 'You can only credit up to ' + maxCreditAmount + ' after completing the debit.');
-    //                         return;
-    //                     }
-    //                 }
-
-    //                 // Condition 2: Credit first, then debit validation
-    //                 if (catType == '2' && total_type_1_amount > 0) {
-    //                     let maxDebitAmount = total_type_1_amount; // Available credit amount
-    //                     if (otherAmount > maxDebitAmount) {
-    //                         swalError('Warning', 'You can only debit up to ' + maxDebitAmount + ' based on available credit.');
-    //                         return;
-    //                     }
-    //                 }
-    //             }
-    //         } else if (transCategory <= 2) {
-    //             // Always check credit and debit validation for category 1
-    //             if (catType == '2' && total_type_1_amount < total_type_2_amount + otherAmount) {
-    //                 swalError('Warning', 'Debit amount exceeds available credit.');
-    //                 return;
-    //             }
-    //         }
-
-    //         // Check the hand cash and bank cash balances for coll_mode
-    //         getClosingBal(function (hand_cash_balance, bank_cash_balance) {
-    //             // If cash mode is 1 (Hand Cash) and amount exceeds hand cash balance, show alert
-    //             if (catType == '2' && collMode == '1' && otherAmount > hand_cash_balance) {
-    //                 swalError('Warning', 'Closing balance in hand cash is lesser than the transaction amount.');
-    //                 return;
-    //             }
-
-    //             // If cash mode is 2 (Bank Transaction) and amount exceeds bank cash balance, show alert
-    //             if (catType == '2' && collMode == '2' && otherAmount > bank_cash_balance) {
-    //                 swalError('Warning', 'Closing balance in bank cash is lesser than the transaction amount.');
-    //                 return;
-    //             }
-
-    //             // Proceed if the balance and credit/debit check passes
-    //             if (otherTransFormValid(otherTransData)) {
-    //                 $.post('api/accounts_files/accounts/submit_other_transaction.php', otherTransData, function (response) {
-    //                     if (response == '1') {
-    //                         swalSuccess('Success', 'Other Transaction added successfully.');
-    //                         otherTransTable('#other_transaction_table');
-    //                         getClosingBal(); // Update the closing balance after submission
-    //                     } else {
-    //                         swalError('Error', 'Failed to add transaction.');
-    //                     }
-    //                 }, 'json');
-    //             } else {
-    //                 swalError('Warning', 'Kindly Fill Mandatory Fields.');
-    //             }
-    //         });
-    //     }, 'json');
-    // });
 
     $('#submit_other_transaction').click(function (event) {
         event.preventDefault();
@@ -513,18 +394,7 @@ function getOpeningBal() {
     });
 }
 
-// function getClosingBal(){
-//     $.post('api/accounts_files/accounts/closing_balance.php',function(response){
-//         if(response.length > 0){
-//             let close = parseInt($('.opening_val').text()) + parseInt(response[0]['closing_balance']);
-//             let hand = parseInt($('.op_hand_cash_val').text()) + parseInt(response[0]['hand_cash']);
-//             let bank = parseInt($('.op_bank_cash_val').text()) + parseInt(response[0]['bank_cash']);
-//             $('.closing_val').text(close);
-//             $('.clse_hand_cash_val').text(hand);
-//             $('.clse_bank_cash_val').text(bank);
-//         }
-//     },'json');
-// }
+
 function getClosingBal(callback) {
     $.post('api/accounts_files/accounts/closing_balance.php', function (response) {
         if (response.length > 0) {
