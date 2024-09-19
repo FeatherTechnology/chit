@@ -34,6 +34,8 @@
 <div id="settlement_content" style="display: none;">
     <form id="settlement_screen" name="settlement_screen" method="post" enctype="multipart/form-data">
         <input type="hidden" id="groupid">
+        <input type="hidden" id="hand_cash">
+        <input type="hidden" id="bank_cash">
         <!-- Row start -->
         <div class="row gutters">
             <div class="col-12">
