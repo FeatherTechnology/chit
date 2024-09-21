@@ -21,7 +21,7 @@ if (isset($group_id) && !empty($group_id) && isset($auction_month) && !empty($au
     $taken_customers = $pdo->query($taken_auction_qry)->fetchAll(PDO::FETCH_COLUMN);
 
     // Get eligible customers for the current auction month
-    $qry = "
+ $qry = "
         SELECT 
             cc.first_name, 
             cc.last_name,
