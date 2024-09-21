@@ -123,7 +123,6 @@ $(document).ready(function () {
         $('#joining_month').css('border', '1px solid #cecece');
         $('#cus_name').css('border', '1px solid #cecece');
 
-
     })
     $('#submit_cus_map').click(function (event) {
         event.preventDefault(); // Prevent the default form submission
@@ -387,7 +386,7 @@ function getJoiningMonth() {
     joiningMonthDropdown.empty();
 
     // Add the default option
-    joiningMonthDropdown.append('<option value="">Select Joining Month</option>');
+    joiningMonthDropdown.append('<option value="">Select Auction Start From</option>');
 
     // Check if total_month is a valid number
     if (total_month > 0) {
@@ -414,6 +413,7 @@ function getCusMapTable() {
             "name",
             "place",
             "occ",
+            "joining_month",
             "action"
         ]
         appendDataToTable('#cus_mapping_table', response, cusMapColumn);
@@ -704,6 +704,6 @@ $('button[type="reset"],#back_btn').click(function (event) {
     $('#group_creation input').css('border', '1px solid #cecece');
     $('#group_creation select').css('border', '1px solid #cecece');
 
-
 });
+
 

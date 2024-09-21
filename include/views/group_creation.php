@@ -233,9 +233,9 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="joining_month">Joining Month<span class="text-danger">*</span></label>
+                                    <label for="joining_month">Auction Start From<span class="text-danger">*</span></label>
                                     <select class="form-control" id="joining_month" name="joining_month" tabindex="18">
-                                        <option value="">Select Joining Month</option>
+                                        <option value="">Select Auction Start From</option>
                                     </select>
                                 </div>
                             </div>
@@ -257,6 +257,7 @@
                                     <th>Name</th>
                                     <th>Place</th>
                                     <th>Occupation</th>
+                                    <th>Auction Start</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
