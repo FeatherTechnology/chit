@@ -1,7 +1,8 @@
 const cus_name = new Choices('#cus_name', {
     removeItemButton: true,
     noChoicesText: 'Select Customer Name',
-    allowHTML: true
+    allowHTML: true,
+    shouldSort: false // Disable default sorting
 });
 
 $(document).ready(function () {
@@ -217,8 +218,6 @@ $(document).on('click', '.icon-delete', function () {
     // After deletion, ensure the delete icon is updated in the new last row
     updateDeleteIcon();
 });
-
-
     
     $(document).on('change', '#cus_mapping_table tbody input[type="number"]', function () {
         var inputValue = parseFloat($(this).val());
@@ -303,8 +302,6 @@ $(document).on('click', '.icon-delete', function () {
             },
         });
     });
-
-
 
     //////////////////////////////////////////////////////////Auction Modal End//////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////PostPone Modal Start//////////////////////////////////////////////////////////////
@@ -589,21 +586,49 @@ function closeChartsModal() {
     $('#add_Calculation_modal').modal('hide');
 }
 
+// function getCusName(groupId, auction_month) {
+//     $.post('api/auction_files/get_customerName_list.php', {
+//         group_id: groupId,
+//         auction_month: auction_month // Send auction month to the server
+//     }, function (response) {
+//         cus_name.clearStore();
+
+//         // Initialize an array with the "Company" option as the first element
+//         let items = [{
+//             value: -1,
+//             label: 'Company',
+//             selected: false
+//         }];
+
+//         // Map the response to the desired format, starting from the second element
+//         response.forEach(function (val) {
+//             items.push({
+//                 value: val.id,
+//                 label: val.cus_name,
+//                 selected: false
+//             });
+//         });
+
+//         // Set the choices with the new items array
+//         cus_name.setChoices(items, 'value', 'label', true);
+//     }, 'json');
+// }
+
 function getCusName(groupId, auction_month) {
     $.post('api/auction_files/get_customerName_list.php', {
         group_id: groupId,
-        auction_month: auction_month // Send auction month to the server
+        auction_month: auction_month
     }, function (response) {
         cus_name.clearStore();
 
-        // Initialize an array with the "Company" option as the first element
+        // Initialize an array with the "Company" option
         let items = [{
             value: -1,
             label: 'Company',
             selected: false
         }];
 
-        // Map the response to the desired format, starting from the second element
+        // Map the response to the desired format
         response.forEach(function (val) {
             items.push({
                 value: val.id,
@@ -612,11 +637,15 @@ function getCusName(groupId, auction_month) {
             });
         });
 
+        // Sort the items alphabetically, excluding the first item (Company)
+        const companyOption = items.shift(); // Remove Company option
+        items.sort((a, b) => a.label.localeCompare(b.label)); // Sort alphabetically
+        items.unshift(companyOption); // Add Company back at the top
+
         // Set the choices with the new items array
         cus_name.setChoices(items, 'value', 'label', true);
     }, 'json');
 }
-
 function populateDates() {
     var $grpDateSelect = $('#grp_date');
     var today = new Date();
