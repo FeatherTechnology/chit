@@ -16,6 +16,7 @@ $(document).ready(function () {
         getAuctionTable();
         $('#cus_mapping_table tbody').empty(); 
         $('.auction_close').addClass('d-none');
+        $('#submit_cus_map').prop('disabled', false);
         $('#pageHeaderName').text(` - Auction`);
 
         localStorage.setItem('dashboardAuc','');
@@ -61,7 +62,7 @@ $(document).ready(function () {
         $('#add_cus_map_modal').modal('show');
 
         var uniqueDetail = $(this).data('value');
-        var [groupId, date, id, low_value, high_value] = uniqueDetail.split('_');
+        var [groupId, date, id, low_value, high_value,auction_month] = uniqueDetail.split('_');
 
         $('#submit_cus_map').attr('data-group_id', groupId);
         $('#submit_cus_map').attr('data-id', id);
@@ -72,55 +73,87 @@ $(document).ready(function () {
         $('.auction_close').attr('data-group_id', groupId);
         $('.auction_close').attr('data-date', date);
         $('.auction_close').attr('data-id', id);
+       
 
-        getCusName(groupId); // Fetch customer names based on groupId
+        getCusName(groupId,auction_month); // Fetch customer names based on groupId
     });
 
-// Function to update delete icon to appear only in the last row and in the correct column
 function updateDeleteIcon() {
     // Remove any existing delete icons from all rows
     $('#cus_mapping_table tbody tr').each(function () {
+        if (!$(this).hasClass('company-row')) {
         $(this).find('.delete-icon').remove(); // Remove previous delete icon
+        $('#cus_mapping_table tbody tr:last .value-column .input-container').append('<i class="icon-delete delete-icon" style="width:25px;"></i>');
+        }
+        else{
+            $(this).find('.delete-icon').remove(); // Ensure no delete icon for Company row  
+        }
     });
-
-    // Add delete icon to the last row's value column
-    $('#cus_mapping_table tbody tr:last .value-column .input-container').append('<i class="icon-delete delete-icon" style="width:25px;"></i>');
 }
 
-// Event handler for adding new rows
 $('#submit_cus_map').on('click', function (e) {
     e.preventDefault();
 
     // Get the selected customers (can be multiple)
     var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
+    var lowValue = $('#submit_cus_map').attr('data-low_value'); // Get the low_value
+
+    // Check if "Company" already exists in the table
+    var companyExists = $('#cus_mapping_table tbody .company-row').length > 0;
+
     if (selectedCustomers && selectedCustomers.length > 0) {
+        // Flag to track if the "Company" entry has been added
+        var companyAdded = false;
+
         // Iterate over each selected customer
         selectedCustomers.forEach(function (cusId) {
-            // Get the customer name for the given ID
-            var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim(); // Trim to remove extra spaces
+            // Handle special case for the company
+            if (cusId == -1 && !companyExists) {
+                // Create a unique identifier for the Company entry
+                var uniqueIdentifier = 'company_' + new Date().getTime();
 
-            // Create a unique identifier for each entry using timestamp
-            var uniqueIdentifier = cusId + '_' + new Date().getTime(); // Using timestamp to ensure uniqueness
+                // Append the "Company" entry to the table (without delete icon)
+                $('#cus_mapping_table tbody').append(`
+                    <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}" class="company-row">
+                        <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
+                        <td class="cus-name-column">Company</td>
+                        <td class="value-column">
+                            <div class="input-container">
+                                <input type="number" name="cus_value[]" class="form-control" value="${lowValue}" placeholder="Enter value" readonly>
+                                <!-- No delete icon for Company row -->
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                companyAdded = true; // Mark that the company has been added
+                $('#submit_cus_map').prop('disabled', true);
+            } else if (cusId != -1) {
+                // Get the customer name for the given ID
+                var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim();
 
-            // Append the selected customer to the table as a new row
-            $('#cus_mapping_table tbody').append(`
-                <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
-                    <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-                    <td class="cus-name-column">${cusName}</td>
-                    <td class="value-column">
-                        <div class="input-container">
-                            <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
-                            <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Add delete icon here -->
-                        </div>
-                    </td>
-                </tr>
-            `);
+                // Create a unique identifier for each entry using timestamp
+                var uniqueIdentifier = cusId + '_' + new Date().getTime();
+
+                // Append the selected customer to the table as a new row (with delete icon)
+                $('#cus_mapping_table tbody').append(`
+                    <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
+                        <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
+                        <td class="cus-name-column">${cusName}</td>
+                        <td class="value-column">
+                            <div class="input-container">
+                                <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
+                                <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Show delete icon -->
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            }
         });
 
         // Clear the selection
-        $('#cus_name').removeClass('active'); // Assuming this is how you clear the selection
+        cus_name.removeActiveItems();
         let groupId = $(this).attr('data-group_id');
-        getCusName(groupId); // Re-fetch the customer list if needed
+        getCusName(groupId);
 
         // Show the auction close button if rows exist
         if ($('#cus_mapping_table tbody tr').length > 0) {
@@ -132,14 +165,22 @@ $('#submit_cus_map').on('click', function (e) {
     }
 });
 
+
 // Event handler for clicking on customer name
 $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function () {
     var $row = $(this).closest('tr');
     var cusId = $row.data('cus-id');
+
+    // Check if the clicked row is the "Company" row
+    if (cusId == -1) {
+        // Prevent adding a duplicate company entry
+        return; // Exit the function
+    }
+
     var cusName = $row.find('td.cus-name-column').text();
 
     // Create a new unique identifier for the re-added row
-    var uniqueIdentifier = cusId + '_' + new Date().getTime(); // Ensure new uniqueness
+    var uniqueIdentifier = cusId + '_' + new Date().getTime();
 
     // Append the same customer to the table as a new row
     $('#cus_mapping_table tbody').append(`
@@ -149,7 +190,7 @@ $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function
             <td class="value-column">
                 <div class="input-container">
                     <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
-                    <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Add delete icon here -->
+                    <i class="icon-delete delete-icon" style="width:25px;"></i>
                 </div>
             </td>
         </tr>
@@ -325,10 +366,10 @@ $(document).on('click', '.icon-delete', function () {
     $(document).on('click', '.viewBtn', function (event) {
         event.preventDefault();
         $('#add_view_modal').modal('show');
-
+    
         var uniqueValue = $(this).data('value');
         var [groupId, date] = uniqueValue.split('_');
-
+    
         // Fetch data from server
         $.post('api/auction_files/auction_close_view.php', {
             group_id: groupId,
@@ -338,13 +379,13 @@ $(document).on('click', '.icon-delete', function () {
                 var data = response.data;
                 var tableBody = $('#view_table tbody');
                 tableBody.empty(); // Clear any existing rows
-
+    
                 // Populate table with data
                 $.each(data, function (index, row) {
                     var formattedValue = moneyFormatIndia(row.value);
                     var rowHtml = `<tr>
                         <td>${index + 1}</td>
-                        <td>${row.first_name} ${row.last_name}</td>
+                        <td>${row.customer_name}</td>  <!-- Use customer_name -->
                         <td>${formattedValue}</td>
                     </tr>`;
                     tableBody.append(rowHtml);
@@ -354,6 +395,7 @@ $(document).on('click', '.icon-delete', function () {
             }
         }, 'json');
     });
+    
 
     ////////////////////////////////////////////////////////////////View Modal End////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////CalCulation Modal Start///////////////////////////////////////////////////////
@@ -507,7 +549,7 @@ function fetchAuctionDetails(groupId) {
                     // Format the values using moneyFormatIndia
                     var lowValue = moneyFormatIndia(item.low_value);
                     var highValue = moneyFormatIndia(item.high_value);
-                    var auctionValue = item.auction_value ? moneyFormatIndia(item.auction_value) : item.auction_value;
+                    var auctionValue = item.auction_value ? moneyFormatIndia(item.auction_value) : ''; // Show '—' if null
 
                     var cusName = item.cus_name;
                     var action = item.action;
@@ -547,22 +589,33 @@ function closeChartsModal() {
     $('#add_Calculation_modal').modal('hide');
 }
 
-function getCusName(groupId) {
-    $.post('api/auction_files/get_customerName_list.php', { group_id: groupId }, function (response) {
+function getCusName(groupId, auction_month) {
+    $.post('api/auction_files/get_customerName_list.php', {
+        group_id: groupId,
+        auction_month: auction_month // Send auction month to the server
+    }, function (response) {
         cus_name.clearStore();
 
-        let items = response.map(function (val) {
-            return {
+        // Initialize an array with the "Company" option as the first element
+        let items = [{
+            value: -1,
+            label: 'Company',
+            selected: false
+        }];
+
+        // Map the response to the desired format, starting from the second element
+        response.forEach(function (val) {
+            items.push({
                 value: val.id,
                 label: val.cus_name,
                 selected: false
-            };
+            });
         });
 
+        // Set the choices with the new items array
         cus_name.setChoices(items, 'value', 'label', true);
     }, 'json');
 }
-
 
 function populateDates() {
     var $grpDateSelect = $('#grp_date');
