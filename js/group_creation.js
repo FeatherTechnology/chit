@@ -6,16 +6,16 @@ $(document).ready(function () {
         getGroupCreationTable();
         $('#branch_name_edit').val('')
         $('#auction_modal_btn')
-        .removeAttr('data-toggle')
-        .removeAttr('data-target');
+            .removeAttr('data-toggle')
+            .removeAttr('data-target');
         $('#add_cus_map')
             .removeAttr('data-toggle')
             .removeAttr('data-target');
-            $('#reset_clear').show();
-            $('#group_clear').show(); // Show reset button
-            $('#submit_group_info').show();
-            $('#submit_group_details').show();
-            $('#submit_cus_map').show();
+        $('#reset_clear').show();
+        $('#group_clear').show(); // Show reset button
+        $('#submit_group_info').show();
+        $('#submit_group_details').show();
+        $('#submit_cus_map').show();
     });
 
 
@@ -24,7 +24,7 @@ $(document).ready(function () {
     });
 
 
-    $('#total_members,#chit_value').change(function () {
+    $('#total_members,#chit_value,#total_month').change(function () {
         getCusModal()
     });
 
@@ -108,7 +108,7 @@ $(document).ready(function () {
                     swalError('Error', 'Group Info Not Submitted');
                     $('#groupid').val('');
                     $('#group_creation').trigger('reset');
-                  
+
                 }
             }, 'json').fail(function () {
                 swalError('Error', 'Request failed. Please try again.');
@@ -118,26 +118,53 @@ $(document).ready(function () {
         }
     });
     ////////////////////////////////////////////////////////////// Customer Mapping Start//////////////////////////////////////////////////////////////////
+    $('#add_cus_map').click(function(event){
+        event.preventDefault(); // Prevent the default form submission
+        $('#joining_month').css('border', '1px solid #cecece');
+        $('#cus_name').css('border', '1px solid #cecece');
+
+
+    })
     $('#submit_cus_map').click(function (event) {
         event.preventDefault(); // Prevent the default form submission
-
-        let cus_name = $('#cus_name').val();
-        let group_id = $('#group_id').val();
-        let total_members = $('#total_members').val();
-          let chit_value= $('#chit_value').val().replace(/,/g, '');
-        if (cus_name !== '' && group_id !== '') {
+    
+        let cus_name = $('#cus_name').val().trim(); // Trim to remove any extra spaces
+        let group_id = $('#group_id').val().trim();
+        let total_members = $('#total_members').val().trim();
+        let chit_value = $('#chit_value').val().replace(/,/g, '').trim();
+        let joining_month = $('#joining_month').val().trim();
+        
+        // Fields that are required for validation
+        var isValid = true;
+        
+        // Validate cus_name and joining_month explicitly
+        if (!cus_name) {
+            validateField(cus_name, 'cus_name'); // Assuming validateField sets a warning
+            isValid = false;
+        }
+        if (!joining_month) {
+            validateField(joining_month, 'joining_month');
+            isValid = false;
+        }
+    
+        // Submit only if both fields are valid
+        if (isValid && group_id !== '') {
             $.post('api/group_creation_files/submit_cus_mapping.php', {
                 cus_name: cus_name,
                 group_id: group_id,
                 total_members: total_members,
-                chit_value:chit_value,
+                chit_value: chit_value,
+                joining_month: joining_month
             }, function (response) {
                 let result = response.result;
-
+    
                 if (result === 1) {
                     // Success
                     getCusMapTable(); // Refresh the customer mapping table
                     $('#cus_name').val(''); // Clear the input field
+                    $('#joining_month').val('');
+                    $('#joining_month').css('border', '1px solid #cecece');
+                    $('#cus_name').css('border', '1px solid #cecece');
                 } else if (result === 2) {
                     // Failure
                     swalError('Error', 'An error occurred while processing the request.');
@@ -148,6 +175,7 @@ $(document).ready(function () {
             }, 'json');
         }
     });
+    
 
     $(document).on('click', '.cusMapDeleteBtn', function () {
         let id = $(this).attr('value');
@@ -157,14 +185,14 @@ $(document).ready(function () {
     //////////////////////////////////////////////////////////////auction Details/////////////////////////////////////////////////////////
     $('#submit_group_details').click(function (event) {
         event.preventDefault();
-    
+
         let groupId = $('#group_id').val();
         let groupDate = $('#grp_date').val();
         let chitValue = parseFloat($('#chit_value').val().replace(/,/g, '')); // Parse chitValue as a float
-    
+
         // Initialize a flag to check validation
         let isValid = true;
-    
+
         // Collect table data
         let auctionDetails = [];
         $('#grp_details_table tbody tr').each(function () {
@@ -172,7 +200,7 @@ $(document).ready(function () {
             let monthName = $(this).find('.month_name').text();
             let lowValue = parseFloat($(this).find('.low_value').val().replace(/,/g, '')); // Parse lowValue as a float
             let highValue = parseFloat($(this).find('.high_value').val().replace(/,/g, '')); // Parse highValue as a float
-    
+
             // Validate that low_value and high_value are filled
             if (!lowValue || !highValue) {
                 isValid = false;
@@ -181,7 +209,7 @@ $(document).ready(function () {
             } else {
                 $(this).find('.low_value').css('border-color', '');
                 $(this).find('.high_value').css('border-color', '');
-    
+
                 // Validate that high_value is less than or equal to chit_value
                 if (highValue > chitValue) {
                     isValid = false;
@@ -189,7 +217,7 @@ $(document).ready(function () {
                     swalError('Warning', 'High value cannot be greater than Chit Value.');
                 }
             }
-    
+
             auctionDetails.push({
                 auction_month: auctionMonth,
                 month_name: monthName,
@@ -197,21 +225,21 @@ $(document).ready(function () {
                 high_value: highValue
             });
         });
-    
+
         // Show an alert if any fields are invalid
         if (!isValid) {
             return; // Prevent further execution if validation fails
         }
-    
+
         // Perform the min-max validation
         checkMinMaxValue('.low_value', '.high_value');
-    
+
         // Check if any fields were marked as invalid (red border) by checkMinMaxValue
-        if ($('#grp_details_table tbody tr').find('.low_value, .high_value').filter(function() { return $(this).css('border-color') === 'rgb(255, 0, 0)'; }).length > 0) {
+        if ($('#grp_details_table tbody tr').find('.low_value, .high_value').filter(function () { return $(this).css('border-color') === 'rgb(255, 0, 0)'; }).length > 0) {
             swalError('Warning', 'Low value cannot be greater than high value.');
             return; // Prevent form submission if any fields are invalid
         }
-    
+
         // Send data to the PHP script if validation passes
         $.post('api/group_creation_files/submit_auction_details.php', {
             group_id: groupId,
@@ -228,8 +256,8 @@ $(document).ready(function () {
             swalError('Error', 'Failed to communicate with the server.');
         });
     });
-    
-    
+
+
     ///////////////////////////////////////////////////////////////////auction details End//////////////////////////////////////////
     $(document).on('click', '.edit-group-creation', function () {
         let id = $(this).attr('value');
@@ -239,7 +267,7 @@ $(document).ready(function () {
         editGroupCreation(id)
 
     });
-    
+
 }); //document END////
 
 $(function () {
@@ -270,8 +298,8 @@ function checkDashboardData() {
 
 function getGroupCreationTable() {
     serverSideTable('#group_creation_table', '', 'api/group_creation_files/get_grp_creation_list.php');
-    
-    $('#group_creation_table').on('init.dt', function(){
+
+    $('#group_creation_table').on('init.dt', function () {
         checkDashboardData(); //Call function after the table loaded.
     });
 }
@@ -306,7 +334,7 @@ function swapTableAndCreation() {
         $('#back_btn').hide();
         $('#customer_mapping').trigger('click');
 
-        localStorage.setItem('dashboardGrp','');
+        localStorage.setItem('dashboardGrp', '');
     }
 }
 function getAutoGenGroupId(id) {
@@ -319,6 +347,7 @@ function callGrpFunctions() {
     // getDateDropDown()
     getBranchList();
     getCustomerList();
+    getJoiningMonth()
 }
 function getBranchList() {
     $.post('api/common_files/get_branch_list.php', function (response) {
@@ -347,12 +376,34 @@ function getCustomerList() {
         $('#cus_name').empty().append(cusOptn);
     }, 'json');
 }
+$('#total_month').on('input', function () {
+    getJoiningMonth(); // Ensure correct function name is called
+});
+function getJoiningMonth() {
+    let total_month = $('#total_month').val(); // Get the total month value
+    let joiningMonthDropdown = $('#joining_month'); // Reference to the dropdown
+
+    // Clear existing options
+    joiningMonthDropdown.empty();
+
+    // Add the default option
+    joiningMonthDropdown.append('<option value="">Select Joining Month</option>');
+
+    // Check if total_month is a valid number
+    if (total_month > 0) {
+        // Loop through the months and add options
+        for (let i = 1; i <= total_month; i++) {
+            joiningMonthDropdown.append(`<option value="${i}">${i}</option>`);
+        }
+    }
+}
 
 function getCusMapTable() {
     let total_members = $('#total_members').val();
-    let chit_value= $('#chit_value').val().replace(/,/g, '');
-    if (total_members === '' || chit_value ==='') {
-        swalError('Alert', 'Kindly Fill the Total Members and Chit Value!')
+    let chit_value = $('#chit_value').val().replace(/,/g, '');
+    let total_month = $('#total_month').val();
+    if (total_members === '' || chit_value === '' || total_month === '') {
+        swalError('Alert', 'Kindly Fill the Total Members,Chit Value and Total Month!')
         return;
     }
     let group_id = $('#group_id').val();
@@ -397,8 +448,9 @@ function getModalAttr() {
 
 function getCusModal() {
     let total_members = $('#total_members').val();
-    let chit_value= $('#chit_value').val().replace(/,/g, '');
-    if (total_members != '' && chit_value !='' ) {
+    let chit_value = $('#chit_value').val().replace(/,/g, '');
+    let total_month = $('#total_month').val();
+    if (total_members != '' && chit_value != '' && total_month != '') {
         $('#add_cus_map')
             .attr('data-toggle', 'modal')
             .attr('data-target', '#add_cus_map_modal');
@@ -533,7 +585,7 @@ function getDateDropDown(editDId) {
 }
 
 function hideSubmitButton(status) {
-    if (status >2) {
+    if (status > 2) {
         // Hide the reset button and submit buttons
         $('#back_btn').show();
         $('#reset_clear').hide();
@@ -570,39 +622,39 @@ function editGroupCreation(id) {
         $('#end_month').val(response[0].end_month);
         $('#branch_name_edit').val(response[0].branch);
         $('#grace_period').val(response[0].grace_period);
-    
+
         let editDId = response[0].date;
         getDateDropDown(editDId);
         callGrpFunctions();
-    
+
         setTimeout(() => {
             getAutoGenGroupId(id);
-    
+
             $('#grp_date').trigger('change');
             $('#branch').trigger('change');
-            
-            $.post('api/group_creation_files/fetch_group_status.php', { group_id: response[0].grp_id }, function(statusResponse) {
+
+            $.post('api/group_creation_files/fetch_group_status.php', { group_id: response[0].grp_id }, function (statusResponse) {
                 let status = parseInt(statusResponse, 10);
                 hideSubmitButton(status);
-    
+
                 // Store original values for the specific group
                 let originalValues = {};
-                $('#group_creation').find('input, select, textarea').each(function() {
+                $('#group_creation').find('input, select, textarea').each(function () {
                     originalValues[$(this).attr('id')] = $(this).val();
                 });
-    
+
                 // Flag to track if the form has changed
                 let formChanged = false;
-    
+
                 // Attach the change event listener to all input, select, and textarea elements within the form
-                $('#group_creation').on('keyup change paste', 'input, select, textarea', function() {
+                $('#group_creation').on('keyup change paste', 'input, select, textarea', function () {
                     checkFormChange();
                 });
-    
+
                 // Function to check if the form has changed
                 function checkFormChange() {
                     formChanged = false;
-                    $('#group_creation').find('input, select, textarea').each(function() {
+                    $('#group_creation').find('input, select, textarea').each(function () {
                         let id = $(this).attr('id');
                         if ($(this).val() !== originalValues[id]) {
                             formChanged = true;
@@ -611,7 +663,7 @@ function editGroupCreation(id) {
                     });
                     handleFormAction();
                 }
-    
+
                 // Function to handle form submission or any other action
                 function handleFormAction() {
                     if (formChanged && status <= 2) {
@@ -620,16 +672,16 @@ function editGroupCreation(id) {
                         $('#back_btn').show();
                     }
                 }
-    
+
                 // Clean up event listeners when leaving edit mode
-                $('#submit_group_info').click(function() {
+                $('#submit_group_info').click(function () {
                     $('#group_creation').removeClass('edit-mode');
                     $('#group_creation').off('keyup change paste');
                 });
-    
+
             }, 'json');
         }, 1000);
-    
+
         getModalAttr();
         getCusModal();
     }, 'json');
@@ -648,7 +700,7 @@ $('button[type="reset"],#back_btn').click(function (event) {
         $(this).val($(this).find('option:first').val());
 
     });
-   
+
     $('#group_creation input').css('border', '1px solid #cecece');
     $('#group_creation select').css('border', '1px solid #cecece');
 
