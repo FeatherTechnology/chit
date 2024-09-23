@@ -3,9 +3,9 @@ require '../../ajaxconfig.php';
 
 $response = array();
 $auction_status = [1 => 'In Auction', 2 => 'Finished', 3 => 'Finished'];
-$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current',4=>'Closed'];
+$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current', 4 => 'Closed'];
 
-if (isset($_POST['group_id'])) { 
+if (isset($_POST['group_id'])) {
     $group_id = $_POST['group_id'];
     $currentMonth = date('m'); // Get the current month
     $currentYear = date('Y'); // Get the current year
@@ -16,7 +16,10 @@ if (isset($_POST['group_id'])) {
                     ad.auction_month,
                     DATE_FORMAT(ad.date, '%d-%m-%Y') AS auction_date,
                     ad.auction_value,
-                    COALESCE(CONCAT(cc.first_name, ' ', cc.last_name), '') AS cus_name,
+                    CASE 
+        WHEN ad.cus_name = '-1' THEN 'Company' -- Handle the case where cus_name is -1 (Company)
+        ELSE COALESCE(CONCAT(cc.first_name, ' ', cc.last_name), '') -- Concatenate first and last name
+    END AS cus_name,
                     ad.status as auction_status,
                     gc.status as grp_status,
                     gc.grp_id  
@@ -29,7 +32,7 @@ if (isset($_POST['group_id'])) {
                     OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <= $currentMonth)
                 )
                 ORDER BY ad.auction_month ASC";
-        
+
         // Execute the query
         $stmt = $pdo->query($qry);
 
@@ -63,11 +66,9 @@ if (isset($_POST['group_id'])) {
                 $row['collection_status'] = $all_paid ? 'Completed' : 'In Collection';
                 $row['auction_status'] = $auction_status[$row['auction_status']] ?? '';
                 $row['grp_status'] = $status_arr[$row['grp_status']] ?? '';
-                
+
                 // Add the action button HTML to the row
                 $row['action'] = "<button class='btn btn-primary collectionActionBtn' data-value='{$row['grp_id']}_{$row['auction_month']}'>&nbsp;Collection Chart</button>";
-
-
             }
 
             // Return the processed data
@@ -75,7 +76,6 @@ if (isset($_POST['group_id'])) {
         } else {
             echo json_encode([]);
         }
-
     } catch (PDOException $e) {
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -83,4 +83,3 @@ if (isset($_POST['group_id'])) {
     // Close the PDO connection
     $pdo = null;
 }
-?>

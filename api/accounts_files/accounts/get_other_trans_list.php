@@ -3,7 +3,7 @@ require "../../../ajaxconfig.php";
 @session_start();
 $user_id = $_SESSION['user_id'];
 
-$trans_cat = ["1" => 'Deposit', "2" => 'Investment', "3" => 'EL', "4" => 'Exchange', "5" => 'Bank Deposit', "6" => 'Bank Withdrawal', "7" => 'Loan Advance', "8" => 'Other Income',"9"=>'Bank Unbilled'];
+$trans_cat = ["1" => 'Deposit', "2" => 'Investment', "3" => 'EL', "4" => 'Exchange', "5" => 'Bank Deposit', "6" => 'Bank Withdrawal', "7" => 'Chit Advance', "8" => 'Other Income',"9"=>'Bank Unbilled'];
 $cash_type = ["1" => 'Hand Cash', "2" => 'Bank Cash'];
 $crdr = ["1" => 'Credit', "2" => 'Debit'];
 $trans_list_arr = array();
