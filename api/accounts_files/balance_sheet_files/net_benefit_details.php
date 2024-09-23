@@ -27,10 +27,7 @@ if ($type == 'today') {
 }
 
 $result = array();
-
-// Query to get the chit value, commission, total members, and how many paid today
-$qry = $pdo->query("
-   SELECT 
+$qry = $pdo->query("SELECT 
     gc.grp_id, 
     gc.chit_value, 
     gc.commission, 
@@ -67,11 +64,10 @@ WHERE
     )
 GROUP BY 
     gc.grp_id
- 
 HAVING 
     COUNT(DISTINCT c.cus_mapping_id) > 0;
-
 "); 
+
 
 $benefit = 0;
 if ($qry->rowCount() > 0) {
