@@ -12,7 +12,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 if (isset($data['data']) && is_array($data['data'])) {
     $tableData = $data['data'];
 
-    // Prepare SQL statement with corrected syntax
+    // Prepare SQL statement for inserting auction details into auction_modal
     $stmt = $pdo->prepare("INSERT INTO auction_modal (auction_id, group_id, date, cus_name, value, inserted_login_id, created_on) VALUES (:auction_id, :group_id, :date, :cus_name, :value, :user_id, NOW())");
 
     foreach ($tableData as $entry) {
@@ -49,21 +49,28 @@ if (isset($data['data']) && is_array($data['data'])) {
         $max_value = $maxResult['value'];
         $cus_name = $maxResult['cus_name'];
 
+        // If cus_name is -1, update status to 3 in auction_details table
+        $status = ($cus_name == -1) ? 3 : 2;
+
         // Update the auction_details table
-        $updateDetailsQuery = "UPDATE auction_details SET auction_value = ?, cus_name = ?, status = 2, `update_login_id` = '$user_id', `updated_on` = NOW() WHERE group_id = ? AND date = ?";
+        $updateDetailsQuery = "UPDATE auction_details SET auction_value = ?, cus_name = ?, status = ?, `update_login_id` = '$user_id', `updated_on` = NOW() WHERE group_id = ? AND date = ?";
         $stmt = $pdo->prepare($updateDetailsQuery);
-        if (!$stmt->execute([$max_value, $cus_name, $group_id, $date])) {
+        if (!$stmt->execute([$max_value, $cus_name, $status, $group_id, $date])) {
             echo json_encode(['success' => false, 'message' => 'Failed to update auction_details table.']);
             exit;
         }
 
-        // Update status to 3 in group_creation table
-        $updateGroupQuery = "UPDATE group_creation SET status = 3, `update_login_id` = '$user_id', `updated_on` = NOW() WHERE grp_id = ?";
-        $stmt = $pdo->prepare($updateGroupQuery);
-        if (!$stmt->execute([$group_id])) {
-            echo json_encode(['success' => false, 'message' => 'Failed to update group_creation table.']);
-            exit;
-        }
+        // Update status to 3 in group_creation table if status is 3 
+            $updateGroupQuery = "UPDATE group_creation SET status = 3, `update_login_id` = '$user_id', `updated_on` = NOW() WHERE grp_id = ?";
+            $stmt = $pdo->prepare($updateGroupQuery);
+            if (!$stmt->execute([$group_id])) {
+                echo json_encode(['success' => false, 'message' => 'Failed to update group_creation table.']);
+                exit;
+            }
+     
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No auction details found.']);
+        exit;
     }
 
     echo json_encode(['success' => true]);

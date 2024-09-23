@@ -19,7 +19,19 @@ if ($c_cr_b_qry->rowCount() > 0) {
 } else {
     $c_cr_b = 0;
 }
-
+// settlement
+$s_cr_h_qry = $pdo->query("SELECT SUM(settle_cash) AS settlr_cr_amnt FROM settlement_info WHERE settle_type = 1 AND DATE(created_on) = CURDATE() "); //Hand Cash
+if ($s_cr_h_qry->rowCount() > 0) {
+    $s_cr_h = $s_cr_h_qry->fetch()['settlr_cr_amnt'];
+} else {
+    $s_cr_h = 0;
+}
+$s_cr_b_qry = $pdo->query("SELECT SUM(cheque_val + transaction_val) AS settlr_br_amnt FROM settlement_info WHERE settle_type >= 2 AND DATE(created_on) = CURDATE()"); //Hand Cash
+if ($s_cr_b_qry->rowCount() > 0) {
+    $s_cr_b = $s_cr_b_qry->fetch()['settlr_br_amnt'];
+} else {
+    $s_cr_b= 0;
+}
 //Expenses Debit.
 $e_dr_h_qry = $pdo->query("SELECT SUM(amount) AS exp_dr_amnt FROM expenses WHERE coll_mode = 1 AND DATE(created_on) = CURDATE() "); //Hand Cash
 if ($e_dr_h_qry->rowCount() > 0) {
@@ -65,9 +77,9 @@ if ($ot_dr_b_qry->rowCount() > 0) {
 }
 
 $hand_cr = intval($c_cr_h) + intval($ot_cr_h);
-$hand_dr = intval($e_dr_h) + intval($ot_dr_h);
+$hand_dr = intval($e_dr_h) + intval($ot_dr_h)+intval($s_cr_h);
 $bank_cr = intval($c_cr_b) + intval($ot_cr_b);
-$bank_dr = intval($e_dr_b) + intval($ot_dr_b);
+$bank_dr = intval($e_dr_b) + intval($ot_dr_b)+intval($s_cr_b);
 
 $closing_data[0]['hand_cash'] = intval($hand_cr) - intval($hand_dr);
 $closing_data[0]['bank_cash'] = intval($bank_cr) - intval($bank_dr);
