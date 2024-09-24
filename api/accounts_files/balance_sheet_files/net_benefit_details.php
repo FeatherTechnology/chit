@@ -2,15 +2,11 @@
 require "../../../ajaxconfig.php";
 
 $type = $_POST['type'];
+$user_id = isset($_POST['user_id']) ? $_POST['user_id'] : ''; // Check if user_id is set
+$userwhere = $user_id != '' ? " AND insert_login_id = '" . $user_id . "' " : ''; // User-based filtering
+$siuserswhere = $user_id != '' ? " AND c.insert_login_id = '" . $user_id . "' " : ''; // Settlement info user-based filtering    
 
-if ($_POST['user_id'] != '') {
-    $userwhere = " AND insert_login_id = '" . $_POST['user_id'] . "' ";
-    $siuserswhere = " AND c.insert_login_id = '" . $_POST['user_id'] . "' ";
-} else {
-    $userwhere = '';
-    $siuserswhere = '';
-}
-
+// Date conditions based on type (today, day range, or month)
 if ($type == 'today') {
     $where = " DATE(created_on) = CURRENT_DATE $userwhere";
     $siwhere = " DATE(c.collection_date) = CURRENT_DATE $siuserswhere";
@@ -27,70 +23,196 @@ if ($type == 'today') {
 }
 
 $result = array();
-$qry = $pdo->query("SELECT 
+$excluded_customers = array(); // Array to store customers who don't meet the conditions
+
+// Query to get group information and total paid members
+$qry = $pdo->query("
+  SELECT 
+    c.auction_id, 
     gc.grp_id, 
     gc.chit_value, 
     gc.commission, 
+    c.cus_mapping_id, 
     COUNT(DISTINCT c.cus_mapping_id) AS total_paid_members, 
-    gc.total_members
+    gc.total_members 
 FROM 
-    group_creation gc
-LEFT JOIN 
-    collection c ON c.group_id = gc.grp_id 
+    collection c 
+JOIN 
+    group_creation gc ON c.group_id = gc.grp_id 
 WHERE 
-  $siwhere
-    AND (
-        -- Condition 1: Full payment without pending in auction month
-        (c.auction_month = 1 AND c.collection_amount >= c.payable)
-        
-        -- Condition 2: Partial payment in the auction month with no pending
-        OR (c.auction_month = 1 AND c.collection_amount < c.payable AND 
-            NOT EXISTS (
-                SELECT 1 
-                FROM collection c2 
-                WHERE c2.cus_mapping_id = c.cus_mapping_id 
-                AND c2.auction_month = c.auction_month 
-                AND c2.collection_amount < c.payable
-            )
-        )
-        
-        -- Condition 3: Payments in the following auction months with no pending
-        OR (c.auction_month > 1 AND 
-            (SELECT SUM(collection_amount) 
-             FROM collection c2 
-             WHERE c2.cus_mapping_id = c.cus_mapping_id 
-             AND c2.auction_month < c.auction_month) + c.collection_amount >= c.payable
-        )
-    )
+    $siwhere 
 GROUP BY 
-    gc.grp_id
-HAVING 
-    COUNT(DISTINCT c.cus_mapping_id) > 0;
-"); 
+    gc.grp_id, c.cus_mapping_id;
+");
 
+$benefit = 0; // Initialize benefit variable
 
-$benefit = 0;
-if ($qry->rowCount() > 0) {
-    while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
-        // Calculate benefit
-        $commission_value = ($row['chit_value'] * $row['commission']) / 100;
-        $benefit_per_group = ($commission_value / $row['total_members']) * $row['total_paid_members'];
-        $benefit += $benefit_per_group; 
+// Loop through each group to calculate benefits
+while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
+    $auction_id = $row['auction_id'];
+    $group_id = $row['grp_id'];
+    $cus_mapping_id = $row['cus_mapping_id'];
+    $chit_amount = 0;
+    $final_val = 0; // Initialize final_val for each iteration
+
+    // Fetch chit amount and auction date for the specific auction ID
+    $auctionQry = $pdo->query("
+        SELECT 
+            ad.date AS auction_date,
+            ad.chit_amount
+        FROM 
+            auction_details ad
+        WHERE 
+            ad.id = '$auction_id'
+        LIMIT 1
+    ");
+
+    if ($auctionQry->rowCount() > 0) {
+        $auctionRow = $auctionQry->fetch(PDO::FETCH_ASSOC);
+        $chit_amount = $auctionRow['chit_amount'];
+        $start_date = $auctionRow['auction_date']; // Start date from auction ID
+    } else {
+        continue; // Skip this iteration if no auction data is found
+    }
+
+    // Get the next auction date
+    $nextAuctionQry = $pdo->query("
+        SELECT 
+            ad.date AS auction_date
+        FROM 
+            auction_details ad
+        WHERE 
+            ad.id = (SELECT MIN(id) FROM auction_details WHERE id > '$auction_id' AND group_id = '$group_id')
+        LIMIT 1
+    ");
+
+    $end_date = ($nextAuctionQry->rowCount() > 0) 
+        ? $nextAuctionQry->fetch(PDO::FETCH_ASSOC)['auction_date'] 
+        : null;
+
+    // Get the collection amount for the specific group and date range
+    $qry1 = $pdo->query("
+        SELECT 
+            SUM(c1.collection_amount) AS total_collection 
+        FROM 
+            collection c1 
+        WHERE 
+            c1.cus_mapping_id ='$cus_mapping_id' AND group_id = '$group_id'
+            AND c1.collection_date BETWEEN '$start_date' AND IFNULL('$end_date', NOW())
+    ");
+
+    $collection_data = $qry1->fetch(PDO::FETCH_ASSOC);
+    $collection_amount = $collection_data['total_collection'] ?: 0; // Get total collection or default to 0 
+
+    // Calculate commission based on the chit value and commission percentage
+    $commission_value = ($row['chit_value'] * $row['commission']) / 100;
+    $total_chit = $chit_amount - $commission_value;
+    $difference = $collection_amount - $total_chit;
+
+    if ($total_chit >= $collection_amount) {
+        // Add current auction ID to the excluded customers list
+        if (!isset($excluded_customers[$cus_mapping_id])) {
+            $excluded_customers[$cus_mapping_id] = array(); // Initialize the array for this customer
+        }
+
+        $excluded_customers[$cus_mapping_id][] = $auction_id; // Add the auction ID to the customer's list
+
+    } else {
+        // Conditions met, proceed with benefit calculation
+        if ($commission_value >= $difference) {
+            $final_val = 0; // No additional value if commission fully covers the difference
+        } else {
+            $final_val = $difference - $commission_value;
+        }
+
+        // Get the previous auction ID
+        $prevAuctionQry = $pdo->query("
+            SELECT 
+                ad.id AS previous_auction_id
+            FROM 
+                auction_details ad
+            WHERE 
+                ad.id = (SELECT MAX(id) FROM auction_details WHERE id < '$auction_id' AND group_id = '$group_id')
+            LIMIT 1
+        ");
+
+        if ($prevAuctionQry->rowCount() > 0) {
+            $prevAuctionRow = $prevAuctionQry->fetch(PDO::FETCH_ASSOC);
+            $previous_auction_id = $prevAuctionRow['previous_auction_id']; // Fetch previous auction ID
+
+            // Add the previous auction ID to the customer's list
+            $excluded_customers[$cus_mapping_id][] = $previous_auction_id;
+        }
+
+        // Loop through excluded auction IDs and fetch collection amounts
+        if (isset($excluded_customers[$cus_mapping_id]) && is_array($excluded_customers[$cus_mapping_id])) {
+            foreach ($excluded_customers[$cus_mapping_id] as $excluded_auction_id) {
+                $qry2 = $pdo->query("
+                    SELECT SUM(c1.collection_amount) AS prev_total_collect 
+                    FROM collection c1 
+                    WHERE c1.cus_mapping_id = '$cus_mapping_id' 
+                      AND group_id = '$group_id' 
+                      AND c1.auction_id = '$excluded_auction_id';
+                ");
+                $prev_collection_data = $qry2->fetch(PDO::FETCH_ASSOC);
+                $prev_total_collect = $prev_collection_data['prev_total_collect'] ?: 0;
+
+                // Calculate the new total with previous collections
+                $final_val += $prev_total_collect;
+            }
+        }
+
+        // Check if total members is greater than zero to avoid division by zero
+        if ($row['total_members'] > 0) {
+            // Calculate benefit per group
+            $benefit_per_group = ($commission_value / $row['total_members']) * $row['total_paid_members'];
+            $benefit += $benefit_per_group;
+        }
     }
 }
 
-// Other Income
-$qry3 = $pdo->query("SELECT COALESCE(SUM(amount), 0) AS oi_dr FROM `other_transaction` WHERE trans_cat = '8' AND type = '1' AND $where "); 
-$oicr = $qry3->fetchColumn() ?: 0;
+// Check conditions for excluded customers after the while loop
+foreach ($excluded_customers as $cus_mapping_id => $auction_ids) {
+    foreach ($auction_ids as $auction_id) {
+        $prevAuctionQry = $pdo->query("
+        SELECT 
+            ad.id AS previous_auction_id
+        FROM 
+            auction_details ad
+        WHERE 
+            ad.id = (SELECT MAX(id) FROM auction_details WHERE id < '$auction_id' AND group_id = '$group_id')
+        LIMIT 1
+    ");
 
-// Expenses
-$qry4 = $pdo->query("SELECT COALESCE(SUM(amount), 0) AS exp_dr FROM `expenses` WHERE $where "); 
-$expdr = $qry4->fetchColumn() ?: 0;
+        if ($prevAuctionQry->rowCount() > 0) {
+            $prevAuctionRow = $prevAuctionQry->fetch(PDO::FETCH_ASSOC);
+            $previous_auction_id = $prevAuctionRow['previous_auction_id']; // Fetch previous auction ID
 
-// Prepare result
-$result[0]['benefit'] = $benefit;
-$result[0]['oicr'] = $oicr;
-$result[0]['expdr'] = $expdr;
+            // Add the previous auction ID to the customer's list
+            $excluded_customers[$cus_mapping_id][] = $previous_auction_id;
+        }
+    }
+    if (isset($excluded_customers[$cus_mapping_id]) && is_array($excluded_customers[$cus_mapping_id])) {
+        foreach ($excluded_customers[$cus_mapping_id] as $excluded_auction_id) {
+            $qry2 = $pdo->query("
+                SELECT SUM(c1.collection_amount) AS prev_total_collect 
+                FROM collection c1 
+                WHERE c1.cus_mapping_id = '$cus_mapping_id' 
+                  AND group_id = '$group_id' 
+                  AND c1.auction_id = '$excluded_auction_id';
+            ");
+            $prev_collection_data = $qry2->fetch(PDO::FETCH_ASSOC);
+            $prev_total_collect = $prev_collection_data['prev_total_collect'] ?: 0;
 
-// Output result as JSON
-echo json_encode($result);
+            // Calculate the new total with previous collections
+            $final_val += $prev_total_collect;
+        }
+    }
+}
+
+// Calculate and prepare the final result
+$result[0]['benefit'] = $benefit; // Total benefit value calculated
+$result['excluded_customers'] = $excluded_customers; // List of excluded customers
+
+echo json_encode($result); // Return result as JSON
+?>
