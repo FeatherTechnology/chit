@@ -162,7 +162,35 @@ $(document).ready(function () {
             $('#othertransaction_bank_name').val('').attr('disabled', true);
         }
     });
-
+    $('#trans_category').change(function () {
+        let category = $(this).val();
+        if (category == '7') {
+            $('#grp_id_cont').show();
+            $('#name_id_cont').hide(); 
+            $('#name_modl_btn').hide();
+            getGroupID();
+        } else {
+            $('#grp_id_cont').hide(); // Hide the group ID container for other categories
+            $('#mem_id_cont').hide(); 
+            $('#name_id_cont').show(); 
+            $('#name_modl_btn').show();
+            $('.other_month_div').hide();
+            $('#other_amnt').prop('readonly', false);
+        }
+    });
+    $('#group_id').change(function () {
+        let  group_id = $(this).val();
+        $('#name_id_cont').hide();
+        $('#name_modl_btn').hide();
+        $('#grp_id_cont').show(); 
+        $('#mem_id_cont').show(); 
+        $('.other_month_div').show();
+        getgroupMember(group_id);    
+        getAuctionMonth(group_id);
+        settleAmount(group_id);
+        $('#other_amnt').prop('readonly', true);
+        
+    });
     $('#trans_category').change(function () {
         let category = $(this).val();
         if (category != '') {
@@ -181,11 +209,11 @@ $(document).ready(function () {
 
         let catTypeOptn = '';
         catTypeOptn += "<option value=''>Select Type</option>";
-        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9') { //credit / debit
+        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9'|| category == '7') { //credit / debit
             catTypeOptn += "<option value='1'>Credit</option>";
             catTypeOptn += "<option value='2'>Debit</option>";
 
-        } else if (category == '5' || category == '7') { //debit
+        } else if (category == '5') { //debit
             catTypeOptn += "<option value='2'>Debit</option>";
 
         } else if (category == '6' || category == '8') { //credit
@@ -215,6 +243,7 @@ $(document).ready(function () {
 
     $('.name_close').click(function () {
         $('#add_other_transaction_modal').show();
+        
         nameDropDown();
         $('#other_name').val('');
     });
@@ -249,12 +278,15 @@ $(document).ready(function () {
         let otherTransData = {
             'coll_mode': $("input[name='othertransaction_cash_type']:checked").val(),
             'bank_id': $('#othertransaction_bank_name :selected').val(),
+            'group_id': $('#group_id :selected').val(),
+            'group_mem': $('#group_mem :selected').val(),
             'trans_category': $('#trans_category :selected').val(),
             'other_trans_name': $('#other_trans_name :selected').val(),
             'cat_type': $('#cat_type :selected').val(), // Debit or Credit
             'other_ref_id': $('#other_ref_id').val(),
             'other_trans_id': $('#other_trans_id').val(),
             'other_amnt': parseFloat($('#other_amnt').val()),
+            'auction_month': parseFloat($('#auction_month').val()),
             'other_remark': $('#other_remark').val()
         };
 
@@ -318,7 +350,7 @@ $(document).ready(function () {
                 }
 
                 // Proceed if all validations pass
-                if (otherTransFormValid(otherTransData)) {
+                //if (otherTransFormValid(otherTransData)) {
                     $.post('api/accounts_files/accounts/submit_other_transaction.php', otherTransData, function (response) {
                         if (response == '1') {
                             swalSuccess('Success', 'Other Transaction added successfully.');
@@ -328,9 +360,9 @@ $(document).ready(function () {
                             swalError('Error', 'Failed to add transaction.');
                         }
                     }, 'json');
-                } else {
-                    swalError('Warning', 'Please fill all required fields.');
-                }
+                // //} else {
+                //     swalError('Warning', 'Please fill all required fields.');
+                // }
             });
         }, 'json');
     });
@@ -393,8 +425,51 @@ function getOpeningBal() {
         getClosingBal();
     });
 }
-
-
+ function getGroupID(){
+    $.post('api/accounts_files/accounts/getGroupid.php', function (response) {
+        let appendOption = '';
+        appendOption += "<option value=''>Select Group Name</option>";
+        $.each(response, function (index, val) {
+            appendOption += "<option value='" + val.grp_id + "'>" + val.grp_id + "</option>";
+        });
+        $('#group_id').empty().append(appendOption);
+    }, 'json');
+ }
+function getgroupMember(group_id){
+    $.post('api/accounts_files/accounts/getGroupmember.php',{group_id}, function (response) {
+        let appenderOption = '';
+        appenderOption += "<option value=''>Select Group Member</option>";
+        $.each(response, function (index, val) {
+            appenderOption += "<option value='" + val.id + "'>" + val.cus_name + "</option>";
+        });
+        $('#group_mem').empty().append(appenderOption);
+    }, 'json');
+}
+function getAuctionMonth(group_id) {
+    // Post the group_id to the PHP script and handle the response
+    $.post('api/accounts_files/accounts/getAuctionMonth.php', { group_id: group_id }, function (response) {
+        // Check if the response has any data
+        if (response.length > 0) {
+            $('#auction_month').val(response[0].auction_month);
+        } else {
+            $('#auction_month').val(''); // Clear the field if no data is returned
+        }
+    }, 'json').fail(function() {
+        $('#auction_month').val(''); // Clear the field if there's an error
+    });
+}
+function settleAmount(group_id){
+    $.post('api/accounts_files/accounts/getSettleAccounts.php', { group_id: group_id }, function (response) {
+        // Check if the response has any data
+        if (response.length > 0) {
+            $('#other_amnt').val(response[0].settlement_amount);
+        } else {
+            $('#other_amnt').val(''); // Clear the field if no data is returned
+        }
+    }, 'json').fail(function() {
+        $('#other_amnt').val(''); // Clear the field if there's an error
+    }); 
+}
 function getClosingBal(callback) {
     $.post('api/accounts_files/accounts/closing_balance.php', function (response) {
         if (response.length > 0) {

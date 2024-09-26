@@ -53,7 +53,7 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     $group_id = $row['grp_id'];
     $cus_mapping_id = $row['cus_mapping_id'];
     $chit_amount = 0;
-    $final_val = 0; // Initialize final_val for each iteration
+    $finl_val = 0; // Initialize final_val for each iteration
 
     // Fetch chit amount and auction date for the specific auction ID
     $auctionQry = $pdo->query("
@@ -109,13 +109,14 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     $total_chit = $chit_amount - $commission_value;
     $difference = $collection_amount - $total_chit;
 
+
     if ($chit_amount >= $collection_amount) {
         // Add current auction ID to the excluded customers list along with the group_id
-        if (!isset($excluded_customers[$cus_mapping_id])) {
-            $excluded_customers[$cus_mapping_id] = array(); // Initialize the array for this customer
+        if (!isset($exclded_customers[$cus_mapping_id])) {
+            $exclded_customers[$cus_mapping_id] = array(); // Initialize the array for this customer
         }
 
-        $excluded_customers[$cus_mapping_id][] = array(
+        $exclded_customers[$cus_mapping_id][] = array(
             'cus_mapping_id' => $cus_mapping_id,
             'auction_id' => $auction_id,
             'group_id' => $group_id
@@ -123,9 +124,9 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     } else {
         // Conditions met, proceed with benefit calculation
         if ($commission_value >= $difference) {
-            $final_val = 0; // No additional value if commission fully covers the difference
+            $finl_val = 0; // No additional value if commission fully covers the difference
         } else {
-            $final_val = $difference - $commission_value;
+            $finl_val = $difference - $commission_value;
         }
 
         // Check if total members is greater than zero to avoid division by zero
@@ -137,7 +138,6 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     }
 }
 // Get previous auction IDs
-
 $prevAuctionQry = $pdo->query("
 SELECT 
   ad.id AS previous_auction_id,
@@ -159,8 +159,6 @@ if ($prevAuctionQry->rowCount() > 0) {
     while ($prevAuctionRow = $prevAuctionQry->fetch(PDO::FETCH_ASSOC)) {
         $previous_auction_id = $prevAuctionRow['previous_auction_id']; // Get the ID of the previous auction
         $prev_chit_amount = $prevAuctionRow['prev_chit_amount']; // Get previous chit amount
-
-        // Fetch previous collection data for this auction
         $qry2 = $pdo->query("
             SELECT SUM(c1.collection_amount) AS prev_total_collect 
             FROM collection c1 
@@ -172,8 +170,8 @@ if ($prevAuctionQry->rowCount() > 0) {
         $prev_collection_data = $qry2->fetch(PDO::FETCH_ASSOC);
         $prev_total_collect = $prev_collection_data['prev_total_collect'] ?: 0;
 
-        // Add the benefit from the current auction to the previous auction's total
-        $prev_total_collect += $benefit_from_next_auction;
+        // // Add the benefit from the current auction to the previous auction's total
+        // $prev_total_collect += $benefit_from_next_auction;
 
         // Query to find commission value for this auction
         $qry3 = $pdo->query("
@@ -196,11 +194,11 @@ if ($prevAuctionQry->rowCount() > 0) {
         if ($qry3->rowCount() > 0) {
             $row = $qry3->fetch(PDO::FETCH_ASSOC);
             $commission_value = ($row['chit_value'] * $row['commission']) / 100; // Calculate commission value
-            $total_chit = $prev_chit_amount - $commission_value; // Adjust total chit based on commission
+            $total_chit_prev = $prev_chit_amount - $commission_value; // Adjust total chit based on commission
             $difference = $prev_total_collect - $total_chit;
 
             // Check if total chit amount is greater or equal to collected amount
-            if ($total_chit >= $prev_total_collect) {
+            if ($total_chit_prev >= $prev_total_collect) {
                 // Add current auction ID to the excluded customers list
                 if (!isset($excluded_customers[$cus_mapping_id])) {
                     $excluded_customers[$cus_mapping_id] = []; // Initialize the array for this customer
@@ -232,8 +230,6 @@ if ($prevAuctionQry->rowCount() > 0) {
     if (!empty($auction_ids_with_benefit)) {
         foreach ($auction_ids_with_benefit as $auction_id) {
             // Perform further actions for each auction ID with benefit
-            echo "Auction ID with benefit: " . $auction_id . "\n";
-
             // Execute your additional logic here based on auction_id
             $qry_last_auction = $pdo->query("
                 SELECT id as previous_auction_id 
@@ -266,8 +262,7 @@ if ($prevAuctionQry->rowCount() > 0) {
             $qry2_last->closeCursor();
       
             // Add the benefit value to the last previous auction's collection
-            $updated_total_collect_last = $prev_total_collect_last + $final_val;
-        echo  $updated_total_collect_last;
+            $updated_total_collect_last = $prev_total_collect_last + $benefit_from_next_auction;
             // Recheck the conditions with the updated collection amount for the last auction
             $qry3_last = $pdo->query("
                 SELECT 
@@ -286,19 +281,62 @@ if ($prevAuctionQry->rowCount() > 0) {
         
             // Close the cursor again before the next query
             $qry3_last->closeCursor();
-        echo  $total_chit_last;
-        echo  $updated_total_collect_last;
             // Final condition check for the last auction
+          
             if ($total_chit_last >= $updated_total_collect_last) {
-                echo "The last previous auction now satisfies the condition with the added benefit.\n";
+                //  If the condition is not met, simply add to $excluded_customers
+              
+                if (!isset($excluded_cus[$cus_mapping_id])) {
+                    $excluded_cus[$cus_mapping_id] = []; // Initialize the array for this customer
+                }
+            
+                $excluded_cus[$cus_mapping_id][] = [
+                    'auction_id' => $last_previous_auction,
+                    'group_id' => $group_id
+                ];
+             
+            
             } else {
-                echo "The last previous auction still does not satisfy the condition even after adding the benefit.\n";
+                if (!isset($excluded_customers[$cus_mapping_id])) {
+                    $excluded_customers[$cus_mapping_id] = []; // Initialize the array for this customer
+                }
+            
+                // Add to $excluded_customers
+                $excluded_customers[$cus_mapping_id][] = [
+                    'auction_id' => $previous_auction_id,
+                    'group_id' => $group_id
+                ];
+          //print_r($excluded_customers);
+                // Check if $excluded_cus is set for the given $cus_mapping_id
+                if (!isset($excluded_cus[$cus_mapping_id])) {
+                    $excluded_cus[$cus_mapping_id] = []; // Initialize the array for this customer
+                }
+            
+                // Add to $excluded_cus
+                $excluded_cus[$cus_mapping_id][] = [
+                    'auction_id' => $last_previous_auction,
+                    'group_id' => $group_id
+                ];
+               
+             //  print_r($excluded_cus);
+                // Compare both arrays and remove matching auction IDs from $excluded_customers
+                foreach ($excluded_customers[$cus_mapping_id] as $key => $customer) {
+                    foreach ($excluded_cus[$cus_mapping_id] as $cus) {
+                        if ($customer['auction_id'] === $cus['auction_id']) {
+                            // Remove the auction ID from $excluded_customers
+                            unset($excluded_customers[$cus_mapping_id][$key]);
+                          //  print_r($excluded_customers);
+                        }
+                    }
+                }
+            
             }
+            
         }
     }
 }
 
-// print_r($excluded_customers);
+//print_r($excluded_customers);
 // Check conditions for excluded customers after the while loop
 foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
     // Now iterate through all auctions including previous ones
@@ -308,7 +346,6 @@ foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
             $group_id = $auction_info['group_id']; // Access group_id here
 
             // Fetch previous auction details, including chit amount
-
             $prevAuctionQry = $pdo->query("
                 SELECT ad.chit_amount AS prev_chit_amount
                 FROM auction_details ad
@@ -338,8 +375,8 @@ foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
 
             // Calculate new total with previous collections
 
-            $final_val += $prev_total_collect;
-            $collection_amount = $final_val;
+            $finl_val += $prev_total_collect;
+            $collection_amount = $finl_val;
 
             // Query to find commission value
             $qry3 = $pdo->query("
@@ -363,10 +400,10 @@ foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
             if ($qry3->rowCount() > 0) {
                 $row = $qry3->fetch(PDO::FETCH_ASSOC);
                 $commission_value = ($row['chit_value'] * $row['commission']) / 100; // Calculate commission value
-                $total_chit = $chit_amount - $commission_value; // Adjust total chit based on commission
-                $difference = $collection_amount - $total_chit;
+                $total_chit_fu = $chit_amount - $commission_value; // Adjust total chit based on commission
+                $difference = $collection_amount - $total_chit_fu;
 
-                if ($total_chit >= $collection_amount) {
+                if ($total_chit_fu >= $collection_amount) {
                     // Add current auction ID to the excluded customers list along with the group_id
                     if (!isset($excluded_customers[$cus_mapping_id])) {
                         $excluded_customers[$cus_mapping_id] = array(); // Initialize the array for this customer
@@ -379,9 +416,9 @@ foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
                 } else {
                     // Conditions met, proceed with benefit calculation
                     if ($commission_value >= $difference) {
-                        $final_val = 0; // No additional value if commission fully covers the difference
+                        $finl_val = 0; // No additional value if commission fully covers the difference
                     } else {
-                        $final_val = $difference - $commission_value;
+                        $finl_val = $difference - $commission_value;
                     }
                     // Check if total members is greater than zero to avoid division by zero
                     if ($row['total_paid_members'] > 0) {
@@ -391,29 +428,6 @@ foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
                     }
 
                     // Get previous auction ID
-                    $prevAuctionQry = $pdo->query("
-                        SELECT 
-                            ad.id AS previous_auction_id,
-                            ad.chit_amount AS prev_chit_amount
-                        FROM 
-                            auction_details ad
-                        WHERE 
-                            ad.id = (SELECT MAX(id) FROM auction_details WHERE id < '$excluded_auction_id' AND group_id = '$group_id')
-                        LIMIT 1
-                    ");
-
-                    if ($prevAuctionQry->rowCount() > 0) {
-                        $prevAuctionRow = $prevAuctionQry->fetch(PDO::FETCH_ASSOC);
-                        $previous_auction_id = $prevAuctionRow['previous_auction_id'];
-                        $prev_chit_amount = $prevAuctionRow['prev_chit_amount']; // Get previous chit amount
-
-                        // Add the previous auction ID to the customer's list
-                        $excluded_customers[$cus_mapping_id][] = array(
-                            'auction_id' => $previous_auction_id,
-                            'chit_amount' => $prev_chit_amount,
-                            'group_id' => $group_id
-                        );
-                    }
                 }
             }
         }
