@@ -290,12 +290,15 @@ function moneyFormatIndia($num1)
                                 <tr>
                                     <th>S.NO</th>
                                     <th>Transaction Category</th>
+                                    <th>Group ID</th>
                                     <th>Name</th>
+                                    <th>Customer Name</th>
                                     <th>Type</th>
                                     <th>Bank Name</th>
                                     <th>Reference ID</th>
                                     <th>Transaction ID</th>
                                     <th>Amount</th>
+                                    <th>Auction Month</th>
                                     <th>Remark</th>
                                     <th>Action</th>
                                 </tr>
@@ -523,7 +526,7 @@ function moneyFormatIndia($num1)
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="mem_id_cont"style="display:none;">
                                 <div class="form-group">
-                                    <label for="group_mem">Group Members</label><span class="text-danger">*</span>
+                                    <label for="group_mem">Group Member</label><span class="text-danger">*</span>
                                     <select class="form-control" name="group_mem" id="group_mem" tabindex="8">
                                         <option value="">Select Group Member</option>
                                     </select>
@@ -592,12 +595,15 @@ function moneyFormatIndia($num1)
                                 <tr>
                                     <th>S.NO</th>
                                     <th>Transaction Category</th>
+                                    <th>Group ID</th>
                                     <th>Name</th>
+                                    <th>Customer Name</th>
                                     <th>Type</th>
                                     <th>Bank Name</th>
                                     <th>Reference ID</th>
                                     <th>Transaction ID</th>
                                     <th>Amount</th>
+                                    <th>Auction Month</th>
                                     <th>Remark</th>
                                     <th>Action</th>
                                 </tr>

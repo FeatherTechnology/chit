@@ -31,7 +31,7 @@ if ($trans_category == '7') {
         VALUES ('$auction_id', '$settle_date_formatted', '$other_amnt', '$other_amnt', '1', '$coll_mode', '$bank_id', '$other_amnt', NULL, NULL, NULL, NULL, NULL, NULL, '$other_amnt', '0', 'Customer', '$user_id', NOW())");
     } else {
         $qry1 = $pdo->query("INSERT INTO settlement_info (auction_id, settle_date, settle_amount, settle_balance, payment_type, settle_type, bank_id, settle_cash, cheque_no, cheque_val, cheque_remark, transaction_id, transaction_val, transaction_remark, balance_amount, guarantor_name, guarantor_relationship, insert_login_id, created_on) 
-        VALUES ('$auction_id', '$settle_date_formatted', '$other_amnt', '$other_amnt', '1', '$coll_mode', '$bank_id', '$other_amnt', NULL, NULL, NULL, '$other_trans_id', '$other_amnt', NULL, '$other_amnt', '0', 'Customer', '$user_id', NOW())");
+        VALUES ('$auction_id', '$settle_date_formatted', '$other_amnt', '$other_amnt', '1', '$coll_mode', '$bank_id', NULL, NULL, NULL, NULL, '$other_trans_id', '$other_amnt', NULL, '$other_amnt', '0', 'Customer', '$user_id', NOW())");
     }
 }
 // Check if both queries were successful
