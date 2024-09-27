@@ -294,8 +294,6 @@ $(document).ready(function () {
         let collMode = otherTransData.coll_mode;
         let catType = otherTransData.cat_type; // 1 = Credit, 2 = Debit
         let transCategory = parseInt(otherTransData.trans_category);
-        console.log(otherTransData); 
-        console.log(transCategory)
         // Fetch user's total credit and debit amounts
         $.post('api/accounts_files/accounts/get_user_transactions.php', {
             // 'coll_mode': otherTransData.coll_mode,
@@ -351,9 +349,8 @@ $(document).ready(function () {
                         return;
                     }
                 }
-                console.log(otherTransData);
             //    Proceed if all validations pass
-                if (otherTransFormValid(otherTransData)) {
+            //    if (otherTransFormValid(otherTransData)) {
                     $.post('api/accounts_files/accounts/submit_other_transaction.php', otherTransData, function (response) {
                         if (response == '1') {
                             swalSuccess('Success', 'Other Transaction added successfully.');
@@ -363,20 +360,27 @@ $(document).ready(function () {
                             swalError('Error', 'Failed to add transaction.');
                         }
                     }, 'json');
-                } 
-                else {
-                    swalError('Warning', 'Please fill all required fields.');
-                }
+                // } 
+                // else {
+                //     swalError('Warning', 'Please fill all required fields.');
+                // }
             });
         }, 'json');
     });
 
-
     $(document).on('click', '.transDeleteBtn', function () {
         var unique = $(this).data('value');
-        var [id, group_id, group_mem,auction_month] = unique.split('_');
-        swalConfirm('Delete', 'Are you sure you want to delete this Other Transaction?', deleteTrans, id,group_id,group_mem,auction_month);
+        var [id, grp_id, group_mem, auction_month] = unique.split('_');
+        if (id && grp_id && group_mem && auction_month) {
+            swalConfirm('Delete', 'Are you sure you want to delete this Other Transaction?', function() {
+                deleteTrans(id, grp_id, group_mem, auction_month);
+            });
+        } else {
+            swalError('Error', 'Missing data for deletion.');
+        }
     });
+    
+    
 
     //Balance sheet
 
@@ -727,19 +731,24 @@ function clearTransForm() {
     $('#other_transaction_form textarea').val('');
 }
 
-function deleteTrans(id,group_id,group_mem,auction_month) {
-    let transCat = $('#trans_category :selected').val();
-    $.post('api/accounts_files/accounts/delete_other_transaction.php', { id,group_id,group_mem,auction_month,transCat }, function (response) {
+function deleteTrans(id, grp_id, group_mem, auction_month) {
+    $.post('api/accounts_files/accounts/delete_other_transaction.php', {
+        id: id,
+        group_id: grp_id,
+        group_mem: group_mem,
+        auction_month: auction_month
+    }, function (response) {
         if (response == '1') {
             swalSuccess('success', 'Other Transaction Deleted Successfully');
             otherTransTable('#other_transaction_table');
             otherTransTable('#accounts_other_trans_table');
             getClosingBal();
         } else {
-            swalError('Alert', 'Delete Failed')
+            swalError('Alert', 'Delete Failed');
         }
     }, 'json');
 }
+
 function getRefId(trans_cat) {
     $.post('api/accounts_files/accounts/get_ref_id.php', { trans_cat }, function (response) {
         $('#other_ref_id').val(response)
