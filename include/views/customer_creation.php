@@ -123,30 +123,42 @@
                                             <input type="last_name" class="form-control" id="last_name" name="last_name" placeholder="Enter Last name" tabindex="10">
                                         </div>
                                     </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label for="dob"> DOB</label>
+                                            <input type="date" class="form-control" id="dob" name="dob" placeholder="Enter Date Of Birth" tabindex="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label for="age"> Age</label>
+                                            <input type="number" class="form-control" id="age" name="age" readonly placeholder="Age" tabindex="12">
+                                        </div>
+                                    </div>
                                     <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
                                         <div class="form-group">
                                             <label for="place">Place</label><span class="text-danger">*</span>
                                             <input type="hidden" id="place_name_id">
-                                            <select class="form-control" id="place" name="place" tabindex="11">
+                                            <select class="form-control" id="place" name="place" tabindex="13">
                                                 <option value="">Select Place</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-1 col-md-1 col-lg-1 text-right" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="12" onclick="getPlaceTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="14" onclick="getPlaceTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="mobile1">Mobile Number 1</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="13">
+                                            <input type="number" class="form-control" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="15">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="mobile2">Mobile Number 2</label>
-                                            <input type="number" class="form-control" id="mobile2" name="mobile2" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number 2" tabindex="14">
+                                            <input type="number" class="form-control" id="mobile2" name="mobile2" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number 2" tabindex="16">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -166,20 +178,20 @@
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="whatsapp">WhatsApp</label>
-                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter WhatsApp Number" tabindex="15">
+                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter WhatsApp Number" tabindex="17">
                                         </div>
                                     </div>
 
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="address"> Address </label><span class="text-danger">*</span>
-                                            <textarea class="form-control" name="address" id="address" placeholder="Enter Address" tabindex="16"></textarea>
+                                            <textarea class="form-control" name="address" id="address" placeholder="Enter Address" tabindex="18"></textarea>
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="native_address"> Native Address </label>
-                                            <textarea class="form-control" name="native_address" id="native_address" placeholder="Enter Native Address" tabindex="17"></textarea>
+                                            <textarea class="form-control" name="native_address" id="native_address" placeholder="Enter Native Address" tabindex="19"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -190,7 +202,7 @@
                                         <div class="form-group">
                                             <label for="pic"> Photo</label><span class="text-danger">*</span><br>
                                             <img id='imgshow' class="img_show" src='img\avatar.png' />
-                                            <input type="file" class="form-control  personal_info_disble" id="pic" name="pic" tabindex="18">
+                                            <input type="file" class="form-control  personal_info_disble" id="pic" name="pic" tabindex="20">
                                             <input type="hidden" class="personal_info_disble" id="per_pic">
                                         </div>
                                     </div>
@@ -208,51 +220,55 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="occupation">Occupation</label>
-                                    <input type="text" class="form-control" id="occupation" name="occupation" placeholder="Enter Occupation" tabindex="19">
+                                    <input type="text" class="form-control" id="occupation" name="occupation" placeholder="Enter Occupation" tabindex="21">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="occ_detail">Occupation Detail</label>
-                                    <input type="text" class="form-control" id="occ_detail" name="occ_detail" placeholder="Enter Occupation Detail" tabindex="20">
+                                    <input type="text" class="form-control" id="occ_detail" name="occ_detail" placeholder="Enter Occupation Detail" tabindex="22">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="occ_place">Occupation Place</label>
+                                    <input type="text" class="form-control" id="occ_place" name="occ_place" placeholder="Enter Occupation Place" tabindex="23">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="source">Source</label>
-                                    <input type="text" class="form-control" id="source" name="source" placeholder="Enter source" tabindex="21">
+                                    <input type="text" class="form-control" id="source" name="source" placeholder="Enter source" tabindex="24">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="income">Income</label>
-                                    <input type="number" class="form-control" id="income" name="income" placeholder="Enter Income" tabindex="22">
+                                    <input type="number" class="form-control" id="income" name="income" placeholder="Enter Income" tabindex="25">
                                 </div>
                             </div>
                             <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
                                 <div class="form-group">
                                     <label for="add_src"> </label>
-                                    <input type="button" class="btn btn-primary modalBtnCss" id="add_src" name="add_src" value="Add" tabindex="23" style="margin: 16px;">
+                                    <input type="button" class="btn btn-primary modalBtnCss" id="add_src" name="add_src" value="Add" tabindex="26" style="margin: 16px;">
                                 </div>
-                            </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="tot_income"> Total Income</label>
-                                    <input type="text" class="form-control" id="tot_income" name="tot_income" placeholder="Enter Total Income" disabled tabindex="24">
+                                    <input type="text" class="form-control" id="tot_income" name="tot_income" placeholder="Enter Total Income" disabled tabindex="27">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="chit_limit">Chit Limit</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="25">
+                                    <input type="text" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="28">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="reference">Reference</label><span class="text-danger">*</span>
-                                    <select type="text" class="form-control" id="reference" name="reference" tabindex="26">
+                                    <select type="text" class="form-control" id="reference" name="reference" tabindex="29">
                                         <option value="">Select Reference</option>
                                         <option value="1">Yes</option>
                                         <option value="2">No</option>
@@ -266,6 +282,7 @@
                                     <th>S.NO</th>
                                     <th>Occupation</th>
                                     <th>Occupation Detail</th>
+                                    <th>Occupation Place</th>
                                     <th>Source</th>
                                     <th>Income</th>
                                     <th>Action</th>
@@ -280,7 +297,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Family Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_group" name="add_group" data-toggle="modal" data-target="#add_fam_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='27'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_group" name="add_group" data-toggle="modal" data-target="#add_fam_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='30'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -310,7 +327,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Guarantor Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorRelationship()" style="padding: 5px 35px; float: right;" tabindex='28'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorRelationship()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -336,8 +353,8 @@
             <div class="col-md-12 ">
                 <div class="text-right">
 
-                    <button type="submit" name="submit_cus_creation" id="submit_cus_creation" class="btn btn-primary" value="Submit" tabindex="29"><span class="icon-check"></span>&nbsp;Submit</button>
-                    <button type="reset" class="btn btn-outline-secondary" tabindex="30">Clear</button>
+                    <button type="submit" name="submit_cus_creation" id="submit_cus_creation" class="btn btn-primary" value="Submit" tabindex="32"><span class="icon-check"></span>&nbsp;Submit</button>
+                    <button type="reset" class="btn btn-outline-secondary" tabindex="32">Clear</button>
                 </div>
             </div>
         </div>
@@ -443,7 +460,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_live">Live/Deceased</label><span class="text-danger">*</span>
+                                    <label for="fam_live">Live/Deceased</label>
                                     <select class="form-control" id="fam_live" name="fam_live" tabindex="1">
                                         <option value="">Select Live/Deceased</option>
                                         <option value="1">Live</option>
@@ -461,7 +478,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_aadhar">Aadhar No</label><span class="text-danger">*</span>
+                                    <label for="fam_aadhar">Aadhar No</label>
                                     <input type="text" class="form-control" name="fam_aadhar" id="fam_aadhar" tabindex="1" maxlength="14" data-type="adhaar-number" placeholder="Enter Aadhar Number">
                                     <input type="hidden" id="addaadhar_id" value='0'>
                                 </div>

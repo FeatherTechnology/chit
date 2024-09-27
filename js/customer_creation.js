@@ -93,6 +93,16 @@ $(document).ready(function () {
             swalError('Warning', 'Kindly Enter Valid Aadhaar Number');
         }
     });
+    $('#dob').on('change', function () {
+        var dob = new Date($(this).val());
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        $('#age').val(age);
+    });
     ////////////////////////////////////////////////////////// Place Modal START ///////////////////////////////////////////////////////////////////////
     $('#submit_place').click(function (event) {
         event.preventDefault();
@@ -145,9 +155,10 @@ $(document).ready(function () {
         let cus_id = $('#cus_id').val()
         let occupation = $('#occupation').val();
         let occ_detail = $('#occ_detail').val();
+        let occ_place = $('#occ_place').val();
         let source = $('#source').val();
         let income = $('#income').val();
-        var data = ['occupation', 'occ_detail', 'source', 'income']
+        var data = ['occupation', 'occ_detail','occ_place', 'source', 'income']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -158,12 +169,13 @@ $(document).ready(function () {
         });
 
         if (isValid) {
-            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail, source, income }, function (response) {
+            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail,occ_place, source, income }, function (response) {
                 getSourceTable();
                 totalIncome()
             });
             $('#occupation').val('');
             $('#occ_detail').val('');
+            $('#occ_place').val('');
             $('#source').val('');
             $('#income').val('');
         }
@@ -199,7 +211,7 @@ $(document).ready(function () {
         let fam_mobile = $('#fam_mobile').val();
         let family_id = $('#family_id').val();
 
-        var data = ['fam_name', 'fam_relationship', 'fam_live', 'fam_aadhar', 'fam_mobile']
+        var data = ['fam_name', 'fam_relationship','fam_mobile']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -401,6 +413,8 @@ $(document).ready(function () {
         let aadhar_number = $('#aadhar_number').val().replace(/\s/g, '');
         let first_name = $("#first_name").val();
         let last_name = $('#last_name').val();
+        let dob = $('#dob').val();
+        let age = $('#age').val();
         let place = $('#place').val();
         let mobile1 = $('#mobile1').val();
         let mobile2 = $('#mobile2').val();
@@ -425,6 +439,8 @@ $(document).ready(function () {
         cusDetail.append('aadhar_number', aadhar_number);
         cusDetail.append('first_name', first_name);
         cusDetail.append('last_name', last_name);
+        cusDetail.append('dob', dob);
+        cusDetail.append('age', age);
         cusDetail.append('place', place);
         cusDetail.append('mobile1', mobile1);
         cusDetail.append('mobile2', mobile2);
@@ -745,6 +761,7 @@ function getSourceTable() {
             "sno",
             "occupation",
             "occ_detail",
+            "occ_place",
             "source",
             "income",
             "action"
@@ -886,6 +903,8 @@ function editCustomerCreation(id) {
         $('#aadhar_number').val(response[0].aadhar_number);
         $('#first_name').val(response[0].first_name);
         $('#last_name').val(response[0].last_name);
+        $('#dob').val(response[0].dob);
+        $('#age').val(response[0].age);
         $('#mobile1').val(response[0].mobile1);
         $('#mobile2').val(response[0].mobile2);
         $('#whatsapp').val(response[0].whatsapp);
