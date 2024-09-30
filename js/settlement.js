@@ -326,6 +326,8 @@ $(document).ready(function () {
         // Gathering form data into an object
         let settleInfo = {
             'auction_id': $('#groupid').val(),
+            'group_id': $('#group_id').val(),
+            'cus_id': $('#cus_id').val(),
             'settle_date': $('#settle_date').val(),
             'settle_amount': $('#settle_amount').val().replace(/,/g, ''),
             'settle_balance': parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0,
