@@ -662,7 +662,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Guarantor Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();getGuarantorRelationship()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();updateFieldsVisibility()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -676,11 +676,21 @@
                                 <div class="form-group">
                                     <label for="gua_name">Guarantor Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="gua_name" name="gua_name" tabindex="1">
-                                        <option value>Select Relationship</option>
-                                        <option value="-1"> Existing Customer</option>
-                                        <option value="-2"> Others</option>
+                                        <option value="">Select Guarantor Name</option>
+                                        <option value="1">Family Members</option>
+                                        <option value="2">Existing Customer</option>
+                                        <option value="3">Others</option>
                                     </select>
                                     <input type="hidden" id="addgrelationship_id" value="0">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="fam_name_container" style="display:none;">
+                                <div class="form-group">
+                                    <label for="gua_family">Family Member</label><span class="text-danger">*</span>
+                                    <input type="hidden" id="gua_name_edit" value="0">
+                                    <select class="form-control" id="gua_family" name="gua_family" tabindex="1">
+                                        <option value>Select Family Member</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name1_container" style="display:none;">
@@ -716,7 +726,7 @@
                                 <div class="form-group">
                                     <label for="gu_pic">Photo</label><br>
                                     <img id='gur_imgshow' class="img_show" src='img/avatar.png' />
-                                    <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="12">
+                                    <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="1">
                                     <input type="hidden" id="gur_pic">
                                 </div>
                             </div>
@@ -746,7 +756,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getGuarantorInfoTable()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="updateFieldsVisibility()">Close</button>
             </div>
         </div>
     </div>
