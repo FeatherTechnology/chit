@@ -1,4 +1,6 @@
 <?php
+require '../../ajaxconfig.php';
+
 $group_id = $_POST['group_id'];
 $cusMappingID = $_POST['cus_mapping_id'];
 $currentMonth = date('m'); // Get the current month
