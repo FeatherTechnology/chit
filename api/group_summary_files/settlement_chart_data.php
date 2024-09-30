@@ -3,16 +3,15 @@ require "../../ajaxconfig.php";
 
 // Get the auction_id from POST data
 $group_id = $_POST['group_id'];
-$auction_id = $_POST['auction_id'];
 $currentMonth = date('m'); // Get the current month
 $currentYear = date('Y'); // Get the current year
 
-$qry = $pdo->query("SELECT ad.auction_month, ad.group_id, gc.grp_name, cc.cus_id, si.id AS settlement_id, si.settle_date, si.settle_cash, si.cheque_val, si.transaction_val, gi.guarantor_name, si.guarantor_relationship 
+$qry = $pdo->query("SELECT ad.auction_month, ad.group_id, gc.grp_name, cc.cus_id, si.cus_name, si.id AS settlement_id, si.settle_date, si.settle_cash, si.cheque_val, si.transaction_val, gi.guarantor_name, si.guarantor_relationship 
     FROM settlement_info si
     LEFT JOIN auction_details ad ON si.auction_id = ad.id
     LEFT JOIN guarantor_info gi ON si.guarantor_name = gi.id
     LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
-    LEFT JOIN customer_creation cc ON ad.cus_name = cc.id
+    LEFT JOIN customer_creation cc ON si.cus_name = cc.id
     WHERE ad.group_id = '$group_id' AND (
     YEAR(ad.date) < $currentYear
     OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <= $currentMonth)
@@ -22,6 +21,7 @@ ORDER BY ad.auction_month ASC, si.settle_date ASC");
 // Initialize an empty array to hold the results
 $result = [];
 $previousMonth = null;
+$previousCusId = null; // Initialize variable to track previous customer ID
 
 // Process each row
 while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
@@ -42,13 +42,14 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     // Check if guarantor_name is -1 or null
     if ($row['guarantor_name'] === null || $row['guarantor_name'] == -1 || $row['guarantor_name'] == 0) {
         $row['guarantor_name'] = 'Customer';
-       
+
         // Fetch the corresponding customer name for the current auction_month
         $customerQuery = $pdo->query("SELECT CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name 
-            FROM auction_details ad 
-            JOIN customer_creation cc ON ad.cus_name = cc.id  
+            FROM settlement_info si 
+            JOIN customer_creation cc ON si.cus_name = cc.id  
+            LEFT JOIN auction_details ad ON si.auction_id = ad.id
             WHERE ad.group_id = '$group_id' 
-            AND ad.auction_month = '{$row['auction_month']}' 
+            AND ad.auction_month = '{$row['auction_month']}' AND cc.id = '{$row['cus_name']}'
             AND (
                 YEAR(ad.date) < $currentYear
                 OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <= $currentMonth)
@@ -65,16 +66,17 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         $row['cus_name'] = null; // Clear cus_name if not applicable
     }
 
-    // Handle rows with the same auction month
-    if ($row['auction_month'] == $previousMonth) {
-        // Clear group_id, grp_name, and cus_id for subsequent rows
+    // Handle rows with the same auction month and customer ID
+    if ($row['auction_month'] == $previousMonth && $row['cus_id'] == $previousCusId) {
+        // Clear values only if both auction_month and cus_id are the same
         $row['group_id'] = '';
         $row['grp_name'] = '';
         $row['cus_id'] = '';
         $row['auction_month'] = '';
     } else {
-        // Update the previousMonth and keep the auction month for the first row
+        // Update previousMonth and previousCusId
         $previousMonth = $row['auction_month'];
+        $previousCusId = $row['cus_id'];
     }
 
     // Add the row to the result
