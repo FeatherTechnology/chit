@@ -2,7 +2,7 @@
     <button type="button" class="btn btn-primary " id="add_customer"><span class="fa fa-plus"></span>&nbsp; Add Customer Creation</button>
     <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
 </div>
- <br>
+<br>
 <div class="card customer_table_content">
     <div class="card-body">
         <div class="col-12">
@@ -327,7 +327,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Guarantor Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorRelationship()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorFamily()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -418,7 +418,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Family Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorRelationship()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorFamily()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -523,7 +523,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorRelationship()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorFamily()">Close</button>
             </div>
         </div>
     </div>
@@ -535,7 +535,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Guarantor Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();getGuarantorRelationship()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();updateFieldsVisibility()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -549,11 +549,21 @@
                                 <div class="form-group">
                                     <label for="gua_name">Guarantor Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="gua_name" name="gua_name" tabindex="1">
-                                        <option value>Select Relationship</option>
-                                        <option value="-1"> Existing Customer</option>
-                                        <option value="-2"> Others</option>
+                                        <option value="">Select Guarantor Name</option>
+                                        <option value="1">Family Members</option>
+                                        <option value="2">Existing Customer</option>
+                                        <option value="3">Others</option>
                                     </select>
                                     <input type="hidden" id="addgrelationship_id" value="0">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="fam_name_container" style="display:none;">
+                                <div class="form-group">
+                                    <label for="gua_family">Family Member</label><span class="text-danger">*</span>
+                                    <input type="hidden" id="gua_name_edit" value="0">
+                                    <select class="form-control" id="gua_family" name="gua_family" tabindex="1">
+                                        <option value>Select Family Member</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name1_container" style="display:none;">
@@ -619,7 +629,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getGuarantorInfoTable()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="updateFieldsVisibility()">Close</button>
             </div>
         </div>
     </div>
