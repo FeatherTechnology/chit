@@ -7,10 +7,14 @@ $(document).ready(function () {
     $('input[name=customer_data_type]').click(function () {
         let customerType = $(this).val();
         if (customerType == 'cus_profile') {
-            $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide();
+            $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide(); $('#doc_curr_closed').hide(); $('#customer_document').hide();
 
         } else if (customerType == 'cus_summary') {
-            $('#customer_creation').hide(); $('#curr_closed').show(); $('#customer_summary').show();
+            $('#customer_creation').hide(); $('#curr_closed').show(); $('#customer_summary').show(); $('#doc_curr_closed').hide(); $('#customer_document').hide();
+
+        }
+        else if (customerType == 'cus_doc') {
+            $('#customer_creation').hide(); $('#curr_closed').hide(); $('#customer_summary').hide(); $('#customer_document').show(); $('#doc_curr_closed').show();
 
         }
     })
@@ -25,10 +29,38 @@ $(document).ready(function () {
             $('.group_current').hide();
         }
     });
-    
+    $('input[name=docc_type]').click(function () {
+        let doccType = $(this).val();
+        if (doccType == 'doc_clo') {
+            $('#customer_document').show();
+            $('.doc_current').show();
+            $('.group_close').hide();
+            $('.group_current').hide();
+            // let id = $('#customer_id').val();
+            // viewCustomerGroups(id);
+        } else if (doccType == 'doc_cur') {
+            $('.doc_current').show();
+            $('.group_close').hide();
+            $('.group_current').hide();
+        }
+    });
+    // $(document).on('click', '#document_current', function () {
+    //     $('#customer_summary').show()
+    //     $('.doc_current').show();
+    //     let id = $('#customer_id').val();
+    //     viewCustomerGroups(id);
+    // })
+    // $(document).on('click', '#customer_closed', function () {
+    //     $('.doc_close').show();
+    //     $('.doc_current').hide();
+    //     let id = $('#customer_id').val();
+    //     viewCustomerClosedGroups(id);
+
+    // })
     $(document).on('click', '#customer_profile', function () {
 
         $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide();
+        $('#customer_document').hide(); $('#doc_curr_closed').hide();
     })
     $(document).on('click', '#customer_sum', function () {
         $('#customer_creation').hide(); $('#customer_summary').show(); $('#curr_closed').show();
@@ -37,13 +69,23 @@ $(document).ready(function () {
         $('.group_close').hide()
         let id = $('#customer_id').val();
         viewCustomerGroups(id);
+        $('#customer_document').hide(); $('#doc_curr_closed').hide();
+    })
+    $(document).on('click', '#customer_doc', function () {
+        $('#customer_creation').hide(); $('#curr_closed').hide(); $('#customer_summary').hide(); $('#customer_document').show(); $('#doc_curr_closed').show();
+        $('.group_close').hide();
+        $('.group_current').hide();
+         let id = $('#customer_id').val();
+         viewCustomerDoc(id);
     })
     $(document).on('click', '.customerActionBtn', function () {
         let id = $(this).attr('value');
         $('#customer_id').val(id);
         $('#customer_creation').show();
         $('#customer_summary').hide();
+        $('#customer_document').hide();
         $('#curr_closed').hide();
+        $('#doc_curr_closed').hide();
         swapTableAndCreation();
         editCustomerCreation(id)
         // viewCustomerGroups(id);
@@ -54,6 +96,36 @@ $(document).ready(function () {
         $('#custom_name_edit').val('')
 
     });
+    $(document).on('click', '#back_to_list', function () {
+        $('#noc_summary').hide();
+        $('#doc_curr_closed').show();
+        $('#customer_document').show();
+        $('#back_btn').show();
+        $('#back_to_list').hide(); 
+        $('#main_radio').show();
+    });
+    $(document).on('click', '.documentActionBtn', function (event) {
+        event.preventDefault();  // Prevent default action
+        let value = $(this).attr('value');  // Get the value from the button
+        let parts = value.split('_');  // Split by underscore to get cus_id and grp_id
+        let cus_id = parts[0];  // Get cus_id
+        let grp_id = parts[1];  // Get grp_id
+    
+        // Call the document list function with cus_id and grp_id
+        documentList(cus_id, grp_id);
+    
+        // Show/Hide elements as per requirement
+        $('#noc_summary').show(); 
+        $('#doc_curr_closed').hide(); 
+        $('#customer_document').hide(); 
+        $('#back_to_list').show(); 
+        $('#customer_creation').hide();
+        $('#curr_closed').hide(); 
+        $('#customer_summary').hide(); 
+        $('#back_btn').hide(); 
+        $('#main_radio').hide();
+    });
+    
     $('#reference_type').change(function () {
         var referenceType = $(this).val();
         // Hide all fields initially
@@ -182,7 +254,7 @@ $(document).ready(function () {
         let occ_place = $('#occ_place').val();
         let source = $('#source').val();
         let income = $('#income').val();
-        var data = ['occupation', 'occ_detail','occ_place', 'source', 'income']
+        var data = ['occupation', 'occ_detail', 'occ_place', 'source', 'income']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -193,7 +265,7 @@ $(document).ready(function () {
         });
 
         if (isValid) {
-            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail, occ_place,source, income }, function (response) {
+            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail, occ_place, source, income }, function (response) {
                 getSourceTable();
                 totalIncome()
             });
@@ -277,8 +349,8 @@ $(document).ready(function () {
         return;
     });
     //////////////////////////////////////////////////////////////////////Family Modal end //////////////////////////////////////////////////////////////
-     ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
-     $('#submit_guarantor').click(function (event) {
+    ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
+    $('#submit_guarantor').click(function (event) {
         event.preventDefault();
 
         let cus_id = $('#cus_id').val();
@@ -397,10 +469,10 @@ $(document).ready(function () {
                     $('#details_container').show();
                 } else {
                     $('#gua_name').val('1');
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         $('#gua_name_edit').val(family_id);
                         $('#gua_family').val(family_id).trigger('change');
-                    },1000);
+                    }, 1000);
                     $('#guarantor1_name').val(guarantor_relationship);
                     $('#name1_container').show();
                     $('#fam_name_container').show();
@@ -706,6 +778,7 @@ function swapTableAndCreation() {
         $('#customer_data_content').hide();
         $('#customer_profile').trigger('click');
         $('#customer_current').trigger('click');
+        $('#document_current').trigger('click');
     }
 }
 
@@ -891,7 +964,7 @@ function isFormDataValid(formData) {
             return false;
         }
     } else { // Default case
-        if (!validateField(formData.get('gua_family'), 'gua_family') ||!validateField(formData.get('guarantor1_name'), 'guarantor1_name')) {
+        if (!validateField(formData.get('gua_family'), 'gua_family') || !validateField(formData.get('guarantor1_name'), 'guarantor1_name')) {
             return false;
         }
     }
@@ -955,7 +1028,7 @@ function getCustomerName(cusId) {
     });
 }
 $('#gua_name').on('change', function () {
-    let gua_name= $(this).val();
+    let gua_name = $(this).val();
     updateFieldsVisibility(gua_name);
 });
 function updateFieldsVisibility(gua_name) {
@@ -972,7 +1045,7 @@ function updateFieldsVisibility(gua_name) {
     } else if (gua_name === '1') {
         $('#name1_container').show();
         $('#fam_name_container').show();
-        getGuarantorFamily(); 
+        getGuarantorFamily();
     }
 }
 function getGuarantorTable() {
@@ -1175,6 +1248,22 @@ function viewCustomerClosedGroups(id) {
         setDropdownScripts();
     }, 'json');
 }
+function viewCustomerDoc(id) {
+    $.post('api/customer_data_files/get_current_document.php', { id: id }, function (response) {
+        // Iterate through the response to round off chit_amount
+        let cashList = [
+            "sno",
+            "grp_id",
+            "grp_name",
+            "chit_value",
+            "document_count",
+            "action",
+
+        ];
+        appendDataToTable('#doc_cur_table', response, cashList);
+        setdtable('#doc_cur_table');
+    }, 'json');
+}
 function getCommitmentChartTable(cusMappingID, groupId) {
     $.post('api/collection_files/commitment_chart_data.php', { cus_mapping_id: cusMappingID, group_id: groupId }, function (response) {
         var columnMapping = [
@@ -1257,4 +1346,21 @@ function getDueChart(groupId, cusMappingID, auction_month) {
 function closeChartsModal() {
     $('#due_chart_model').modal('hide');
     $('#commitment_chart_model').modal('hide');
+}
+function documentList(cus_id,grp_id) {
+    $.post('api/customer_data_files/noc_document_info_list.php', { cus_id,grp_id }, function (response) {
+        let nocDocInfoColumns = [
+            'sno',
+            'doc_name',
+            'doc_type',
+            'guarantor_name',
+            'upload',
+            'date_of_noc',
+            'noc_member',
+            'noc_relationship',
+            'action'
+        ];
+        appendDataToTable('#noc_document_list_table', response, nocDocInfoColumns);
+        setdtable('#noc_document_list_table');
+    }, 'json');
 }

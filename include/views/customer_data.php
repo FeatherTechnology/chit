@@ -41,6 +41,9 @@
 
     <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
 </div>
+<div class="col-12 text-right back_to_list" style="margin-bottom:10px">
+        <button class="btn btn-primary back_to_loan_list" id="back_to_list" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
+    </div>
 <br>
 <div class="card customer_table_content">
     <div class="card-body">
@@ -68,7 +71,7 @@
     </div>
 </div>
 <div id="customer_data_content" style="display:none;">
-    <div class="radio-container">
+    <div class="radio-container" id="main_radio">
         <div class="selector">
             <div class="selector-item">
                 <input type="radio" id="customer_profile" name="customer_data_type" class="selector-item_radio" value="cus_profile" checked>
@@ -77,6 +80,10 @@
             <div class="selector-item">
                 <input type="radio" id="customer_sum" name="customer_data_type" class="selector-item_radio" value="cus_summary">
                 <label for="customer_sum" class="selector-item_label">Chit Summary</label>
+            </div>
+            <div class="selector-item">
+                <input type="radio" id="customer_doc" name="customer_data_type" class="selector-item_radio" value="cus_doc">
+                <label for="customer_doc" class="selector-item_label">Documentation</label>
             </div>
         </div>
     </div>
@@ -90,6 +97,18 @@
             <div class="selector-item">
                 <input type="radio" id="customer_closed" name="group_type" class="selector-item_radio" value="cus_closed">
                 <label for="customer_closed" class="selector-item_labe">Closed</label>
+            </div>
+        </div>
+    </div>
+    <div class="radio-container" id="doc_curr_closed" style="display: none;">
+        <div class="selecto">
+            <div class="selector-item">
+                <input type="radio" id="document_current" name="docc_type" class="selector-item_radio" value="doc_cur" checked>
+                <label for="document_current" class="selector-item_labe">Current</label>
+            </div>
+            <div class="selector-item">
+                <input type="radio" id="document_closed" name="docc_type" class="selector-item_radio" value="doc_clo">
+                <label for="document_closed" class="selector-item_labe">Closed</label>
             </div>
         </div>
     </div>
@@ -484,7 +503,92 @@
             </div>
         </div>
     </form>
-
+    <form id="customer_document" name="customer_document" style="display: none;">
+        <div class="col-12">
+            <div class="card doc_current">
+                <div class="card-header">
+                    <h5 class="card-title">Document List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="doc_cur_table" class=" table custom-table">
+                                <thead>
+                                    <th width="50">S.No.</th>
+                                    <th>Group ID</th>
+                                    <th>Group Name</th>
+                                    <th>Chit Value</th>
+                                    <th>Document Count</th>
+                                    <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row gutters" id="noc_summary" style="display:none">
+        <input type="hidden" id="cp_id">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Document List</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table custom-table" id="noc_document_list_table">
+                        <thead>
+                            <th>S No.</th>
+                            <th>Document Name</th>
+                            <th>Document Type</th>
+                            <th>Document Holder</th>
+                            <th>Document</th>
+                            <th>Date of NOC</th>
+                            <th>Handover Person</th>
+                            <th>Relationship</th>
+                            <th>Checklist</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"></h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
+                                <label for="date_of_noc">Date of NOC</label><span class="required">*</span>
+                                <input type="date" class="form-control" id="date_of_noc" name="date_of_noc" tabindex="1" readonly>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
+                                <label for="noc_member">Member</label><span class="required">*</span>
+                                <select name="noc_member" id="noc_member" class="form-control" tabindex="2">
+                                    <option value="">Select Member Name</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
+                                <label for="noc_relation">Relationship</label><span class="required">*</span>
+                                <input type="text" class="form-control" id="noc_relation" name="noc_relation" tabindex="3" readonly>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3 text-right">
+                            <button name="submit_noc" id="submit_noc" class="btn btn-primary" tabindex="4"><span class="icon-check"></span>&nbsp;Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!--------------------------------------------Customer Profile and Customer Summary End--------------------------------------------------------------------->
