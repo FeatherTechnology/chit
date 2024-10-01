@@ -166,30 +166,30 @@ $(document).ready(function () {
         let category = $(this).val();
         if (category == '7') {
             $('#grp_id_cont').show();
-            $('#name_id_cont').hide(); 
+            $('#name_id_cont').hide();
             $('#name_modl_btn').hide();
             getGroupID();
         } else {
             $('#grp_id_cont').hide(); // Hide the group ID container for other categories
-            $('#mem_id_cont').hide(); 
-            $('#name_id_cont').show(); 
+            $('#mem_id_cont').hide();
+            $('#name_id_cont').show();
             $('#name_modl_btn').show();
             $('.other_month_div').hide();
             $('#other_amnt').prop('readonly', false);
         }
     });
     $('#group_id').change(function () {
-        let  group_id = $(this).val();
+        let group_id = $(this).val();
         $('#name_id_cont').hide();
         $('#name_modl_btn').hide();
-        $('#grp_id_cont').show(); 
-        $('#mem_id_cont').show(); 
+        $('#grp_id_cont').show();
+        $('#mem_id_cont').show();
         $('.other_month_div').show();
-        getgroupMember(group_id);    
+        getgroupMember(group_id);
         getAuctionMonth(group_id);
         settleAmount(group_id);
         $('#other_amnt').prop('readonly', true);
-        
+
     });
     $('#trans_category').change(function () {
         let category = $(this).val();
@@ -209,7 +209,7 @@ $(document).ready(function () {
 
         let catTypeOptn = '';
         catTypeOptn += "<option value=''>Select Type</option>";
-        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9'|| category == '7') { //credit / debit
+        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9' || category == '7') { //credit / debit
             catTypeOptn += "<option value='1'>Credit</option>";
             catTypeOptn += "<option value='2'>Debit</option>";
 
@@ -243,7 +243,7 @@ $(document).ready(function () {
 
     $('.name_close').click(function () {
         $('#add_other_transaction_modal').show();
-        
+
         nameDropDown();
         $('#other_name').val('');
     });
@@ -289,7 +289,7 @@ $(document).ready(function () {
             'auction_month': $('#auction_month').val(),
             'other_remark': $('#other_remark').val()
         };
-      
+
         let otherAmount = otherTransData.other_amnt;
         let collMode = otherTransData.coll_mode;
         let catType = otherTransData.cat_type; // 1 = Credit, 2 = Debit
@@ -324,11 +324,11 @@ $(document).ready(function () {
                 } else if (catType == '1') { // Credit Transaction
                     // Allow credit if balance is negative or zero
                     if (balance !== 0) {
-                    if (otherAmount > Math.abs(balance)) {
-                        swalError('Warning', 'Insufficient balance for the requested credit amount. You may only credit up to: ' + Math.abs(balance));
-                        return;
+                        if (otherAmount > Math.abs(balance)) {
+                            swalError('Warning', 'Insufficient balance for the requested credit amount. You may only credit up to: ' + Math.abs(balance));
+                            return;
+                        }
                     }
-                }
                 }
             } else if (transCategory <= 2) {
                 if (catType == '2' && totalCredit < totalDebit + otherAmount) {
@@ -349,8 +349,8 @@ $(document).ready(function () {
                         return;
                     }
                 }
-            //    Proceed if all validations pass
-            //    if (otherTransFormValid(otherTransData)) {
+                //    Proceed if all validations pass
+                if (otherTransFormValid(otherTransData)) {
                     $.post('api/accounts_files/accounts/submit_other_transaction.php', otherTransData, function (response) {
                         if (response == '1') {
                             swalSuccess('Success', 'Other Transaction added successfully.');
@@ -360,10 +360,10 @@ $(document).ready(function () {
                             swalError('Error', 'Failed to add transaction.');
                         }
                     }, 'json');
-                // } 
-                // else {
-                //     swalError('Warning', 'Please fill all required fields.');
-                // }
+                }
+                else {
+                    swalError('Warning', 'Please fill all required fields.');
+                }
             });
         }, 'json');
     });
@@ -372,15 +372,15 @@ $(document).ready(function () {
         var unique = $(this).data('value');
         var [id, grp_id, group_mem, auction_month] = unique.split('_');
         if (id && grp_id && group_mem && auction_month) {
-            swalConfirm('Delete', 'Are you sure you want to delete this Other Transaction?', function() {
+            swalConfirm('Delete', 'Are you sure you want to delete this Other Transaction?', function () {
                 deleteTrans(id, grp_id, group_mem, auction_month);
             });
         } else {
             swalError('Error', 'Missing data for deletion.');
         }
     });
-    
-    
+
+
 
     //Balance sheet
 
@@ -433,7 +433,7 @@ function getOpeningBal() {
         getClosingBal();
     });
 }
- function getGroupID(){
+function getGroupID() {
     $.post('api/accounts_files/accounts/getGroupid.php', function (response) {
         let appendOption = '';
         appendOption += "<option value=''>Select Group Name</option>";
@@ -442,9 +442,9 @@ function getOpeningBal() {
         });
         $('#group_id').empty().append(appendOption);
     }, 'json');
- }
-function getgroupMember(group_id){
-    $.post('api/accounts_files/accounts/getGroupmember.php',{group_id}, function (response) {
+}
+function getgroupMember(group_id) {
+    $.post('api/accounts_files/accounts/getGroupmember.php', { group_id }, function (response) {
         let appenderOption = '';
         appenderOption += "<option value=''>Select Group Member</option>";
         $.each(response, function (index, val) {
@@ -462,11 +462,11 @@ function getAuctionMonth(group_id) {
         } else {
             $('#auction_month').val(''); // Clear the field if no data is returned
         }
-    }, 'json').fail(function() {
+    }, 'json').fail(function () {
         $('#auction_month').val(''); // Clear the field if there's an error
     });
 }
-function settleAmount(group_id){
+function settleAmount(group_id) {
     $.post('api/accounts_files/accounts/getSettleAccounts.php', { group_id: group_id }, function (response) {
         // Check if the response has any data
         if (response.length > 0) {
@@ -474,9 +474,9 @@ function settleAmount(group_id){
         } else {
             $('#other_amnt').val(''); // Clear the field if no data is returned
         }
-    }, 'json').fail(function() {
+    }, 'json').fail(function () {
         $('#other_amnt').val(''); // Clear the field if there's an error
-    }); 
+    });
 }
 function getClosingBal(callback) {
     $.post('api/accounts_files/accounts/closing_balance.php', function (response) {
@@ -670,9 +670,9 @@ function getUserList() {
 
 
 function otherTransFormValid(data) {
-    
+
     for (key in data) {
-        if (key != 'bank_id' && key != 'other_trans_id' && key !='group_id' && key !='group_mem' && key!='auction_month') {
+        if (key != 'bank_id' && key != 'other_trans_id' && key != 'group_id' && key != 'group_mem' && key != 'auction_month') {
             if (data[key] == '' || data[key] == null || data[key] == undefined) {
                 return false;
             }
@@ -684,12 +684,13 @@ function otherTransFormValid(data) {
             return false;
         }
     }
-
-    if(data['trans_category'] =='7'){
-        if(data['group_id'] =='' || data['group_id'] ==null || data['group_id'] == undefined){
+    if (data['trans_category'] != '7') {
+        if (data['other_trans_name'] == '' || data['other_trans_name'] == null || data['other_trans_name'] == undefined) {
             return false;
         }
-        if(data['group_mem'] =='' || data['group_mem'] ==null || data['group_mem'] == undefined){
+    }
+    if (data['trans_category'] == '7') {
+        if (data['group_id'] == '' || data['group_id'] == null || data['group_id'] == undefined || data['group_mem'] == '' || data['group_mem'] == null || data['group_mem'] == undefined) {
             return false;
         }
     }
