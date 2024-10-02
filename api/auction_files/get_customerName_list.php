@@ -3,58 +3,58 @@ require '../../ajaxconfig.php';
 @session_start();
 
 $group_id = $_POST['group_id'];
+$auction_month = $_POST['auction_month'];
 
-if (isset($group_id) && !empty($group_id)) {
+if (isset($group_id) && !empty($group_id) && isset($auction_month) && !empty($auction_month)) {
     $customer_list_arr = array();
 
-    // Query to get the highest value for each cus_id within the auction_modal table for the given group_id
-    $max_value_qry = $pdo->prepare("
+    // Get the list of customer IDs who have taken the auction in any previous month for the same group
+    $taken_auction_qry = "
         SELECT 
-            cus_name, 
-            MAX(value) AS max_value
+            cus_name 
         FROM 
-            auction_modal
+            auction_details 
         WHERE 
-            group_id = :group_id
-        GROUP BY 
-            cus_name
-    ");
-    $max_value_qry->bindParam(':group_id', $group_id, PDO::PARAM_STR);
-    $max_value_qry->execute();
+            group_id = '$group_id' 
+            AND auction_month < '$auction_month'
+    ";
+    $taken_customers = $pdo->query($taken_auction_qry)->fetchAll(PDO::FETCH_COLUMN);
 
-    $max_values = $max_value_qry->fetchAll(PDO::FETCH_ASSOC);
-
-    // Prepare an array to store the highest value for each customer
-    $highest_values = [];
-    foreach ($max_values as $row) {
-        $highest_values[$row['cus_name']] = $row['max_value'];
-    }
-
-    // Query to get the customers associated with the given group_id from group_cus_mapping
-    $qry = $pdo->prepare("
+    // Get eligible customers for the current auction month
+ $qry = "
         SELECT 
             cc.first_name, 
             cc.last_name,
             cc.id, 
-            CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name
+            CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
+            gcm.joining_month,
+            (SELECT COUNT(*) FROM group_cus_mapping WHERE cus_id = gcm.cus_id AND grp_creation_id = '$group_id') AS chit_count
         FROM 
             group_cus_mapping gcm
         JOIN 
             customer_creation cc ON gcm.cus_id = cc.id
         WHERE 
-            gcm.grp_creation_id = :group_id
+            gcm.grp_creation_id = '$group_id'
+            AND gcm.joining_month <= '$auction_month'
         GROUP BY 
             cc.id
-    ");
-    $qry->bindParam(':group_id', $group_id, PDO::PARAM_STR);
-    $qry->execute();
+    ";
 
-    $customers = $qry->fetchAll(PDO::FETCH_ASSOC);
+    $customers = $pdo->query($qry)->fetchAll(PDO::FETCH_ASSOC);
 
-    // Filter out customers who have the highest value and not eligible based on timing
+    // Filter customers based on their chit count and auction participation
     foreach ($customers as $customer) {
-        $cus_name = $customer['cus_name'];
-        if (!isset($highest_values[$cus_name]) || $highest_values[$cus_name] == 0) {
+        $customer_id = $customer['id'];
+        $chit_count = $customer['chit_count'];
+
+        // Count how many times this customer has taken part in auctions
+        $auction_taken_count = count(array_filter($taken_customers, fn($id) => $id == $customer_id)); // Use '==' for comparison
+        
+        // // Debugging output
+        // echo "Customer ID: $customer_id, Taken Count: $auction_taken_count, Chit Count: $chit_count\n";
+
+        // Check eligibility: customer can participate if they have chits left to use
+        if ($auction_taken_count <$chit_count) {
             $customer_list_arr[] = $customer;
         }
     }
@@ -64,4 +64,3 @@ if (isset($group_id) && !empty($group_id)) {
 } else {
     echo json_encode([]);
 }
-?>

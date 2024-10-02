@@ -6,6 +6,7 @@ $total_members = intval($_POST['total_members']);
 $group_id = $pdo->quote($_POST['group_id']); // Properly quote to prevent SQL injection
 $cus_id = intval($_POST['cus_name']); // Assuming cus_name is actually cus_id
 $chit_value = intval($_POST['chit_value']); // Chit value of the new group
+$joining_month=intval($_POST['joining_month']);
 
 // Initialize response
 $response = ['result' => 2]; // Default to failure
@@ -45,7 +46,7 @@ $current_count = $stmt->fetchColumn();
 
 // Add the new group to the mapping
 if ($current_count < $total_members) {
-    $qry = $pdo->query("INSERT INTO group_cus_mapping (grp_creation_id, cus_id, insert_login_id, created_on) VALUES ($group_id, $cus_id, '$user_id', NOW())");
+    $qry = $pdo->query("INSERT INTO group_cus_mapping (grp_creation_id, cus_id,joining_month, insert_login_id, created_on) VALUES ($group_id, $cus_id,'$joining_month','$user_id', NOW())");
     
     if ($qry) {
         // Check if count now equals total members
