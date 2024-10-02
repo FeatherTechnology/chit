@@ -28,6 +28,7 @@ $(document).ready(function () {
     $(document).on('click', '.this_month', function () {
         getAuctionMonthTable()
     });
+
     $(document).on('click', '.auctionListBtn', function (event) {
         event.preventDefault();
     
@@ -51,34 +52,62 @@ $(document).ready(function () {
         $('.auction_detail_content,.back_btn').show();
         $('.today').hide();
         $('.this_month').hide();
-    
+        getModalAttr();
         // Fetch auction details based on the selected group ID
         fetchAuctionDetails(groupId);
     });
     
 
     ///////////////////////////////////////////////////////Auction Modal Start/////////////////////////////////////////////////////////////////  
+    function getModalAttr() {
+        let grp_date = $('#grp_date').val();
+        let start_month = $('#start_month').val();
+        if (grp_date != '' && start_month != '') {
+            $('.auctionBtn')
+                .attr('data-toggle', 'modal')
+                .attr('data-target', '#add_cus_map_modal');
+        } else {
+            $('.auctionBtn')
+                .removeAttr('data-toggle')
+                .removeAttr('data-target');
+        }
+    }
+
     $(document).on('click', '.auctionBtn', function (event) {
         event.preventDefault();
-        $('#add_cus_map_modal').modal('show');
+    
+        var uniqueMonth = $(this).data('value');
+        var [groupId, auction_month] = uniqueMonth.split('_');
+    
+        // Fetch the auction details and validate date and time
+        $.post('api/auction_files/validate_auction_date.php', { group_id: groupId, auction_month: auction_month }, function (response) {
+            if (response.is_valid) {
+                // If date and time match, open modal
+                $('#add_cus_map_modal').modal('show');
+    
+                var auctionDetail = response.auction_detail; // assuming auction details are returned
+                var [date, id, low_value, high_value] = [auctionDetail.date, auctionDetail.id, auctionDetail.low_value, auctionDetail.high_value];
+    
+                $('#submit_cus_map').attr('data-group_id', groupId);
+                $('#submit_cus_map').attr('data-id', id);
+                $('#submit_cus_map').attr('data-date', date);
+                $('#submit_cus_map').attr('data-high_value', high_value);
+                $('#submit_cus_map').attr('data-low_value', low_value);
+    
+                $('.auction_close').attr('data-group_id', groupId);
+                $('.auction_close').attr('data-date', date);
+                $('.auction_close').attr('data-id', id);
+    
+                getCusName(groupId, auction_month); // Fetch customer names based on groupId
+            } else {
+                // Show warning message if validation fails
+                swalError('Waring', 'The scheduled auction date and time for this group and month have not yet arrived.Please wait..');
 
-        var uniqueDetail = $(this).data('value');
-        var [groupId, date, id, low_value, high_value,auction_month] = uniqueDetail.split('_');
 
-        $('#submit_cus_map').attr('data-group_id', groupId);
-        $('#submit_cus_map').attr('data-id', id);
-        $('#submit_cus_map').attr('data-date', date);
-        $('#submit_cus_map').attr('data-high_value', high_value);
-        $('#submit_cus_map').attr('data-low_value', low_value);
-
-        $('.auction_close').attr('data-group_id', groupId);
-        $('.auction_close').attr('data-date', date);
-        $('.auction_close').attr('data-id', id);
-       
-
-        getCusName(groupId,auction_month); // Fetch customer names based on groupId
+            }
+        }, 'json');
     });
-
+    
 function updateDeleteIcon() {
     // Remove any existing delete icons from all rows
     $('#cus_mapping_table tbody tr').each(function () {
@@ -498,7 +527,8 @@ $(function () {
 });
 
 function getAuctionTable() {
-    serverSideTable('#auction_list_table', '', 'api/auction_files/auction_list.php');
+    let params = { 'type': '' };
+    serverSideTable('#auction_list_table', params, 'api/auction_files/auction_list.php');
 
     $('#auction_list_table').on('init.dt', function(){
         checkDashboardData(); //call function after the table loaded.
@@ -519,13 +549,13 @@ function checkDashboardData(){
 }
 
 function getAuctionMonthTable() {
-    serverSideTable('#auction_list_table', '', 'api/auction_files/auction_month_list.php');
+    let params = { 'type': 'month' };
+    serverSideTable('#auction_list_table', params, 'api/auction_files/auction_list.php');
 }
-
 function getAuctionTodayTable() {
-    serverSideTable('#auction_list_table', '', 'api/auction_files/auction_today_list.php');
+    let params = { 'type': 'today' };
+    serverSideTable('#auction_list_table', params, 'api/auction_files/auction_list.php');
 }
-
 function fetchAuctionDetails(groupId) {
     $.ajax({
         url: 'api/auction_files/view_auction_list.php', // Update this with the correct path to your PHP script
