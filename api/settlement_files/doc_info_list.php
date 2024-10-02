@@ -4,7 +4,8 @@ require "../../ajaxconfig.php";
 $doc_info_arr = array();
 $cus_id = $_POST['cus_id'];
 $auction_id = $_POST['auction_id'];
-$qry = $pdo->query("SELECT di.id as d_id, di.*, gi.* FROM document_info di LEFT JOIN guarantor_info gi ON di.holder_name = gi.id WHERE di.cus_id = '$cus_id' AND di.auction_id ='$auction_id' ");
+$qry = $pdo->query("SELECT di.id as d_id, di.*,  IFNULL(gi.`guarantor_name`, CONCAT(cc.first_name, ' ', cc.last_name)) AS guarantor_name ,gi.guarantor_relationship FROM document_info di LEFT JOIN guarantor_info gi ON di.holder_name = gi.id  LEFT JOIN 
+        customer_creation cc ON di.cus_id = cc.cus_id WHERE di.cus_id = '$cus_id' AND di.auction_id ='$auction_id' ");
 if ($qry->rowCount() > 0) {
     while ($doc_info = $qry->fetch(PDO::FETCH_ASSOC)) {
         $doc_info['doc_type'] = ($doc_info['doc_type'] == '1') ? 'Original' : 'Xerox';

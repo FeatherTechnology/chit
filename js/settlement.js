@@ -223,7 +223,7 @@ $(document).ready(function () {
             getDocrelationshipName(guarantorId);
         } else {
             // Set default relationship as 'Customer' if no valid ID is selected
-            $('#gua_relationship').val('Customer');
+            $('#doc_relationship').val('Customer');
         }
     });
 
@@ -566,7 +566,7 @@ function getDocrelationshipName(guarantorId) {
         },
         error: function (xhr, status, error) {
             console.error('Error fetching guarantor relationship:', error);
-            $('#gua_relationship').val('Customer');
+            $('#doc_relationship').val('Customer');
         }
     });
 }
@@ -592,12 +592,11 @@ function getGuarantorRelationship(id) {
 }
 function getDocGuarantor() {
     let cus_id = $('#cus_id').val(); // Corrected: added $
-    console.log(cus_id);
     $.post('api/settlement_files/get_document_guarantor.php', { cus_id: cus_id }, function (response) {
         let appendGuarantorOption = "<option value=''>Select Name</option>";
         $.each(response, function (index, val) {
             let selected = '';
-            appendGuarantorOption += "<option value='" + val.id + "' " + selected + ">" + val.guarantor_name + "</option>"; 
+            appendGuarantorOption += "<option value='" + val.id + "' " + selected + ">" + val.name + "</option>"; 
         });
 
         $('#doc_holder_name').empty().append(appendGuarantorOption);
