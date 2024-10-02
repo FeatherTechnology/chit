@@ -9,7 +9,6 @@ $noc_member = $_POST['noc_member'];
 $noc_relation = $_POST['noc_relation'];
 $grp_id = $_POST['grp_id'];
 $cus_id = $_POST['cus_id'];
-echo $cus_id ;
 $doc_list_cnt = $_POST['doc_list_cnt'];
 
 // Update document info for each doc_id in the array

@@ -117,6 +117,9 @@ $(document).ready(function () {
         // Call the document list function with cus_id and grp_id
         documentList(cus_id, grp_id);
         getGuarantorRelationship(cus_id);
+        setTimeout(() => {
+            setSubmittedDisabled();
+        }, 1000);
         // Show/Hide elements as per requirement
         $('#noc_summary').show(); 
         $('#doc_curr_closed').hide(); 
@@ -127,6 +130,7 @@ $(document).ready(function () {
         $('#customer_summary').hide(); 
         $('#back_btn').hide(); 
         $('#main_radio').hide();
+        
     });
     
     $('#reference_type').change(function () {
@@ -787,7 +791,6 @@ $(document).ready(function () {
         event.preventDefault();
     
         let cus_id = $(this).attr('cus_id');  // Retrieve cus_id from button attribute
-        console.log(cus_id);
         let grp_id = $(this).attr('grp_id');  // Retrieve grp_id from button attribute
     
         let docId = [];
@@ -1445,7 +1448,7 @@ function documentList(cus_id,grp_id) {
             'guarantor_name',
             'upload',
             'date_of_noc',
-            'noc_member',
+            'noc_member_name',
             'noc_relationship',
             'action'
         ];
