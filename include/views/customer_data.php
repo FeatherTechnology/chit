@@ -42,8 +42,8 @@
     <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
 </div>
 <div class="col-12 text-right back_to_list" style="margin-bottom:10px">
-        <button class="btn btn-primary back_to_loan_list" id="back_to_list" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
-    </div>
+    <button class="btn btn-primary back_to_loan_list" id="back_to_list" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
+</div>
 <br>
 <div class="card customer_table_content">
     <div class="card-body">
@@ -582,11 +582,11 @@
                                 <input type="text" class="form-control" id="noc_relation" name="noc_relation" tabindex="3" readonly>
                             </div>
                         </div>
-                        <div class="col-12 mt-3 text-right">
-                            <button name="submit_noc" id="submit_noc" class="btn btn-primary" tabindex="4"><span class="icon-check"></span>&nbsp;Submit</button>
-                        </div>
                     </div>
                 </div>
+            </div>
+            <div class="col-12 mt-3 text-right">
+                <button name="submit_noc" id="submit_noc" class="btn btn-primary" tabindex="4"><span class="icon-check"></span>&nbsp;Submit</button>
             </div>
         </div>
     </div>
