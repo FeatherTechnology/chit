@@ -31,7 +31,7 @@ ORDER BY
 if ($qry->rowCount() > 0) {
     while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
 
-        $row['action'] = "<button class='btn btn-primary documentActionBtn' value='" . $row['cus_id'] . "_" . $row['grp_id'] . "'>&nbsp;NOC Summary</button>";
+        $row['action'] = "<button class='btn btn-primary documentActionBtn' value='" . $row['cus_id'] . "_" . $row['grp_id'] ."'>&nbsp;NOC Summary</button>";
 
         $property_list_arr[$i] = $row; // Append to the array
         $i++;

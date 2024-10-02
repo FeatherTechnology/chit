@@ -103,6 +103,8 @@ $(document).ready(function () {
         $('#back_btn').show();
         $('#back_to_list').hide(); 
         $('#main_radio').show();
+        $('#noc_member').css('border', '1px solid #cecece');
+        $('#noc_relation').css('border', '1px solid #cecece');
     });
     $(document).on('click', '.documentActionBtn', function (event) {
         event.preventDefault();  // Prevent default action
@@ -110,10 +112,11 @@ $(document).ready(function () {
         let parts = value.split('_');  // Split by underscore to get cus_id and grp_id
         let cus_id = parts[0];  // Get cus_id
         let grp_id = parts[1];  // Get grp_id
-    
+        $('#submit_noc').attr('cus_id', cus_id);
+        $('#submit_noc').attr('grp_id', grp_id);
         // Call the document list function with cus_id and grp_id
         documentList(cus_id, grp_id);
-    
+        getGuarantorRelationship(cus_id);
         // Show/Hide elements as per requirement
         $('#noc_summary').show(); 
         $('#doc_curr_closed').hide(); 
@@ -760,6 +763,91 @@ $(document).ready(function () {
 
     });
     ///////////////////////////////////////////////////////Commitement Chart End/////////////////////////////////////////////////
+    //////////////////////////////////////////NoC Start///////////////////////////////////////////////
+    setCurrentDate('#date_of_noc');
+    $('#noc_member').on('change', function () {
+        const guarantorId = $(this).val();
+        if (guarantorId && guarantorId !== 'null') {
+            // Fetch the guarantor relationship if a valid ID is selected
+            getnocrelationshipName(guarantorId);
+        } else {
+            // Set default relationship as 'Customer' if no valid ID is selected
+            $('#noc_relation').val('Customer');
+        }
+        setTimeout(() => {
+            setValuesInTables();
+        }, 1000);
+    });
+    $(document).on('click', '.noc_doc_info_chkbx', function () {
+        setValuesInTables();
+        removeValuesInTables();
+    });
+
+    $('#submit_noc').click(function (event) {
+        event.preventDefault();
+    
+        let cus_id = $(this).attr('cus_id');  // Retrieve cus_id from button attribute
+        console.log(cus_id);
+        let grp_id = $(this).attr('grp_id');  // Retrieve grp_id from button attribute
+    
+        let docId = [];
+        $('.noc_doc_info_chkbx').each(function () {
+            if ($(this).is(':checked') && $(this).attr('data-id') == '0') {
+                docId.push($(this).val());
+            }
+        });
+    
+        if (docId.length === 0) {
+            swalError('Warning', 'Kindly check at least one checkbox');
+            $('#noc_member').val('');
+            $('#noc_relation').val('');
+            return;
+        }
+    
+        let doc_list_cnt = $('#noc_document_list_table').DataTable().rows().count();
+        let date_of_noc = $('#date_of_noc').val();
+        let noc_member = $('#noc_member').val();
+        let noc_relation = $('#noc_relation').val();
+        
+        // Validation
+        var data = ['date_of_noc', 'noc_member', 'noc_relation'];
+        var isValid = true;
+        data.forEach(function (entry) {
+            var fieldIsValid = validateField($('#' + entry).val(), entry);
+            if (!fieldIsValid) {
+                isValid = false;
+            }
+        });
+    
+        if (isValid) {
+            let nocData = {
+                'docId': docId,
+                'date_of_noc': date_of_noc,
+                'noc_member': noc_member,
+                'noc_relation': noc_relation,
+                'cus_id': cus_id,  // Pass cus_id here
+                'grp_id': grp_id,  // Pass grp_id here
+                'doc_list_cnt': doc_list_cnt
+            };
+    
+            $.post('api/customer_data_files/submit_noc.php', nocData, function (response) {
+                if (response == '1') {
+                    swalSuccess('Success', 'NOC submitted successfully.');
+                    documentList(cus_id, grp_id);  // Use cus_id and grp_id after submission
+                    $('#noc_relation').val('');
+                    $('#noc_member').val('');
+                    setTimeout(() => {
+                        setSubmittedDisabled();
+                    }, 1000);
+                } else {
+                    swalError('Error', 'NOC submission failed.');
+                }
+            }, 'json');
+        }
+    });
+    
+
+    /////////////////////////////////////////NoC END//////////////////////////////////////////////
     //////////////////////////////////////////////Document End/////////////////////////////////////////////////
 });
 $(function () {
@@ -1353,6 +1441,7 @@ function documentList(cus_id,grp_id) {
             'sno',
             'doc_name',
             'doc_type',
+            'auction_month',
             'guarantor_name',
             'upload',
             'date_of_noc',
@@ -1363,4 +1452,87 @@ function documentList(cus_id,grp_id) {
         appendDataToTable('#noc_document_list_table', response, nocDocInfoColumns);
         setdtable('#noc_document_list_table');
     }, 'json');
+}
+function getGuarantorRelationship(cus_id) {
+    $.post('api/customer_data_files/noc_guarantor_name.php', { cus_id: cus_id }, function (response) {
+        let appendGurantorOption = "<option value=''>Select Name</option>";
+        $.each(response, function (index, val) {
+            let selected = '';
+            let editGId = $('#gua_name_edit').val(); // Existing guarantor ID (if any)
+            if (val.type === 'Guarantor' && val.id == editGId) {
+                selected = 'selected';
+            }
+
+            // Display type of the person (Guarantor or Customer)
+            appendGurantorOption += "<option value='" + val.id + "' " + selected + ">" + val.name + "</option>";
+        });
+
+        $('#noc_member').empty().append(appendGurantorOption);
+        // Clear the relationship field
+        $('#noc_relation').val('');
+    }, 'json');
+}
+function getnocrelationshipName(guarantorId) {
+    $.ajax({
+        url: 'api/settlement_files/gua_name.php',
+        type: 'POST',
+        data: { id: guarantorId },
+        dataType: 'json',
+        cache: false,
+        success: function (response) {
+            $('#noc_relation').val(response.guarantor_relationship || 'Customer');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching guarantor relationship:', error);
+            $('#noc_relation').val('Customer');
+        }
+    });
+}
+function setSubmittedDisabled() {
+    $('.noc_doc_info_chkbx').each(function () {
+        if ($(this).attr('data-id') == '1') {
+            $(this).closest('tr').addClass('disabled-row');
+            $(this).attr('checked', true).attr('disabled', true);
+        }
+    });
+    var doc_checkDisabled = $('.noc_doc_info_chkbx:disabled').length === $('.noc_doc_info_chkbx').length;
+    if (doc_checkDisabled) {
+        $('#submit_noc').hide();
+    } else {
+        $('#submit_noc').show();
+    }
+
+}
+function setValuesInTables() {
+    let member = $('#noc_member').val();
+    let date = $('#date_of_noc').val();
+    let formattedDate = (member != '') ? formatDate(date) : '';
+    let name = (member != '') ? $('#noc_member').find(":selected").text() : '';
+    let relationship = (member != '') ? $('#noc_relation').val() : '';
+    let checked = false;
+    $('.noc_doc_info_chkbx').each(function () {
+        if ($(this).is(':checked') && $(this).attr('data-id') == '0') {
+            checked = true;
+            $(this).closest('tr').find('td:nth-child(9)').text(relationship);
+            $(this).closest('tr').find('td:nth-child(8)').text(name);
+            $(this).closest('tr').find('td:nth-child(7)').text(formattedDate);
+        }
+    });
+}
+function removeValuesInTables() {  
+    $('.noc_doc_info_chkbx').each(function () {
+        if (!$(this).is(':checked')) {
+            $(this).closest('tr').find('td:nth-child(9)').text('');
+            $(this).closest('tr').find('td:nth-child(8)').text('');
+            $(this).closest('tr').find('td:nth-child(7)').text('');
+        }
+    });
+   
+}
+
+function formatDate(inputDate) {
+    // Split the input date into year, month, and day components
+    let parts = inputDate.split('-');
+    // Rearrange them in dd-mm-yyyy format
+    return parts[2] + '-' + parts[1] + '-' + parts[0];
 }

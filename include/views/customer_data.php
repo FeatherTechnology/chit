@@ -412,7 +412,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Guarantor Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorRelationship()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -544,6 +544,7 @@
                             <th>S No.</th>
                             <th>Document Name</th>
                             <th>Document Type</th>
+                            <th>Auction Month</th>
                             <th>Document Holder</th>
                             <th>Document</th>
                             <th>Date of NOC</th>
@@ -649,7 +650,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Family Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorRelationship()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -754,7 +755,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorRelationship()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorFamily()">Close</button>
             </div>
         </div>
     </div>
