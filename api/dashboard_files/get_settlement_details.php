@@ -6,7 +6,7 @@ $branchId = $_POST['branchId'];
 $response = array();
 
 //Total Paid
-$tot_paid = "SELECT COALESCE(SUM(si.settle_cash) + SUM(si.cheque_val) + SUM(si.transaction_val),0) AS total_settle FROM `settlement_info` si JOIN auction_details ad ON si.auction_id = ad.id JOIN group_creation gc ON ad.group_id = gc.grp_id WHERE 1 ";
+$tot_paid = "SELECT COALESCE(SUM(si.settle_cash) + SUM(si.cheque_val) + SUM(si.transaction_val),0) AS total_settle FROM `settlement_info` si JOIN auction_details ad ON si.auction_id = ad.id JOIN group_creation gc ON ad.group_id = gc.grp_id WHERE   MONTH(si.created_on) = MONTH(CURDATE()) AND YEAR(si.created_on) = YEAR(CURDATE()) ";
 
 //Today Paid
 $today_paid = "SELECT COALESCE(SUM(si.settle_cash) + SUM(si.cheque_val) + SUM(si.transaction_val),0) AS today_settle FROM `settlement_info` si JOIN auction_details ad ON si.auction_id = ad.id JOIN group_creation gc ON ad.group_id = gc.grp_id WHERE DATE(si.created_on) = CURDATE()  ";

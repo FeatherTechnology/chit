@@ -5,13 +5,13 @@ $property_list_arr = array();
 $cusMappingID = $_POST['cus_mapping_id'];
 $groupId =$_POST['group_id'];
 $i = 0;
-$qry = $pdo->query("SELECT id, label, remark
+$qry = $pdo->query("SELECT id, label, remark,created_on
 FROM commitment_info
  WHERE cus_mapping_id = '$cusMappingID' AND group_id='$groupId'");
 
 if ($qry->rowCount() > 0) {
     while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
-
+        $row['created_on'] = date('d-m-Y', strtotime($row['created_on']));
         $row['action'] = "<span class='icon-delete commitDeleteBtn' value='" . $row['id'] . "'></span>";
 
         $property_list_arr[$i] = $row; // Append to the array

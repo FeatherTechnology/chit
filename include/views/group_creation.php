@@ -149,7 +149,7 @@
                                     </div>
                                     <div class="col-4 col-sm-4 col-md-4	col-lg-2 col-xl-2">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary" id="add_cus_map" name="add_cus_map" onclick="getCusMapTable()" tabindex='16'><span class="icon-add"></span>&nbsp;Add Customer Mapping</button>
+                                            <button type="button" class="btn btn-primary" id="add_cus_map" name="add_cus_map" onclick="getCusMapTable();getJoiningMonth()" tabindex='16'><span class="icon-add"></span>&nbsp;Add Customer Mapping</button>
                                         </div>
                                     </div>
                                 </div>
@@ -231,9 +231,17 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="joining_month">Auction Start From<span class="text-danger">*</span></label>
+                                    <select class="form-control" id="joining_month" name="joining_month" tabindex="18">
+                                        <option value="">Select Auction Start From</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12 align-self-end">
                                 <div class="form-group">
-                                    <input type="button" class="btn btn-primary modalBtnCss" id="submit_cus_map" name="submit_cus_map" value="Add" tabindex="18">
+                                    <input type="button" class="btn btn-primary modalBtnCss" id="submit_cus_map" name="submit_cus_map" value="Add" tabindex="19">
                                 </div>
                             </div>
                         </div>
@@ -249,6 +257,7 @@
                                     <th>Name</th>
                                     <th>Place</th>
                                     <th>Occupation</th>
+                                    <th>Auction Start</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
