@@ -2,7 +2,6 @@
 require '../../ajaxconfig.php';
 @session_start();
 $user_id = $_SESSION['user_id'];
-
 $group_id = $_POST['group_id'];
 $group_list_arr = array();
 
@@ -18,7 +17,10 @@ $sql = "SELECT
     ad.low_value,
     ad.high_value,
     ad.status,
-    COALESCE(CONCAT(cc.first_name, ' ', cc.last_name), '') AS cus_name,
+    CASE 
+        WHEN ad.cus_name = '-1' THEN 'Company' -- Handle the case where cus_name is -1 (Company)
+        ELSE COALESCE(CONCAT(cc.first_name, ' ', cc.last_name), '') -- Concatenate first and last name
+    END AS cus_name,
     ad.auction_value
 FROM auction_details ad
 LEFT JOIN customer_creation cc ON ad.cus_name = cc.id
@@ -39,7 +41,7 @@ try {
     if ($stmt->rowCount() > 0) {
         while ($auctionInfo = $stmt->fetch(PDO::FETCH_ASSOC)) {
             // Concatenate group_id, date, and id to form uniqueDetail
-            $uniqueDetail = $auctionInfo['group_id'] . '_' . $auctionInfo['date'] . '_' . $auctionInfo['id']. '_' . $auctionInfo['low_value']. '_' . $auctionInfo['high_value'];
+            $uniqueDetail = $auctionInfo['group_id'] . '_' . $auctionInfo['date'] . '_' . $auctionInfo['id']. '_' . $auctionInfo['low_value']. '_' . $auctionInfo['high_value'].'_' . $auctionInfo['auction_month'];
             $uniqueValue = $auctionInfo['group_id'] . '_' . $auctionInfo['date'];
             $uniqueMonth = $auctionInfo['group_id'] . '_' . $auctionInfo['auction_month'];
 
@@ -47,7 +49,7 @@ try {
             $auctionInfo['action'] = '';
 
             if ($auctionInfo['status'] == '1') {
-                $auctionInfo['action'] .= "<button class='btn btn-primary auctionBtn' data-value='" . $uniqueDetail . "' >&nbsp;Auction</button>
+                $auctionInfo['action'] .= "<button class='btn btn-primary auctionBtn' data-value='" . $uniqueMonth . "' >&nbsp;Auction</button>
                                 <button class='btn btn-primary postponeBtn' data-value='" . $uniqueMonth . "'>&nbsp;Postpone</button>";
             }
             if ($auctionInfo['status'] >= '2') {

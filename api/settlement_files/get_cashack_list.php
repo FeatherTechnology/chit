@@ -3,6 +3,7 @@ require "../../ajaxconfig.php";
 
 // Get the auction_id from POST data
 $auction_id = isset($_POST['auction_id']) ? $_POST['auction_id'] : null;
+$cus_id = isset($_POST['cus_id']) ? $_POST['cus_id'] : null;
 
 if ($auction_id !== null) {
     // Directly embed the auction_id into the query
@@ -20,10 +21,9 @@ if ($auction_id !== null) {
         LEFT JOIN 
             guarantor_info gi ON si.guarantor_name = gi.id  
         LEFT JOIN auction_details ad ON si.auction_id = ad.id
-        LEFT JOIN 
-            customer_creation cc ON ad.cus_name = cc.id 
+           LEFT JOIN customer_creation cc ON si.cus_name = cc.id
         WHERE 
-            si.auction_id = '$auction_id'
+            si.auction_id = '$auction_id' AND cc.cus_id='$cus_id'
     ");
 
     // Check if any rows are returned
