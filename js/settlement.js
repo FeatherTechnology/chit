@@ -608,7 +608,9 @@ function deleteDocInfo(id) {
         if (response == '1') {
             swalSuccess('success', 'Doc Info Deleted Successfully');
             getDocCreationTable();
-        } else {
+        }else if (response == '2') {
+            swalError('Access Denied', 'Used in NOC Summary');
+        }   else {
             swalError('Alert', 'Delete Failed')
         }
     }, 'json');
