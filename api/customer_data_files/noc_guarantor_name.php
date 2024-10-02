@@ -1,7 +1,7 @@
 <?php
 require '../../ajaxconfig.php';
 
-$id = $_POST['id'];
+$cus_id = $_POST['cus_id'];
 $qry = $pdo->query("SELECT 
             gi.id,
             gi.guarantor_name,
@@ -13,7 +13,7 @@ $qry = $pdo->query("SELECT
         LEFT JOIN 
             guarantor_info gi ON cc.cus_id = gi.cus_id
         WHERE 
-            ad.id = '$id'
+            cc.cus_id = '$cus_id'
         GROUP BY 
             cc.id, gi.id");  // Group by customer ID and guarantor ID
 
