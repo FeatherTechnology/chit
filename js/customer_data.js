@@ -44,19 +44,18 @@ $(document).ready(function () {
             $('.group_current').hide();
         }
     });
-    // $(document).on('click', '#document_current', function () {
-    //     $('#customer_summary').show()
-    //     $('.doc_current').show();
-    //     let id = $('#customer_id').val();
-    //     viewCustomerGroups(id);
-    // })
-    // $(document).on('click', '#customer_closed', function () {
-    //     $('.doc_close').show();
-    //     $('.doc_current').hide();
-    //     let id = $('#customer_id').val();
-    //     viewCustomerClosedGroups(id);
+    $(document).on('click', '#document_current', function () {
+        $('#customer_summary').show()
+        $('.doc_current').show();
+        let id = $('#customer_id').val();
+        viewCustomerDoc(id);
+    })
+    $(document).on('click', '#document_closed', function () {
+        $('.doc_current').show();
+        let id = $('#customer_id').val();
+        viewCustomerClosedDoc(id);
 
-    // })
+    })
     $(document).on('click', '#customer_profile', function () {
 
         $('#customer_creation').show(); $('#customer_summary').hide(); $('#curr_closed').hide();
@@ -1341,6 +1340,22 @@ function viewCustomerClosedGroups(id) {
 }
 function viewCustomerDoc(id) {
     $.post('api/customer_data_files/get_current_document.php', { id: id }, function (response) {
+        // Iterate through the response to round off chit_amount
+        let cashList = [
+            "sno",
+            "grp_id",
+            "grp_name",
+            "chit_value",
+            "document_count",
+            "action",
+
+        ];
+        appendDataToTable('#doc_cur_table', response, cashList);
+        setdtable('#doc_cur_table');
+    }, 'json');
+}
+function viewCustomerClosedDoc(id) {
+    $.post('api/customer_data_files/get_closed_document.php', { id: id }, function (response) {
         // Iterate through the response to round off chit_amount
         let cashList = [
             "sno",

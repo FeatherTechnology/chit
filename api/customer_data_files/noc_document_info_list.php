@@ -8,30 +8,35 @@ $grp_id = $_POST['grp_id'];
 // Modify query to use IFNULL or COALESCE to select guarantor_name, and if NULL, fetch concatenated customer name from customer_creation
 $qry = $pdo->query("
     SELECT 
-        di.`id`, 
-        di.`doc_name`, 
-        di.`doc_type`, 
-        ad.auction_month, 
-        IFNULL(gi.`guarantor_name`, CONCAT(cc.first_name, ' ', cc.last_name)) AS guarantor_name,  -- Fetch customer name if guarantor_name is NULL
-        di.`upload`, 
-        di.`date_of_noc`, 
-        IFNULL(gu.`guarantor_name`, CONCAT(cc.first_name, ' ', cc.last_name)) AS noc_member_name, -- Fetch customer name if noc_member's guarantor_name is NULL
-        di.`noc_relationship`, 
-        di.`noc_status`
-    FROM 
-        `document_info` di 
-    LEFT JOIN 
-        guarantor_info gi ON di.holder_name = gi.id 
-    LEFT JOIN 
-        guarantor_info gu ON di.noc_member = gu.id 
-    JOIN 
-        auction_details ad ON di.auction_id = ad.id 
-    LEFT JOIN 
-        customer_creation cc ON di.cus_id = cc.cus_id  -- Join with customer_creation to fetch customer name if guarantor_name is NULL
-    WHERE 
-        di.`cus_id` = '$cus_id' 
-    AND 
-        ad.group_id = '$grp_id'
+    di.`id`, 
+    di.`doc_name`, 
+    di.`doc_type`, 
+    ad.auction_month, 
+    IFNULL(gi.`guarantor_name`, CONCAT(cc.first_name, ' ', cc.last_name)) AS guarantor_name, 
+    di.`upload`, 
+    di.`date_of_noc`, 
+    CASE 
+        WHEN di.noc_member IS NULL THEN ''  -- Show empty string if noc_member is NULL
+        WHEN di.noc_member = 'null' THEN CONCAT(cc.first_name, ' ', cc.last_name)  -- Show cus_name if noc_member is lowercase 'null'
+        ELSE gu.`guarantor_name`
+    END AS noc_member_name, 
+    di.`noc_relationship`, 
+    di.`noc_status`
+FROM 
+    `document_info` di 
+LEFT JOIN 
+    guarantor_info gi ON di.holder_name = gi.id 
+LEFT JOIN 
+    guarantor_info gu ON di.noc_member = gu.id 
+JOIN 
+    auction_details ad ON di.auction_id = ad.id 
+LEFT JOIN 
+    customer_creation cc ON di.cus_id = cc.cus_id 
+WHERE 
+    di.`cus_id` = '$cus_id' 
+AND 
+    ad.group_id = '$grp_id'
+
 ");
 
 if ($qry->rowCount() > 0) {
