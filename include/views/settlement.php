@@ -406,7 +406,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="doc_upload">Upload</label>
+                                    <label for="doc_upload">Upload</label><span class="text-danger">*</span>
                                     <input type="file" class="form-control" name="doc_upload" id="doc_upload" tabindex="6">
                                     <input type="hidden" name="doc_upload_edit" id="doc_upload_edit">
                                 </div>
