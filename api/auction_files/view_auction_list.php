@@ -2,7 +2,6 @@
 require '../../ajaxconfig.php';
 @session_start();
 $user_id = $_SESSION['user_id'];
-
 $group_id = $_POST['group_id'];
 $group_list_arr = array();
 
@@ -50,7 +49,7 @@ try {
             $auctionInfo['action'] = '';
 
             if ($auctionInfo['status'] == '1') {
-                $auctionInfo['action'] .= "<button class='btn btn-primary auctionBtn' data-value='" . $uniqueDetail . "' >&nbsp;Auction</button>
+                $auctionInfo['action'] .= "<button class='btn btn-primary auctionBtn' data-value='" . $uniqueMonth . "' >&nbsp;Auction</button>
                                 <button class='btn btn-primary postponeBtn' data-value='" . $uniqueMonth . "'>&nbsp;Postpone</button>";
             }
             if ($auctionInfo['status'] >= '2') {

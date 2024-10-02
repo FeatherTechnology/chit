@@ -184,14 +184,15 @@ $(document).ready(function () {
 
         // Show the modal
         $('#add_commitment_modal').modal('show');
-
+        $('#label').css('border', '1px solid #cecece');
+        $('#remark').css('border', '1px solid #cecece');
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
         let cusMappingID = dataParts[1];
         getCommitmentInfoTable(cusMappingID, groupId);
-
+        commitDate();
         // Unbind any existing click event to prevent multiple submissions
         $('#add_commit').off('click').on('click', function (event) {
             event.preventDefault();
@@ -413,10 +414,20 @@ function collectDate() {
     var currentDate = day + '-' + month + '-' + year;
     $('#collection_date').val(currentDate);
 }
+function commitDate() {
+    var today = new Date();
+    var day = String(today.getDate()).padStart(2, '0');
+    var month = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
+    var year = today.getFullYear();
+
+    var currentDate = day + '-' + month + '-' + year;
+    $('#comm_date').val(currentDate);
+}
 function getCommitmentInfoTable(cusMappingID, groupId) {
     $.post('api/collection_files/commitment_info_data.php', { cus_mapping_id: cusMappingID, group_id: groupId }, function (response) {
         var columnMapping = [
             'sno',
+            'created_on',
             'label',
             'remark',
             'action'

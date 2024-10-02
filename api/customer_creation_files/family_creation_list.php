@@ -10,7 +10,7 @@ $qry = $pdo->query("SELECT id,fam_name,fam_relationship,fam_age,fam_live,fam_occ
 
 if ($qry->rowCount() > 0) {
 
-    $default_live = "Unknown";
+    $default_live = " ";
 
     while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         // Get the value of fam_live
