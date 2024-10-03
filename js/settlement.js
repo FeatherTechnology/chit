@@ -452,13 +452,16 @@ $('#submit_doc_info').click(function (event) {
                 if (response == '1') {
                     swalSuccess('Success', 'Document Info Updated Successfully')
                 } else if (response == '2') {
-                    swalSuccess('Success', 'Document Info Added Successfully')
+                    swalSuccess('Success', 'Document Info Added Successfully')  
                 } else {
                     swalError('Alert', 'Failed')
                 }
+                groupData()
                 getDocCreationTable();
-                $('#clear_doc_form').trigger('click');
+                $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
+                //$('#clear_doc_form').trigger('click');
                 $('#doc_info_id').val('');
+                $('#doc_upload_edit').val('');
             }
         });
     }
@@ -483,6 +486,7 @@ $(document).on('click', '.docDeleteBtn', function () {
 });
 
 $('#clear_doc_form').click(function () {
+    $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
     $('#doc_info_id').val('');
     $('#doc_upload_edit').val('');
     $('#doc_info_form input').css('border', '1px solid #cecece');
@@ -514,8 +518,17 @@ function editGroupCreation(id) {
             $('#total_month').val(data.total_months);
             $('#start_month').val(data.start_month);
             $('#end_month').val(data.end_month);
+            $('#grp_month').val(data.auction_month);
         }
     }, 'json');
+}
+function groupData(){
+    let group_id= $('#group_id').val();
+    $('#grp_id').val(group_id);
+    let group_name = $('#group_name').val();
+    $('#grp_name').val(group_name);
+    let grp_month = $('#grp_month').val();
+    $('#auction_month').val(grp_month);
 }
 function editCustomerCreation(id) {
     $.post('api/settlement_files/settle_customer_data.php', { id: id }, function (response) {
@@ -688,6 +701,13 @@ function getDocCreationTable() {
         ]
         appendDataToTable('#doc_creation_table', response, docInfoColumn);
         setdtable('#doc_creation_table')
+        $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
+        $('#doc_info_form textarea').val('');
+        $('#doc_info_form input').css('border', '1px solid #cecece');
+        $('#doc_info_form select').css('border', '1px solid #cecece');
+        $('#doc_info_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+        });
     }, 'json');
 }
 function getDocInfoTable() {
