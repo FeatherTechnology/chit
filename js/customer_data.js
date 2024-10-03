@@ -49,11 +49,15 @@ $(document).ready(function () {
         $('.doc_current').show();
         let id = $('#customer_id').val();
         viewCustomerDoc(id);
+        $('#sub_noc').hide();
+        $('#member_card').hide();
     })
     $(document).on('click', '#document_closed', function () {
         $('.doc_current').show();
         let id = $('#customer_id').val();
         viewCustomerClosedDoc(id);
+        $('#sub_noc').show();
+        $('#member_card').show();
 
     })
     $(document).on('click', '#customer_profile', function () {
