@@ -691,6 +691,9 @@ function getDocCreationTable() {
     $.post('api/settlement_files/doc_info_list.php', { cus_id,auction_id }, function (response) {
         let docInfoColumn = [
             "sno",
+            "grp_name",
+            "group_id",
+            "auction_month",
             "doc_name",
             "doc_type",
             "guarantor_name",
@@ -717,6 +720,9 @@ function getDocInfoTable() {
     $.post('api/settlement_files/doc_info_list.php', { cus_id,auction_id }, function (response) {
         let docColumn = [
             "sno",
+            "grp_name",
+            "group_id",
+            "auction_month",
             "doc_name",
             "doc_type",
             "guarantor_name",

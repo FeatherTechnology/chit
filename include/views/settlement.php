@@ -94,7 +94,7 @@
                                     <input type="month" class="form-control" id="end_month" name="end_month" tabindex="8" readonly>
                                 </div>
                             </div>
-                            <input type="hidden" id="grp_month" >
+                            <input type="hidden" id="grp_month">
                         </div>
                     </div>
                 </div>
@@ -289,6 +289,9 @@
                                         <thead>
                                             <tr>
                                                 <th width="20">S.NO</th>
+                                                <th>Group Name</th>
+                                                <th>Group ID</th>
+                                                <th>Auction Month</th>
                                                 <th>Document Name</th>
                                                 <th>Document Type</th>
                                                 <th>Holder Name</th>
@@ -371,14 +374,14 @@
                         <div class="row">
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="grp_id">Group ID</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="grp_id" id="grp_id" tabindex="1" readonly>
+                                    <label for="grp_name">Group Name</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="grp_name" id="grp_name" tabindex="2" readonly>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="grp_name">Group Name</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="grp_name" id="grp_name" tabindex="2" readonly>
+                                    <label for="grp_id">Group ID</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="grp_id" id="grp_id" tabindex="1" readonly>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -446,6 +449,9 @@
                             <thead>
                                 <tr>
                                     <th width="20">S.No.</th>
+                                    <th>Group Name</th>
+                                    <th>Group ID</th>
+                                    <th>Auction Month</th>
                                     <th>Document Name</th>
                                     <th>Document Type</th>
                                     <th>Holder Name</th>
