@@ -519,6 +519,17 @@ $('#doc_holder_name').on('change', function () {
         $('#doc_relationship').val('Customer');
     }
 });
+$('#group_name').on('change', function () {
+    const guarantorId = $(this).val();
+    if (guarantorId && guarantorId !== 'null') {
+        // Fetch the guarantor relationship if a valid ID is selected
+        getDocGroupName(guarantorId);
+
+    } else {
+        // Set default relationship as 'Customer' if no valid ID is selected
+        $('#grp_id').val('Customer');
+    }
+});
 $('#submit_doc_info').click(function (event) {
     event.preventDefault();
     let doc_name = $('#doc_name').val();
@@ -533,9 +544,7 @@ $('#submit_doc_info').click(function (event) {
     let doc_upload_edit = $('#doc_upload_edit').val();
     let doc_info_id = $('#doc_info_id').val();
     let cus_id = $('#cus_id').val();
-    var data = ['doc_name', 'doc_type', 'doc_holder_name', 'doc_relationship','group_month','group_name','grp_id']
-console.log(grp_id)
-console.log(group_name)
+    var data = ['doc_name', 'doc_type', 'doc_holder_name', 'doc_relationship','group_month','group_name']
     var isValid = true;
     data.forEach(function (entry) {
         var fieldIsValid = validateField($('#' + entry).val(), entry);
@@ -1692,6 +1701,19 @@ function getDocrelationshipName(guarantorId) {
         }
     });
 }
+function getDocGroupName(guarantorId) {
+    $.ajax({
+        url: 'api/customer_data_files/getGroup_name.php',
+        type: 'POST',
+        data: { id: guarantorId },
+        dataType: 'json',
+        cache: false,
+        success: function (response) {
+            $('#grp_id').val(response.grp_id);
+            getGroupMonth();
+        },
+    });
+}
 
 function getDocGuarantor() {
     let cus_id = $('#cus_id').val(); 
@@ -1718,25 +1740,15 @@ function getGroupName() {
         $('#group_name').empty().append(appendGroupOption);
     }, 'json');   
 }
-function getGroupID() {
-    let cus_id = $('#cus_id').val(); 
-    $.post('api/customer_data_files/get_document_group.php', { cus_id: cus_id }, function (response) {
-        let appendGroupOption = "<option value=''>Select Group ID</option>";
-        $.each(response, function (index, val) {
-            let selected = '';
-            appendGroupOption += "<option value='" + val.grp_id + "' " + selected + ">" + val.grp_id + "</option>"; 
-        });
 
-        $('#grp_id').empty().append(appendGroupOption);
-    }, 'json');   
-}
 function getGroupMonth() {
     let cus_id = $('#cus_id').val(); 
-    $.post('api/customer_data_files/get_document_month.php', { cus_id: cus_id }, function (response) {
+    let grp_id = $('#grp_id').val(); 
+    $.post('api/customer_data_files/get_document_month.php', {cus_id, grp_id }, function (response) {
         let appendGroupOption = "<option value=''>Select Auction Month</option>";
         $.each(response, function (index, val) {
             let selected = '';
-            appendGroupOption += "<option value='" + val.auction_month + "' " + selected + ">" + val.auction_month + "</option>"; 
+            appendGroupOption += "<option value='" + val.id + "' " + selected + ">" + val.auction_month + "</option>"; 
         });
 
         $('#group_month').empty().append(appendGroupOption);

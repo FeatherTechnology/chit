@@ -3,8 +3,10 @@ require '../../ajaxconfig.php';
 
 $response =array();
 $cus_id = $_POST['cus_id'];
+$grp_id = $_POST['grp_id'];
 
-$qry = $pdo->query("SELECT DISTINCT
+$qry = $pdo->query("SELECT 
+        ad.id,
         ad.auction_month
     FROM 
         auction_details ad
@@ -15,7 +17,7 @@ $qry = $pdo->query("SELECT DISTINCT
     LEFT JOIN 
         customer_creation cc ON gcm.cus_id = cc.id
 WHERE
-    cc.cus_id = '$cus_id' AND ad.cus_name=cc.id Group BY ad.id");
+    cc.cus_id = '$cus_id' AND ad.cus_name=cc.id AND ad.group_id='$grp_id' Group BY ad.id");
 if ($qry->rowCount() > 0) {
     $response = $qry->fetchAll(PDO::FETCH_ASSOC);
 }

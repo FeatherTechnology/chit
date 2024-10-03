@@ -438,7 +438,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Document Info
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();getGroupName();getGroupID();getGroupMonth()" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();getGroupName();getGroupID();" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -914,20 +914,18 @@
                     <form id="doc_info_form">
                         <input type="hidden" name="doc_info_id" id='doc_info_id'>
                         <div class="row">
-                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="grp_id">Group ID</label><span class="text-danger">*</span>
-                                    <select type="text" class="form-control" id="grp_id" name="grp_id" tabindex="1">
-                                        <option value="">Select Group ID</option>
+                                    <label for="group_name">Group Name</label><span class="text-danger">*</span>
+                                    <select type="text" class="form-control" id="group_name" name="group_name" tabindex="1">
+                                        <option value="">Select Group Name</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="group_name">Group Name</label><span class="text-danger">*</span>
-                                    <select type="text" class="form-control" id="group_name" name="group_name" tabindex="2">
-                                        <option value="">Select Group Name</option>
-                                    </select>
+                                    <label for="grp_id">Group ID</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="grp_id" id="grp_id" tabindex="2" readonly>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">

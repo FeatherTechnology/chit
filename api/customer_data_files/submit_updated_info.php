@@ -6,9 +6,7 @@ $user_id = $_SESSION['user_id'];
 $doc_name = $_POST['doc_name'];
 $doc_type = $_POST['doc_type'];
 $doc_holder_name = $_POST['doc_holder_name'];
-$group_name = $_POST['group_name'];
-$grp_id = $_POST['grp_id'];
-$group_month = $_POST['group_month'];
+$auction_id = $_POST['group_month'];
 $doc_relationship = $_POST['doc_relationship'];
 $remarks = $_POST['remarks'];
 $cus_id = $_POST['cus_id'];
@@ -30,8 +28,7 @@ if (!empty($_FILES['doc_upload']['name'])) {
 } else {
     $picture = (isset($_POST['doc_upload_edit'])) ? $_POST['doc_upload_edit'] : '';
 }
-$auction_qry = $pdo->query("SELECT id From auction_details WHERE group_id='$grp_id' AND auction_month='$group_month'");
-$auction_id = $auction_qry->fetchColumn();
+
 $status = 0;
 if ($id != '') {
     $qry = $pdo->query("UPDATE `document_info` SET `cus_id`='$cus_id',`auction_id`='$auction_id',`doc_name`='$doc_name',`doc_type`='$doc_type',`holder_name`='$doc_holder_name',`relationship`='$doc_relationship',`remarks`='$remarks',`upload`='$picture',`update_login_id`='$user_id',`updated_on`=now() WHERE `id`='$id' ");
