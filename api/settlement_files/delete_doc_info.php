@@ -4,7 +4,8 @@ require '../../ajaxconfig.php';
 $id = $_POST['id'];
 $result = 0;
 $cnt = '0';
-$qry = $pdo->query("SELECT * FROM `noc` WHERE id='$id");
+
+$qry = $pdo->query("SELECT * FROM `noc` WHERE doc_id='$id'");
 if ($qry->rowCount() > 0) {
     $cnt = '1';
 }
@@ -21,7 +22,7 @@ if ($cnt == '1') {
         if ($qry) {
             $result = 1;
         } else {
-            $result = 2;
+            $result = 3;
         }
     }
 }
