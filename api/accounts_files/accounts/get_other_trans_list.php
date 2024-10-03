@@ -39,7 +39,7 @@ if ($qry->rowCount() > 0) {
         $id = !empty($result['id']) ? $result['id'] : '0';
         $grp_id = !empty($result['grp_id']) ? $result['grp_id'] : '0';
         $group_mem = !empty($result['group_mem']) ? $result['group_mem'] : '0';
-        $auction_month = !empty($result['auction_month']) ? $result['auction_month'] : '0';
+        $auction_month = !empty($result['auction_month']) ? $result['auction_month'] : '';
 
         $unique = $id . '_' . $grp_id . '_' . $group_mem . '_' . $auction_month;
         $result['action'] = "<span class='icon-trash-2 transDeleteBtn' data-value='" . $unique . "'></span>";
