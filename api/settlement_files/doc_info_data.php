@@ -5,9 +5,18 @@ $id = $_POST['id'];
 
 // Modify the query to join the customer_creation table and fetch the customer name
 $qry = $pdo->query("
-    SELECT di.*, CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name
-    FROM `document_info` di
-    LEFT JOIN `customer_creation` cc ON di.cus_id = cc.cus_id
+    SELECT
+    di.*,
+    CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
+    ad.group_id,
+    ad.auction_month,
+    gc.grp_name
+FROM
+    `document_info` di
+LEFT JOIN `customer_creation` cc ON
+    di.cus_id = cc.cus_id
+LEFT JOIN auction_details ad ON di.auction_id = ad.id
+LEFT JOIN group_creation gc ON ad.group_id=gc.grp_id
     WHERE di.id = '$id'
 ");
 

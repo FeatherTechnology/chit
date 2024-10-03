@@ -438,7 +438,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Document Info
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();getGroupName();getGroupID();getGroupMonth()" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -914,16 +914,40 @@
                     <form id="doc_info_form">
                         <input type="hidden" name="doc_info_id" id='doc_info_id'>
                         <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="grp_id">Group ID</label><span class="text-danger">*</span>
+                                    <select type="text" class="form-control" id="grp_id" name="grp_id" tabindex="1">
+                                        <option value="">Select Group ID</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="group_name">Group Name</label><span class="text-danger">*</span>
+                                    <select type="text" class="form-control" id="group_name" name="group_name" tabindex="2">
+                                        <option value="">Select Group Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="group_month">Auction Month</label><span class="text-danger">*</span>
+                                    <select type="text" class="form-control" id="group_month" name="group_month" tabindex="3">
+                                        <option value="">Select Auction Month</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="doc_name">Document Name</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="doc_name" id="doc_name" tabindex="1" placeholder="Enter Document Name">
+                                    <input type="text" class="form-control" name="doc_name" id="doc_name" tabindex="4" placeholder="Enter Document Name">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="doc_type">Document Type</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="doc_type" id="doc_type" tabindex="2">
+                                    <select class="form-control" name="doc_type" id="doc_type" tabindex="5">
                                         <option value="">Select Document Type</option>
                                         <option value="1">Original</option>
                                         <option value="2">Xerox</option>
@@ -933,7 +957,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="doc_holder_name">Holder Name</label><span class="text-danger">*</span>
-                                    <select type="text" class="form-control" id="doc_holder_name" name="doc_holder_name" tabindex="3">
+                                    <select type="text" class="form-control" id="doc_holder_name" name="doc_holder_name" tabindex="6">
                                         <option value="">Select Holder Name</option>
                                     </select>
                                 </div>
@@ -941,26 +965,26 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="doc_relationship">Relationship</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" name="doc_relationship" id="doc_relationship" tabindex="4" placeholder="Relationship" readonly>
+                                    <input type="text" class="form-control" name="doc_relationship" id="doc_relationship" tabindex="7" placeholder="Relationship" readonly>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="remarks">Remark</label>
-                                    <textarea class="form-control" name="remarks" id="remarks" placeholder="Enter Remarks" tabindex="5"></textarea>
+                                    <textarea class="form-control" name="remarks" id="remarks" placeholder="Enter Remarks" tabindex="8"></textarea>
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="doc_upload">Upload</label><span class="text-danger">*</span>
-                                    <input type="file" class="form-control" name="doc_upload" id="doc_upload" tabindex="6">
+                                    <input type="file" class="form-control" name="doc_upload" id="doc_upload" tabindex="9">
                                     <input type="hidden" name="doc_upload_edit" id="doc_upload_edit">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <button name="submit_doc_info" id="submit_doc_info" class="btn btn-primary" tabindex="7" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="8">Clear</button>
+                                    <button name="submit_doc_info" id="submit_doc_info" class="btn btn-primary" tabindex="10" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
+                                    <button type="reset" id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="11">Clear</button>
                                 </div>
                             </div>
                         </div>
