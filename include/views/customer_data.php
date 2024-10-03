@@ -449,6 +449,9 @@
                                         <thead>
                                             <tr>
                                                 <th width="20">S.NO</th>
+                                                <th>Group Name</th>
+                                                <th>Group ID</th>
+                                                <th>Auction Month</th>
                                                 <th>Document Name</th>
                                                 <th>Document Type</th>
                                                 <th>Holder Name</th>
@@ -995,6 +998,9 @@
                             <thead>
                                 <tr>
                                     <th width="20">S.No.</th>
+                                    <th>Group Name</th>
+                                    <th>Group ID</th>
+                                    <th>Auction Month</th>
                                     <th>Document Name</th>
                                     <th>Document Type</th>
                                     <th>Holder Name</th>
