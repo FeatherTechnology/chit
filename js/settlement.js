@@ -413,21 +413,6 @@ $('#submit_doc_info').click(function (event) {
             isValid = false;
         }
     });
-    if (doc_upload === undefined && doc_upload_edit === '') {
-        let isUploadValid = validateField('', 'doc_upload');
-        let isHiddenValid = validateField('', 'doc_upload_edit');
-        if (!isUploadValid || !isHiddenValid) {
-            isValid = false;
-        }
-        else {
-            $('#doc_upload').css('border', '1px solid #cecece');
-            $('#doc_upload_edit').css('border', '1px solid #cecece');
-        }
-    }
-    else {
-        $('#doc_upload').css('border', '1px solid #cecece');
-        $('#doc_upload_edit').css('border', '1px solid #cecece');
-    }
     if (isValid) {
         let docInfo = new FormData();
         docInfo.append('doc_name', doc_name);
