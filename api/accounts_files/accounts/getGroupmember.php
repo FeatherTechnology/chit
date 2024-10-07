@@ -22,7 +22,8 @@ WHERE
     $transaction_qry = "
     SELECT group_mem 
     FROM other_transaction 
-    WHERE group_id = '$group_id' AND type IN (1, 2);
+    WHERE group_id = '$group_id' AND type IN (1, 2)
+HAVING COUNT(DISTINCT type) = 2;
 ";
 $transaction_customers = $pdo->query($transaction_qry)->fetchAll(PDO::FETCH_COLUMN);
  $qry = "
@@ -63,9 +64,10 @@ WHERE
         $auction_taken_count = count(array_filter($taken_customers, fn($id) => $id == $customer_id)); // Use '==' for comparison
         // Check if customer exists in other_transaction
 
+        $in_other_transaction = in_array($customer_id, $transaction_customers);
 
         // Check eligibility: customer can participate if they have chits left to use and they are not in other_transaction
-        if ($auction_taken_count < $chit_count) {
+        if ($auction_taken_count < $chit_count  && !$in_other_transaction) {
             $customer_list_arr[] = $customer;
         }
     }
