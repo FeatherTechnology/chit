@@ -19,7 +19,12 @@ WHERE
     ";
     $taken_customers = $pdo->query($taken_auction_qry)->fetchAll(PDO::FETCH_COLUMN);
    
-
+    $transaction_qry = "
+    SELECT group_mem 
+    FROM other_transaction 
+    WHERE group_id = '$group_id' AND type IN (1, 2);
+";
+$transaction_customers = $pdo->query($transaction_qry)->fetchAll(PDO::FETCH_COLUMN);
  $qry = "
         SELECT
         cc.first_name,
