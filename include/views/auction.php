@@ -1,21 +1,25 @@
-
 <style>
+    /* Reduce size of table header */
     .input-container {
         position: relative;
         display: flex;
         align-items: center;
     }
-    
+
     .form-control {
-        padding-right: 30px; /* Add padding to prevent text overlap with delete icon */
+        padding-right: 30px;
+        /* Add padding to prevent text overlap with delete icon */
     }
 
     .delete-icon {
         position: absolute;
-        right: 10px; /* Adjust as needed to align with the input field */
+        right: 10px;
+        /* Adjust as needed to align with the input field */
         cursor: pointer;
-        color: balack; /* Or any color you want */
-        font-size: 16px; /* Adjust size if needed */
+        color: balack;
+        /* Or any color you want */
+        font-size: 16px;
+        /* Adjust size if needed */
     }
 </style>
 <div class="col-12  text-center">
@@ -24,7 +28,11 @@
 </div>
 <div class="col-12 text-right">
     <button class="btn btn-primary back_btn" style="display: none;"><span class="icon-arrow-left"></span>&nbsp;Back</button>
-</div></br>
+</div>
+<div class="col-12 text-right back_to_list" style="margin-bottom:10px">
+    <button class="btn btn-primary back_to_loan_list" id="back_to_list" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
+</div>
+</br>
 <!----------------------------- CARD START  Auction TABLE ------------------------------>
 <div class="card auction_table_content">
     <div class="card-header">
@@ -84,7 +92,106 @@
 </div>
 <!-----------------------------CARD END - Auction Detail TABLE --------------------------------->
 <!--------------------------------------Auction Modal Start------------------------------------------->
-<div class="modal fade" id="add_cus_map_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div id="add_cus_map_modal" style="display:none;">
+    <form id="auction_creation" name="auction_creation" action="" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="ch_value" value="0">
+        <div class="row gutters">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Group Info</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="group_id"> Group ID</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="group_id" name="group_id" disabled tabindex="1">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="grp_name"> Group Name </label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="grp_name" name="grp_name" disabled tabindex="2">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="auction_date">Auction Date</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" id="auction_date" name="auction_date" readonly tabindex="3">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="grp_month"> Auction Month</label>
+                                    <input type="text" class="form-control" id="grp_month" name="grp_month" readonly tabindex="4">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="low_value"> Low Value</label>
+                                    <input type="text" class="form-control" id="low_value" name="low_value" readonly tabindex="5">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="high_value"> High Value</label>
+                                    <input type="text" class="form-control" id="high_value" name="high_value" readonly tabindex="6">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Auction Info</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" style="display: flex; justify-content: center; align-items: center;">
+                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                <div class="form-group">
+                                    <label for="cus_name">Customer Name<span class="text-danger">*</span></label>
+                                    <input type="hidden" id="customer_edit_it">
+                                    <select class="form-control" id="cus_name" name="cus_name" tabindex="17" multiple>
+                                        <option value="">Select Customer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12 align-self-end">
+                                <div class="form-group">
+                                    <button name="submit_cus_map" id="submit_cus_map" class="btn btn-primary" tabindex="3" style="margin-top: 18px;">
+                                        <span class="icon-check"></span>&nbsp;Add
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-6" style="margin: auto;">
+                                <table id="cus_mapping_table" class="table custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 10%;">S.No.</th>
+                                            <th style="width: 20%;">Customer Name</th>
+                                            <th style="width: 20%;">Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 text-right">
+                            <button class="btn btn-primary auction_close d-none">&nbsp; Auction Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- <div class="modal fade" id="add_cus_map_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
@@ -140,7 +247,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!--- --------------------------------------Auction Modal END ------------------------------- -->
 <!------------------------------------------Postpone Modal start---------------------------------->
@@ -303,5 +410,3 @@
 </div>
 
 <!------------------------------------------------------------Calculation Modal End------------------------------------------------------------------------>
-
-

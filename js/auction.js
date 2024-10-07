@@ -10,6 +10,7 @@ $(document).ready(function () {
         //swapTableAndCreation();
         $('.auction_table_content').show();
         $('.auction_detail_content,.back_btn').hide();
+        
         $('.today').show();
         $('.this_month').show();
         // getAuctionTodayTable()
@@ -28,7 +29,27 @@ $(document).ready(function () {
     $(document).on('click', '.this_month', function () {
         getAuctionMonthTable()
     });
-
+    $(document).on('click', '#back_to_list', function (event) {
+        event.preventDefault();
+    
+        // Hide back button
+        $('#back_to_list').hide(); 
+    
+        // Show auction details content and back button
+        $('.auction_detail_content, .back_btn').show();
+    
+        // Hide the modal
+        $('#add_cus_map_modal').hide();
+    
+        // Fetch the values from the input fields
+        var groupId = $('#group_id').val(); // Get the Group ID
+        var groupName = $('#grp_name').val(); // Get the Group Name
+        var chitValue = $('#ch_value').val(); // Get the Chit Value (make sure this input exists)
+        const formattedChitValue = moneyFormatIndia(chitValue.toString());
+        // Update the page header with the fetched values
+        $('#pageHeaderName').text(` - Auction - Group ID: ${groupId}, Group Name: ${groupName}, Chit Value: ${formattedChitValue}`);
+    });
+    
     $(document).on('click', '.auctionListBtn', function (event) {
         event.preventDefault();
     
@@ -50,29 +71,17 @@ $(document).ready(function () {
         // Hide and show the necessary sections
         $('.auction_table_content').hide();
         $('.auction_detail_content,.back_btn').show();
+        $('#back_to_list').hide(); 
         $('.today').hide();
         $('.this_month').hide();
-        getModalAttr();
+        $('#add_cus_map_modal').hide();
+        //  getModalAttr();
         // Fetch auction details based on the selected group ID
         fetchAuctionDetails(groupId);
     });
     
 
     ///////////////////////////////////////////////////////Auction Modal Start/////////////////////////////////////////////////////////////////  
-    function getModalAttr() {
-        let grp_date = $('#grp_date').val();
-        let start_month = $('#start_month').val();
-        if (grp_date != '' && start_month != '') {
-            $('.auctionBtn')
-                .attr('data-toggle', 'modal')
-                .attr('data-target', '#add_cus_map_modal');
-        } else {
-            $('.auctionBtn')
-                .removeAttr('data-toggle')
-                .removeAttr('data-target');
-        }
-    }
-
     $(document).on('click', '.auctionBtn', function (event) {
         event.preventDefault();
     
@@ -83,55 +92,83 @@ $(document).ready(function () {
         $.post('api/auction_files/validate_auction_date.php', { group_id: groupId, auction_month: auction_month }, function (response) {
             if (response.is_valid) {
                 // If date and time match, open modal
-                $('#add_cus_map_modal').modal('show');
+                $('#pageHeaderName').text(` - Auction`);
+                $('#add_cus_map_modal').show();
+                $('.auction_detail_content').hide();
+                $('#back_to_list').show(); 
+                $('.back_btn').hide(); 
     
                 var auctionDetail = response.auction_detail; // assuming auction details are returned
-                var [date, id, low_value, high_value] = [auctionDetail.date, auctionDetail.id, auctionDetail.low_value, auctionDetail.high_value];
+                var [date, id, low_value, high_value, group_name,chit_value] = [
+                    auctionDetail.date,
+                    auctionDetail.id,
+                    auctionDetail.low_value,
+                    auctionDetail.high_value,
+                    auctionDetail.group_name,
+                    auctionDetail.chit_value 
+                ];
     
+                // Convert date to dd-mm-yyyy format
+                var formattedDate = formatDate(date); // Call the function to format the date
+    
+                // Set attributes for submission
                 $('#submit_cus_map').attr('data-group_id', groupId);
                 $('#submit_cus_map').attr('data-id', id);
-                $('#submit_cus_map').attr('data-date', date);
+                $('#submit_cus_map').attr('data-date', formattedDate); // Use formatted date
                 $('#submit_cus_map').attr('data-high_value', high_value);
                 $('#submit_cus_map').attr('data-low_value', low_value);
     
+                // Set the values in the modal form fields
+                $('#group_id').val(groupId); // Assuming you want to display the group ID
+                $('#grp_name').val(group_name); // Populate group name
+                $('#ch_value').val(chit_value); // Populate group name
+                $('#auction_date').val(formattedDate); // Populate auction date in dd-mm-yyyy format
+                $('#grp_month').val(auction_month); // Populate auction month
+                var formattedLowValue = moneyFormatIndia(low_value);
+                var formattedHighValue = moneyFormatIndia(high_value);
+                $('#low_value').val(formattedLowValue); // Populate low value
+                $('#high_value').val(formattedHighValue); // Populate high value
+    
+                // Set attributes for auction close button
                 $('.auction_close').attr('data-group_id', groupId);
-                $('.auction_close').attr('data-date', date);
+                $('.auction_close').attr('data-date', formattedDate); // Use formatted date
                 $('.auction_close').attr('data-id', id);
     
-                getCusName(groupId, auction_month); // Fetch customer names based on groupId
+                // Fetch customer names based on groupId
+                getCusName(groupId, auction_month);
             } else {
                 // Show warning message if validation fails
-                swalError('Warning', 'The scheduled auction date and time for this group and month have not yet arrived.Please wait..');
-
-
+                // Convert date to dd-mm-yyyy format for display in warning
+                var auctionDate = response.auction_detail ? response.auction_detail.date : 'N/A';
+                var formattedAuctionDate = formatDate(auctionDate); // Format the auction date
+                var auctionTime = response.auction_detail ? `${response.auction_detail.hours}:${response.auction_detail.minutes} ${response.auction_detail.ampm}` : 'N/A';
+    
+                swalError('Warning', `The scheduled auction date (${formattedAuctionDate}) and time (${auctionTime}) for this month have not yet arrived. Please wait.`);
             }
         }, 'json');
+    
+        // Function to format date to dd-mm-yyyy
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A'; // Handle cases where date is undefined or null
+            var dateParts = dateString.split('-'); // Assuming input format is 'yyyy-mm-dd'
+            return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Return as 'dd-mm-yyyy'
+        }
     });
     
-// function updateDeleteIcon() {
-//     // Remove any existing delete icons from all rows
-//     $('#cus_mapping_table tbody tr').each(function () {
-//         if (!$(this).hasClass('company-row')) {
-//         $(this).find('.delete-icon').remove(); // Remove previous delete icon
-//         $('#cus_mapping_table tbody tr:last .value-column .input-container').append('<i class="icon-delete delete-icon" style="width:25px;"></i>');
-//         }
-//         else{
-//             $(this).find('.delete-icon').remove(); // Ensure no delete icon for Company row  
-//         }
-//     });
-// }
 function updateDeleteIcon() {
     // Remove any existing delete icons from all input containers
     $('#cus_mapping_table tbody tr').each(function () {
         // Remove previous delete icons from each row
-        $(this).find('.delete-icon').remove(); 
-    });
+        $(this).find('.delete-icon').remove(); // Remove any existing delete icons
 
-    // Add a delete icon to the last input container of each row
-    $('#cus_mapping_table tbody tr').each(function () {
-        $(this).find('.value-column .input-container:last').append('<i class="icon-delete delete-icon" style="width:25px;"></i>');
+        // Check if the row is a company row
+        if (!$(this).hasClass('company-row')) {
+            // Add a delete icon to the last input container if it's not a company row
+            $(this).find('.value-column .input-container:last').append('<i class="icon-delete delete-icon" style="width:25px;"></i>');
+        }
     });
 }
+
 
 $('#submit_cus_map').on('click', function (e) {
     e.preventDefault();
@@ -242,164 +279,6 @@ $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function
 
 
 
-// $('#submit_cus_map').on('click', function (e) {
-//     e.preventDefault();
-
-//     // Get the selected customers (can be multiple)
-//     var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
-//     var lowValue = $('#submit_cus_map').attr('data-low_value'); // Get the low_value
-
-//     // Check if "Company" already exists in the table
-//     var companyExists = $('#cus_mapping_table tbody .company-row').length > 0;
-
-//     if (selectedCustomers && selectedCustomers.length > 0) {
-//         // Flag to track if the "Company" entry has been added
-//         var companyAdded = false;
-
-//         // Iterate over each selected customer
-//         selectedCustomers.forEach(function (cusId) {
-//             // Handle special case for the company
-//             if (cusId == -1 && !companyExists) {
-//                 // Create a unique identifier for the Company entry
-//                 var uniqueIdentifier = 'company_' + new Date().getTime();
-
-//                 // Append the "Company" entry to the table (without delete icon)
-//                 $('#cus_mapping_table tbody').append(`
-//                     <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}" class="company-row">
-//                         <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-//                         <td class="cus-name-column">Company</td>
-//                         <td class="value-column">
-//                             <div class="input-container">
-//                                 <input type="number" name="cus_value[]" class="form-control" value="${lowValue}" placeholder="Enter value" readonly>
-//                                 <!-- No delete icon for Company row -->
-//                             </div>
-//                         </td>
-//                     </tr>
-//                 `);
-//                 companyAdded = true; // Mark that the company has been added
-//                 $('#submit_cus_map').prop('disabled', true);
-//             } else if (cusId != -1) {
-//                 // Get the customer name for the given ID
-//                 var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim();
-
-//                 // Create a unique identifier for each entry using timestamp
-//                 var uniqueIdentifier = cusId + '_' + new Date().getTime();
-
-//                 // Append the selected customer to the table as a new row (with delete icon)
-//                 $('#cus_mapping_table tbody').append(`
-//                     <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
-//                         <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-//                         <td class="cus-name-column">${cusName}</td>
-//                         <td class="value-column">
-//                             <div class="input-container">
-//                                 <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
-//                                 <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Show delete icon -->
-//                             </div>
-//                         </td>
-//                     </tr>
-//                 `);
-//             }
-//         });
-
-//         // Clear the selection
-//         cus_name.removeActiveItems();
-//         let groupId = $(this).attr('data-group_id');
-//         getCusName(groupId);
-
-//         // Show the auction close button if rows exist
-//         if ($('#cus_mapping_table tbody tr').length > 0) {
-//             $('.auction_close').removeClass('d-none');
-//         }
-
-//         // Update delete icon to appear only in the last row
-//         updateDeleteIcon();
-//     }
-// });
-// $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function () {
-//     var $row = $(this).closest('tr');
-//     var cusId = $row.data('cus-id');
-
-//     // Check if the clicked row is the "Company" row
-//     if (cusId == -1) {
-//         // Prevent adding a duplicate company entry
-//         return; // Exit the function
-//     }
-
-//     // Find the value column in the current row
-//     var $valueColumn = $row.find('.value-column');
-
-//     // Generate a unique ID for the new input
-//     var uniqueIdentifier = cusId + '_' + new Date().getTime();
-
-//     // Append a new input field after the existing one
-//     $valueColumn.append(`
-//         <div class="input-container mt-2"> <!-- Add margin for better spacing -->
-//             <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
-//             <i class="icon-delete delete-icon" style="width:25px;"></i>
-//         </div>
-//     `);
-
-//     // Show the auction close button if rows exist
-//     if ($('#cus_mapping_table tbody tr').length > 0) {
-//         $('.auction_close').removeClass('d-none');
-//     }
-
-//     // Update delete icon to appear only in the last input container
-//     updateDeleteIcon();
-// });
-
-// // Event handler for clicking on customer name
-// $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function () {
-//     var $row = $(this).closest('tr');
-//     var cusId = $row.data('cus-id');
-
-//     // Check if the clicked row is the "Company" row
-//     if (cusId == -1) {
-//         // Prevent adding a duplicate company entry
-//         return; // Exit the function
-//     }
-
-//     var cusName = $row.find('td.cus-name-column').text();
-
-//     // Create a new unique identifier for the re-added row
-//     var uniqueIdentifier = cusId + '_' + new Date().getTime();
-
-//     // Append the same customer to the table as a new row
-//     $('#cus_mapping_table tbody').append(`
-//         <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
-//             <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-//             <td class="cus-name-column">${cusName}</td>
-//             <td class="value-column">
-//                 <div class="input-container">
-//                     <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
-//                     <i class="icon-delete delete-icon" style="width:25px;"></i>
-//                 </div>
-//             </td>
-//         </tr>
-//     `);
-
-//     // Show the auction close button if rows exist
-//     if ($('#cus_mapping_table tbody tr').length > 0) {
-//         $('.auction_close').removeClass('d-none');
-//     }
-
-//     // Update delete icon to appear only in the last row
-//     updateDeleteIcon();
-// });
-
-// // Function to handle the delete icon click event
-// $(document).on('click', '.icon-delete', function () {
-//     $(this).closest('tr').remove(); // Remove the row
-
-//     // After deletion, update the row numbers
-//     $('#cus_mapping_table tbody tr').each(function (index) {
-//         $(this).find('td:first').text(index + 1); // Update row numbers
-//     });
-
-//     // After deletion, ensure the delete icon is updated in the new last row
-//     updateDeleteIcon();
-// });
-
 $(document).on('click', '.icon-delete', function () {
     var $inputContainer = $(this).closest('.input-container'); // Find the closest input container
     var $row = $(this).closest('tr'); // Find the row for the clicked delete icon
@@ -411,82 +290,75 @@ $(document).on('click', '.icon-delete', function () {
     if ($row.find('.input-container').length === 0) {
         // If no input containers are left, remove the entire row
         $row.remove();
+     
     }
 
     // After deletion, update the row numbers for all rows
     $('#cus_mapping_table tbody tr').each(function (index) {
         $(this).find('td:first').text(index + 1); // Update row numbers
     });
-
+    if ($('#cus_mapping_table tbody tr').length > 0) {
+        $('.auction_close').removeClass('d-none'); // Show button if rows exist
+    } else {
+        $('.auction_close').addClass('d-none'); // Hide button if no rows
+    }
     // After deletion, ensure the delete icon is updated in the new last input container of each row
     updateDeleteIcon();
 });
 
     
-    // $(document).on('change', '#cus_mapping_table tbody input[type="number"]', function () {
-    //     var inputValue = parseFloat($(this).val());
-    //     var $currentRow = $(this).closest('tr');
-    //     var $prevRow = $currentRow.prev('tr'); // Get the previous row
-    //     var submitBtn = $('#submit_cus_map');
-    //     var lowValue = parseFloat(submitBtn.attr('data-low_value'));
-    //     var highValue = parseFloat(submitBtn.attr('data-high_value'));
-    
-    //     // Format lowValue and highValue using moneyFormatIndia
-    //     var formattedLowValue = moneyFormatIndia(lowValue);
-    //     var formattedHighValue = moneyFormatIndia(highValue);
-    
-    //     if (inputValue < lowValue || inputValue > highValue) {
-    //         swalError('Warning', `Please enter a value between ${formattedLowValue} and ${formattedHighValue}.`);
-    //         $(this).val(''); // Clear the invalid value
-    //     } else if ($prevRow.length > 0) { // Check if there is a previous row
-    //         var prevValue = parseFloat($prevRow.find('input[type="number"]').val());
-    //         if (inputValue <= prevValue) {
-    //             swalError('Warning', 'The value cannot be smaller than the value in the previous row.');
-    //             $(this).val(''); // Clear the invalid value
-    //         } else {
-    //             $(this).prop('readonly', true); // Make the input readonly if the value is valid
-    //         }
-    //     } else {
-    //         $(this).prop('readonly', true); // No previous row, value is valid, make readonly
-    //     }
-    // });
-    
-    // Event handler for validating the input value
+    //Event handler for validating the input value
     $(document).on('change', '#cus_mapping_table tbody input[type="number"]', function () {
         var inputValue = parseFloat($(this).val());
-        var $currentRow = $(this).closest('tr');
         var submitBtn = $('#submit_cus_map');
         var lowValue = parseFloat(submitBtn.attr('data-low_value'));
-        var highValue = parseFloat(submitBtn.attr('data-high_value'));
+        var highValue = parseFloat(submitBtn.attr('data-high_value')); // Use a high number if highValue is NaN
     
         // Format lowValue and highValue using moneyFormatIndia
         var formattedLowValue = moneyFormatIndia(lowValue);
         var formattedHighValue = moneyFormatIndia(highValue);
     
+        // Check if the input value is within the specified range
         if (inputValue < lowValue || inputValue > highValue) {
             swalError('Warning', `Please enter a value between ${formattedLowValue} and ${formattedHighValue}.`);
             $(this).val(''); // Clear the invalid value
             return;
         }
     
-        // Validate against all previous input values in the table, regardless of customer
         var isValid = true;
+        var isUnique = true; // Flag for uniqueness check
+        var hasPreviousValues = false; // Flag to check if there are previous values
+    
+        // Validate against all previous input values in the table
         $('#cus_mapping_table tbody input[type="number"]').each(function () {
             var prevValue = parseFloat($(this).val());
     
-            // Skip empty or invalid input fields
-            if (!isNaN(prevValue) && prevValue !== inputValue) {
+            // Skip the current input field value from comparison
+            if (this !== event.target && !isNaN(prevValue)) {
+                hasPreviousValues = true; // Set flag since we found a previous value
+    
+                // Check for uniqueness
+                if (inputValue === prevValue) {
+                    isUnique = false; // Found a duplicate value
+                }
+    
                 // Check if the current input value is less than or equal to any previous value
-                
-                if (inputValue < prevValue) {
-                    isValid = false;
-                    return false; // Exit loop if invalid value is found
+                if (inputValue <= prevValue) {
+                    isValid = false; // Input is not valid
                 }
             }
         });
     
-        if (!isValid) {
+        // Show warning if the value must be greater than all previous values (only if previous values exist)
+        if (hasPreviousValues && !isValid) {
             swalError('Warning', 'The value must be greater than all previous values in the table.');
+            $(this).val(''); // Clear the invalid value
+            return;
+        }
+    
+        // Show warning if the value is not unique
+        if (!isUnique) {
+            swalError('Warning', 'The value must be unique across all input fields in the table.');
             $(this).val(''); // Clear the invalid value
             return;
         }
@@ -495,66 +367,9 @@ $(document).on('click', '.icon-delete', function () {
         $(this).prop('readonly', true);
     });
     
-    
-    
-    
-    // $(document).on('click', '.auction_close', function () {
-    //     let group_id = $(this).attr('data-group_id');
-    //     let date = $(this).attr('data-date');
-    //     let id = $(this).attr('data-id');
-
-    //     // Collect table data
-    //     let tableData = [];
-    //     let isValid = true; // Flag to track if all fields are valid
-
-    //     $('#cus_mapping_table tbody tr').each(function () {
-    //         let cusId = $(this).data('cus-id');
-    //         let value = $(this).find('input[name="cus_value[]"]').val();
-
-    //         // Check if value is empty
-    //         if (!value) {
-    //             isValid = false;
-    //             $(this).find('input[name="cus_value[]"]').css('border', '1px solid red'); // Highlight empty field
-    //         } else {
-    //             $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
-    //         }
-
-    //         // Add the data to the tableData array
-    //         tableData.push({
-    //             cus_id: cusId,
-    //             value: value,
-    //             group_id: group_id,
-    //             date: date,
-    //             id: id
-    //         });
-    //     });
-
-    //     // If any field is invalid, prevent the submission and show an alert
-    //     if (!isValid) {
-    //         swalError('Error', 'Please fill in all the values');
-    //         return; // Stop further execution if validation fails
-    //     }
-
-    //     // Send data to server if all fields are valid
-    //     $.ajax({
-    //         url: 'api/auction_files/insert_auction_list.php',
-    //         type: 'POST',
-    //         dataType: 'json',
-    //         contentType: 'application/json',
-    //         data: JSON.stringify({ data: tableData }),
-    //         success: function (response) {
-    //             if (response.success) {
-    //                 swalSuccess('Success', "Auction Completed successfully");
-    //                 $('#add_cus_map_modal').modal('hide');
-    //                 $('#add_Calculation_modal').modal('show');
-    //                 calculationModal(group_id, date);
-    //                 fetchAuctionDetails(group_id);
-    //             }
-    //         },
-    //     });
-    // });
-    // 
-    $(document).on('click', '.auction_close', function () {
+ 
+    $(document).on('click', '.auction_close', function (e) {
+        e.preventDefault();
         let group_id = $(this).attr('data-group_id');
         let date = $(this).attr('data-date');
         let id = $(this).attr('data-id');
@@ -626,7 +441,7 @@ $(document).on('click', '.icon-delete', function () {
             success: function (response) {
                 if (response.success) {
                     swalSuccess('Success', "Auction Completed successfully");
-                    $('#add_cus_map_modal').modal('hide');
+                    $('#add_cus_map_modal').hide();
                     $('#add_Calculation_modal').modal('show');
                     calculationModal(data.group_id, data.date);
                     fetchAuctionDetails(data.group_id);
@@ -900,6 +715,7 @@ function fetchAuctionDetails(groupId) {
                 });
 
                 $('.auction_detail_content').show(); // Show the card after data is loaded
+                $('#add_cus_map_modal').hide(); // Show the card after data is loaded
 
             }
         },
@@ -911,7 +727,7 @@ function fetchAuctionDetails(groupId) {
 
 
 function closeChartsModal() {
-    $('#add_cus_map_modal').modal('hide');
+  //  $('#add_cus_map_modal').modal('hide');
     //     cus_name.removeActiveItems();
     //   $('#cus_name').closest('.choices').find('.choices__inner').css('border', '1px solid #cecece');
     $('#grp_date').css('border-color', '');
