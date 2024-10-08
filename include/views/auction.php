@@ -1,4 +1,9 @@
 <style>
+    .highlight-row {
+    background-color: #d4edda; /* Light green background */
+    color: #155724;           /* Dark green text color */
+}
+
     /* Reduce size of table header */
     .input-container {
         position: relative;
@@ -148,7 +153,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row" style="display: flex; justify-content: center; align-items: center;">
-                        <div class="col-sm-4 col-md-4 col-lg-4">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="cus_name">Customer Name<span class="text-danger">*</span></label>
                                     <input type="hidden" id="customer_edit_it">

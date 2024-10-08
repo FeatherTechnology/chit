@@ -526,10 +526,16 @@ $(document).on('click', '.icon-delete', function () {
                 var tableBody = $('#view_table tbody');
                 tableBody.empty(); // Clear any existing rows
     
+                // Find the maximum value
+                var maxValue = Math.max(...data.map(row => parseFloat(row.value)));
+    
                 // Populate table with data
                 $.each(data, function (index, row) {
                     var formattedValue = moneyFormatIndia(row.value);
-                    var rowHtml = `<tr>
+                    var isMaxValue = parseFloat(row.value) === maxValue; // Check if current row has the max value
+    
+                    // Add a class 'highlight-row' if it's the highest value
+                    var rowHtml = `<tr class="${isMaxValue ? 'highlight-row' : ''}">
                         <td>${index + 1}</td>
                         <td>${row.customer_name}</td>  <!-- Use customer_name -->
                         <td>${formattedValue}</td>
@@ -541,6 +547,7 @@ $(document).on('click', '.icon-delete', function () {
             }
         }, 'json');
     });
+    
     
 
     ////////////////////////////////////////////////////////////////View Modal End////////////////////////////////////////////////////////////////////
@@ -737,33 +744,6 @@ function closeChartsModal() {
     $('#add_Calculation_modal').modal('hide');
 }
 
-// function getCusName(groupId, auction_month) {
-//     $.post('api/auction_files/get_customerName_list.php', {
-//         group_id: groupId,
-//         auction_month: auction_month // Send auction month to the server
-//     }, function (response) {
-//         cus_name.clearStore();
-
-//         // Initialize an array with the "Company" option as the first element
-//         let items = [{
-//             value: -1,
-//             label: 'Company',
-//             selected: false
-//         }];
-
-//         // Map the response to the desired format, starting from the second element
-//         response.forEach(function (val) {
-//             items.push({
-//                 value: val.id,
-//                 label: val.cus_name,
-//                 selected: false
-//             });
-//         });
-
-//         // Set the choices with the new items array
-//         cus_name.setChoices(items, 'value', 'label', true);
-//     }, 'json');
-// }
 
 function getCusName(groupId, auction_month) {
     $.post('api/auction_files/get_customerName_list.php', {

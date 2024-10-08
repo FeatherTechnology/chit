@@ -12,6 +12,7 @@ try {
     $date = date('Y-m-d', strtotime($date));
 
     // Prepare the SQL statement with FIND_IN_SET and handling cus_name = -1 (Company)
+  
     $qry = "
         SELECT 
             cc.first_name, 
@@ -31,7 +32,7 @@ try {
             al.group_id = :group_id
             AND al.date = :date
         ORDER BY 
-            al.value ASC";
+            al.cus_name ,al.value ASC;";
     
     $stmt = $pdo->prepare($qry);
     
