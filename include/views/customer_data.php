@@ -438,7 +438,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Document Info
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();getGroupName();getGroupID();" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();getGroupName();" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -816,7 +816,7 @@
                                     <label for="gua_name">Guarantor Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="gua_name" name="gua_name" tabindex="1">
                                         <option value="">Select Guarantor Name</option>
-                                        <option value="1">Family Members</option>
+                                        <option value="1">Family Member</option>
                                         <option value="2">Existing Customer</option>
                                         <option value="3">Others</option>
                                     </select>
@@ -934,6 +934,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="group_month">Auction Month</label><span class="text-danger">*</span>
+                                    <input type="hidden" id="group_month_edit" value="0">
                                     <select type="text" class="form-control" id="group_month" name="group_month" tabindex="3">
                                         <option value="">Select Auction Month</option>
                                     </select>

@@ -9,7 +9,6 @@ $qry = $pdo->query("
     di.*,
     CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
     ad.group_id,
-    ad.auction_month,
     gc.grp_name
 FROM
     `document_info` di
