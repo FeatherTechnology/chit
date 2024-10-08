@@ -352,6 +352,11 @@ $(document).ready(function () {
                             swalSuccess('Success', 'Other Transaction added successfully.');
                             otherTransTable('#other_transaction_table');
                             getClosingBal(); // Update closing balance after submission
+                            $('#grp_id_cont').hide(); // Hide the group ID container for other categories
+                            $('#mem_id_cont').hide();
+                            $('#name_id_cont').show();
+                            $('#name_modl_btn').show();
+                            $('.other_month_div').hide();
                         } else {
                             swalError('Error', 'Failed to add transaction.');
                         }
@@ -367,10 +372,10 @@ $(document).ready(function () {
     $(document).on('click', '.transDeleteBtn', function () {
         var unique = $(this).data('value');
         var [id, grp_id, group_mem, auction_month] = unique.split('_');
-            swalConfirm('Delete', 'Are you sure you want to delete this Other Transaction?', function () {
-                deleteTrans(id, grp_id, group_mem, auction_month);
-            }); 
-       
+        swalConfirm('Delete', 'Are you sure you want to delete this Other Transaction?', function () {
+            deleteTrans(id, grp_id, group_mem, auction_month);
+        });
+
     });
 
 
@@ -652,7 +657,7 @@ function nameDropDown() {
 function otherTransFormValid(data) {
 
     for (key in data) {
-        if (key != 'bank_id' && key != 'other_trans_id' && key != 'group_id' && key != 'group_mem' && key != 'auction_month'&& key != 'other_trans_name') {
+        if (key != 'bank_id' && key != 'other_trans_id' && key != 'group_id' && key != 'group_mem' && key != 'auction_month' && key != 'other_trans_name') {
             if (data[key] == '' || data[key] == null || data[key] == undefined) {
                 return false;
             }
@@ -711,6 +716,12 @@ function clearTransForm() {
     $('#auction_month').val('');
     $('#other_transaction_form select').val('');
     $('#other_transaction_form textarea').val('');
+    $('#grp_id_cont').hide(); // Hide the group ID container for other categories
+    $('#mem_id_cont').hide();
+    $('#name_id_cont').show();
+    $('#name_modl_btn').show();
+    $('.other_month_div').hide();
+     $('#other_amnt').prop('readonly', false);
 }
 
 function deleteTrans(id, grp_id, group_mem, auction_month) {
