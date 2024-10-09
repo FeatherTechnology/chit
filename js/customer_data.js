@@ -49,11 +49,15 @@ $(document).ready(function () {
         $('.doc_current').show();
         let id = $('#customer_id').val();
         viewCustomerDoc(id);
+        $('#sub_noc').hide();
+        $('#member_card').hide();
     })
     $(document).on('click', '#document_closed', function () {
         $('.doc_current').show();
         let id = $('#customer_id').val();
         viewCustomerClosedDoc(id);
+        $('#sub_noc').show();
+        $('#member_card').show();
 
     })
     $(document).on('click', '#customer_profile', function () {
@@ -74,8 +78,8 @@ $(document).ready(function () {
         $('#customer_creation').hide(); $('#curr_closed').hide(); $('#customer_summary').hide(); $('#customer_document').show(); $('#doc_curr_closed').show();
         $('.group_close').hide();
         $('.group_current').hide();
-         let id = $('#customer_id').val();
-         viewCustomerDoc(id);
+        let id = $('#customer_id').val();
+        viewCustomerDoc(id);
     })
     $(document).on('click', '.customerActionBtn', function () {
         let id = $(this).attr('value');
@@ -100,7 +104,7 @@ $(document).ready(function () {
         $('#doc_curr_closed').show();
         $('#customer_document').show();
         $('#back_btn').show();
-        $('#back_to_list').hide(); 
+        $('#back_to_list').hide();
         $('#main_radio').show();
         $('#noc_member').css('border', '1px solid #cecece');
         $('#noc_relation').css('border', '1px solid #cecece');
@@ -120,18 +124,18 @@ $(document).ready(function () {
             setSubmittedDisabled();
         }, 1000);
         // Show/Hide elements as per requirement
-        $('#noc_summary').show(); 
-        $('#doc_curr_closed').hide(); 
-        $('#customer_document').hide(); 
-        $('#back_to_list').show(); 
+        $('#noc_summary').show();
+        $('#doc_curr_closed').hide();
+        $('#customer_document').hide();
+        $('#back_to_list').show();
         $('#customer_creation').hide();
-        $('#curr_closed').hide(); 
-        $('#customer_summary').hide(); 
-        $('#back_btn').hide(); 
+        $('#curr_closed').hide();
+        $('#customer_summary').hide();
+        $('#back_btn').hide();
         $('#main_radio').hide();
-        
+
     });
-    
+
     $('#reference_type').change(function () {
         var referenceType = $(this).val();
         // Hide all fields initially
@@ -503,6 +507,136 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Guarantor Details?', getGuaDelete, id);
         return;
     });
+
+    ///////////////////////////////////////////////////////////////////Document info START ////////////////////////////////////////////////////////////////////////////
+    $('#doc_holder_name').on('change', function () {
+        const guarantorId = $(this).val();
+        if (guarantorId && guarantorId !== 'null') {
+            // Fetch the guarantor relationship if a valid ID is selected
+            getDocrelationshipName(guarantorId);
+        } else {
+            // Set default relationship as 'Customer' if no valid ID is selected
+            $('#doc_relationship').val('Customer');
+        }
+    });
+    $('#group_name').on('change', function () {
+        const guarantorId = $(this).val();
+        if (guarantorId && guarantorId !== 'null') {
+            // Fetch the guarantor relationship if a valid ID is selected
+            getDocGroupName(guarantorId);
+
+        } else {
+            // Set default relationship as 'Customer' if no valid ID is selected
+            $('#grp_id').val('Customer');
+        }
+    });
+    $('#submit_doc_info').click(function (event) {
+        event.preventDefault();
+        let doc_name = $('#doc_name').val();
+        let doc_type = $('#doc_type').val();
+        let doc_holder_name = $('#doc_holder_name').val();
+        let grp_id = $('#grp_id').val();
+        let group_name = $('#group_name').val();
+        let group_month = $('#group_month').val();
+        let doc_relationship = $('#doc_relationship').val();
+        let remarks = $('#remarks').val();
+        let doc_upload = $('#doc_upload')[0].files[0];
+        let doc_upload_edit = $('#doc_upload_edit').val();
+        let doc_info_id = $('#doc_info_id').val();
+        let cus_id = $('#cus_id').val();
+        var data = ['doc_name', 'doc_type', 'doc_holder_name', 'doc_relationship', 'group_month', 'group_name']
+        var isValid = true;
+        data.forEach(function (entry) {
+            var fieldIsValid = validateField($('#' + entry).val(), entry);
+            if (!fieldIsValid) {
+                isValid = false;
+            }
+        });
+        if (doc_upload === undefined && doc_upload_edit === '') {
+            let isUploadValid = validateField('', 'doc_upload');
+            let isHiddenValid = validateField('', 'doc_upload_edit');
+            if (!isUploadValid || !isHiddenValid) {
+                isValid = false;
+            }
+            else {
+                $('#doc_upload').css('border', '1px solid #cecece');
+                $('#doc_upload_edit').css('border', '1px solid #cecece');
+            }
+        }
+        else {
+            $('#doc_upload').css('border', '1px solid #cecece');
+            $('#doc_upload_edit').css('border', '1px solid #cecece');
+        }
+        if (isValid) {
+            let docInfo = new FormData();
+            docInfo.append('doc_name', doc_name);
+            docInfo.append('doc_type', doc_type);
+            docInfo.append('doc_holder_name', doc_holder_name);
+            docInfo.append('grp_id', grp_id);
+            docInfo.append('group_month', group_month);
+            docInfo.append('group_name', group_name);
+            docInfo.append('doc_relationship', doc_relationship);
+            docInfo.append('remarks', remarks);
+            docInfo.append('doc_upload', doc_upload);
+            docInfo.append('doc_upload_edit', doc_upload_edit);
+            docInfo.append('cus_id', cus_id);
+            docInfo.append('id', doc_info_id);
+
+            $.ajax({
+                url: 'api/customer_data_files/submit_updated_info.php',
+                type: 'post',
+                data: docInfo,
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function (response) {
+                    if (response == '1') {
+                        swalSuccess('Success', 'Document Info Updated Successfully')
+                    } else if (response == '2') {
+                        swalSuccess('Success', 'Document Info Added Successfully')
+                    } else {
+                        swalError('Alert', 'Failed')
+                    }
+                    getDocCreationTable();
+                    $('#clear_doc_form').trigger('click');
+                    $('#doc_info_id').val('');
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.docActionBtn', function () {
+        let id = $(this).attr('value');
+        $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
+            // Extract auction_id from the response
+            $('#doc_name').val(response[0].doc_name);
+            $('#doc_type').val(response[0].doc_type);
+            $('#doc_holder_name').val(response[0].holder_name);
+            $('#grp_id').val(response[0].group_id);
+            $('#group_name').val(response[0].grp_name);
+
+            $('#group_month_edit').val(response[0].auction_id);
+
+            getGroupMonth();
+            $('#doc_relationship').val(response[0].relationship);
+            $('#remarks').val(response[0].remarks);
+            $('#doc_upload_edit').val(response[0].upload);
+            $('#doc_info_id').val(response[0].id);
+        }, 'json');
+    });
+
+    $(document).on('click', '.docDeleteBtn', function () {
+        let id = $(this).attr('value');
+        swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
+    });
+
+    $('#clear_doc_form').click(function () {
+        $('#doc_info_id').val('');
+        $('#doc_upload_edit').val('');
+        $('#doc_info_form input').css('border', '1px solid #cecece');
+        $('#doc_info_form select').css('border', '1px solid #cecece');
+    })
+    ///////////////////////////////////////////////////////////////////Document info END ////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////Customer creation Start/////////////////////////////////////////////////////////
 
     $('#submit_cus_creation').click(function (event) {
@@ -788,29 +922,29 @@ $(document).ready(function () {
 
     $('#submit_noc').click(function (event) {
         event.preventDefault();
-    
+
         let cus_id = $(this).attr('cus_id');  // Retrieve cus_id from button attribute
         let grp_id = $(this).attr('grp_id');  // Retrieve grp_id from button attribute
-    
+
         let docId = [];
         $('.noc_doc_info_chkbx').each(function () {
             if ($(this).is(':checked') && $(this).attr('data-id') == '0') {
                 docId.push($(this).val());
             }
         });
-    
+
         if (docId.length === 0) {
             swalError('Warning', 'Kindly check at least one checkbox');
             $('#noc_member').val('');
             $('#noc_relation').val('');
             return;
         }
-    
+
         let doc_list_cnt = $('#noc_document_list_table').DataTable().rows().count();
         let date_of_noc = $('#date_of_noc').val();
         let noc_member = $('#noc_member').val();
         let noc_relation = $('#noc_relation').val();
-        
+
         // Validation
         var data = ['date_of_noc', 'noc_member', 'noc_relation'];
         var isValid = true;
@@ -820,7 +954,7 @@ $(document).ready(function () {
                 isValid = false;
             }
         });
-    
+
         if (isValid) {
             let nocData = {
                 'docId': docId,
@@ -831,7 +965,7 @@ $(document).ready(function () {
                 'grp_id': grp_id,  // Pass grp_id here
                 'doc_list_cnt': doc_list_cnt
             };
-    
+
             $.post('api/customer_data_files/submit_noc.php', nocData, function (response) {
                 if (response == '1') {
                     swalSuccess('Success', 'NOC submitted successfully.');
@@ -847,7 +981,7 @@ $(document).ready(function () {
             }, 'json');
         }
     });
-    
+
 
     /////////////////////////////////////////NoC END//////////////////////////////////////////////
     //////////////////////////////////////////////Document End/////////////////////////////////////////////////
@@ -1241,6 +1375,7 @@ function editCustomerCreation(id) {
         getFamilyInfoTable()
         getGuarantorInfoTable()
         getSourceTable()
+        getDocInfoTable();
         if (response[0].reference_type == '1') {
             $('#declaration_container').show();
             $('#cus_name_container').hide();
@@ -1453,8 +1588,8 @@ function closeChartsModal() {
     $('#due_chart_model').modal('hide');
     $('#commitment_chart_model').modal('hide');
 }
-function documentList(cus_id,grp_id) {
-    $.post('api/customer_data_files/noc_document_info_list.php', { cus_id,grp_id }, function (response) {
+function documentList(cus_id, grp_id) {
+    $.post('api/customer_data_files/noc_document_info_list.php', { cus_id, grp_id }, function (response) {
         let nocDocInfoColumns = [
             'sno',
             'doc_name',
@@ -1537,7 +1672,7 @@ function setValuesInTables() {
         }
     });
 }
-function removeValuesInTables() {  
+function removeValuesInTables() {
     $('.noc_doc_info_chkbx').each(function () {
         if (!$(this).is(':checked')) {
             $(this).closest('tr').find('td:nth-child(9)').text('');
@@ -1545,7 +1680,7 @@ function removeValuesInTables() {
             $(this).closest('tr').find('td:nth-child(7)').text('');
         }
     });
-   
+
 }
 
 function formatDate(inputDate) {
@@ -1553,4 +1688,139 @@ function formatDate(inputDate) {
     let parts = inputDate.split('-');
     // Rearrange them in dd-mm-yyyy format
     return parts[2] + '-' + parts[1] + '-' + parts[0];
+}
+function getDocrelationshipName(guarantorId) {
+    $.ajax({
+        url: 'api/settlement_files/gua_name.php',
+        type: 'POST',
+        data: { id: guarantorId },
+        dataType: 'json',
+        cache: false,
+        success: function (response) {
+            $('#doc_relationship').val(response.guarantor_relationship || 'Customer');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching guarantor relationship:', error);
+            $('#doc_relationship').val('Customer');
+        }
+    });
+}
+function getDocGroupName(guarantorId) {
+    $.ajax({
+        url: 'api/customer_data_files/getGroup_name.php',
+        type: 'POST',
+        data: { id: guarantorId },
+        dataType: 'json',
+        cache: false,
+        success: function (response) {
+            $('#grp_id').val(response.grp_id);
+            getGroupMonth();
+        },
+    });
+}
+
+function getDocGuarantor() {
+    let cus_id = $('#cus_id').val();
+    $.post('api/settlement_files/get_document_guarantor.php', { cus_id: cus_id }, function (response) {
+        let appendGuarantorOption = "<option value=''>Select Name</option>";
+        $.each(response, function (index, val) {
+            let selected = '';
+            appendGuarantorOption += "<option value='" + val.id + "' " + selected + ">" + val.name + "</option>";
+        });
+
+        $('#doc_holder_name').empty().append(appendGuarantorOption);
+        $('#doc_relationship').val('');
+    }, 'json');
+}
+function getGroupName() {
+    let cus_id = $('#cus_id').val();
+    $.post('api/customer_data_files/get_document_group.php', { cus_id: cus_id }, function (response) {
+        let appendGroupOption = "<option value=''>Select Group Name</option>";
+        $.each(response, function (index, val) {
+            let selected = '';
+            appendGroupOption += "<option value='" + val.grp_name + "' " + selected + ">" + val.grp_name + "</option>";
+        });
+
+        $('#group_name').empty().append(appendGroupOption);
+    }, 'json');
+}
+
+function getGroupMonth() {
+    let cus_id = $('#cus_id').val();
+    let grp_id = $('#grp_id').val();
+    $.post('api/customer_data_files/get_document_month.php', { cus_id, grp_id }, function (response) {
+        let appendGroupOption = "<option value=''>Select Auction Month</option>";
+        let editId = $('#group_month_edit').val(); // Fetch the current value of group_month_edit for comparison
+
+        // Iterate over the response to append options
+        $.each(response, function (index, val) {
+            let selected = '';
+
+            // Compare the current option id with the editId and select it if they match
+            if (val.id == editId) {
+                selected = 'selected';
+            }
+
+            appendGroupOption += "<option value='" + val.id + "' " + selected + ">" + val.auction_month + "</option>";
+        });
+
+        // Populate the group_month dropdown
+        $('#group_month').empty().append(appendGroupOption);
+    }, 'json');
+}
+
+function deleteDocInfo(id) {
+    $.post('api/settlement_files/delete_doc_info.php', { id }, function (response) {
+        if (response == '1') {
+            swalSuccess('success', 'Doc Info Deleted Successfully');
+            getDocCreationTable();
+        } else if (response == '2') {
+            swalError('Access Denied', 'Used in NOC Summary');
+        } else {
+            swalError('Alert', 'Delete Failed')
+        }
+    }, 'json');
+}
+
+function refreshDocModal() {
+    $('#clear_doc_form').trigger('click');
+}
+function getDocCreationTable() {
+    let cus_id = $('#cus_id').val();
+    $.post('api/customer_data_files/document_info_list.php', { cus_id }, function (response) {
+        let docInfoColumn = [
+            "sno",
+            "grp_name",
+            "group_id",
+            "auction_month",
+            "doc_name",
+            "doc_type",
+            "guarantor_name",
+            "relationship",
+            "remarks",
+            "upload",
+            "action"
+        ]
+        appendDataToTable('#doc_creation_table', response, docInfoColumn);
+        setdtable('#doc_creation_table')
+    }, 'json');
+}
+function getDocInfoTable() {
+    let cus_id = $('#cus_id').val();
+    $.post('api/customer_data_files/document_info_list.php', { cus_id }, function (response) {
+        let docColumn = [
+            "sno",
+            "grp_name",
+            "group_id",
+            "auction_month",
+            "doc_name",
+            "doc_type",
+            "guarantor_name",
+            "relationship",
+            "remarks",
+            "upload"
+        ]
+        appendDataToTable('#document_info', response, docColumn);
+        setdtable('#document_info')
+    }, 'json');
 }
