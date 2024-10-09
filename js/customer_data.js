@@ -615,7 +615,7 @@ $(document).ready(function () {
         $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
             if (response[0].status == 4) {
                 // Show a SweetAlert warning and prevent editing
-                swalError('Warning', 'Group is closed, editing unavailable.');
+                swalError('Access Denied', 'Group is closed.');
                 return; // Stop further execution
             }
             
@@ -644,7 +644,7 @@ $(document).ready(function () {
     $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
         if (response[0].status == 4) {
             // If the group status is 4, show a warning and prevent deletion
-            swalError('Access Denied', 'Group is closed, deletion unavailable.');
+            swalError('Access Denied', 'Group is closed.');
         } else {
             // If the group status is not 4, proceed with delete confirmation
             swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
