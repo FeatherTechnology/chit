@@ -290,6 +290,8 @@
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                         <div class="form-group">
                             <label for="remark"> Remark </label> <span class="required">&nbsp;*</span>
                             <textarea class="form-control" name="remark" id="remark" placeholder="Enter Remark" tabindex="1"></textarea>

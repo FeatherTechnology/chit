@@ -413,21 +413,6 @@ $('#submit_doc_info').click(function (event) {
             isValid = false;
         }
     });
-    if (doc_upload === undefined && doc_upload_edit === '') {
-        let isUploadValid = validateField('', 'doc_upload');
-        let isHiddenValid = validateField('', 'doc_upload_edit');
-        if (!isUploadValid || !isHiddenValid) {
-            isValid = false;
-        }
-        else {
-            $('#doc_upload').css('border', '1px solid #cecece');
-            $('#doc_upload_edit').css('border', '1px solid #cecece');
-        }
-    }
-    else {
-        $('#doc_upload').css('border', '1px solid #cecece');
-        $('#doc_upload_edit').css('border', '1px solid #cecece');
-    }
     if (isValid) {
         let docInfo = new FormData();
         docInfo.append('doc_name', doc_name);
@@ -452,13 +437,16 @@ $('#submit_doc_info').click(function (event) {
                 if (response == '1') {
                     swalSuccess('Success', 'Document Info Updated Successfully')
                 } else if (response == '2') {
-                    swalSuccess('Success', 'Document Info Added Successfully')
+                    swalSuccess('Success', 'Document Info Added Successfully')  
                 } else {
                     swalError('Alert', 'Failed')
                 }
+                groupData()
                 getDocCreationTable();
-                $('#clear_doc_form').trigger('click');
+                $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
+                //$('#clear_doc_form').trigger('click');
                 $('#doc_info_id').val('');
+                $('#doc_upload_edit').val('');
             }
         });
     }
@@ -483,6 +471,7 @@ $(document).on('click', '.docDeleteBtn', function () {
 });
 
 $('#clear_doc_form').click(function () {
+    $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
     $('#doc_info_id').val('');
     $('#doc_upload_edit').val('');
     $('#doc_info_form input').css('border', '1px solid #cecece');
@@ -514,8 +503,17 @@ function editGroupCreation(id) {
             $('#total_month').val(data.total_months);
             $('#start_month').val(data.start_month);
             $('#end_month').val(data.end_month);
+            $('#grp_month').val(data.auction_month);
         }
     }, 'json');
+}
+function groupData(){
+    let group_id= $('#group_id').val();
+    $('#grp_id').val(group_id);
+    let group_name = $('#group_name').val();
+    $('#grp_name').val(group_name);
+    let grp_month = $('#grp_month').val();
+    $('#auction_month').val(grp_month);
 }
 function editCustomerCreation(id) {
     $.post('api/settlement_files/settle_customer_data.php', { id: id }, function (response) {
@@ -608,7 +606,9 @@ function deleteDocInfo(id) {
         if (response == '1') {
             swalSuccess('success', 'Doc Info Deleted Successfully');
             getDocCreationTable();
-        } else {
+        }else if (response == '2') {
+            swalError('Access Denied', 'Used in NOC Summary');
+        }   else {
             swalError('Alert', 'Delete Failed')
         }
     }, 'json');
@@ -676,6 +676,9 @@ function getDocCreationTable() {
     $.post('api/settlement_files/doc_info_list.php', { cus_id,auction_id }, function (response) {
         let docInfoColumn = [
             "sno",
+            "grp_name",
+            "group_id",
+            "auction_month",
             "doc_name",
             "doc_type",
             "guarantor_name",
@@ -686,6 +689,13 @@ function getDocCreationTable() {
         ]
         appendDataToTable('#doc_creation_table', response, docInfoColumn);
         setdtable('#doc_creation_table')
+        $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
+        $('#doc_info_form textarea').val('');
+        $('#doc_info_form input').css('border', '1px solid #cecece');
+        $('#doc_info_form select').css('border', '1px solid #cecece');
+        $('#doc_info_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+        });
     }, 'json');
 }
 function getDocInfoTable() {
@@ -695,6 +705,9 @@ function getDocInfoTable() {
     $.post('api/settlement_files/doc_info_list.php', { cus_id,auction_id }, function (response) {
         let docColumn = [
             "sno",
+            "grp_name",
+            "group_id",
+            "auction_month",
             "doc_name",
             "doc_type",
             "guarantor_name",

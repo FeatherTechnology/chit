@@ -12,7 +12,8 @@ $qry = $pdo->query("SELECT
             gc.total_members,
             gc.total_months,
             gc.start_month,
-            gc.end_month
+            gc.end_month,
+            ad.auction_month
         FROM 
             auction_details ad
         LEFT JOIN 
