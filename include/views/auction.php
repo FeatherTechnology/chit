@@ -196,64 +196,6 @@
         </div>
     </form>
 </div>
-<!-- <div class="modal fade" id="add_cus_map_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="background-color: white">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Auction</h5>
-                <button type="button" class="close" data-dismiss="modal" onclick="closeChartsModal()" aria-label="Close">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <form id="mapping_form">
-                        <div class="row justify-content-center">
-                            <input type="hidden" name="mapp_id" id="mapp_id">
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
-                                <div class="form-group">
-                                    <label for="cus_name">Customer Name<span class="text-danger">*</span></label>
-                                    <input type="hidden" id="customer_edit_it">
-                                    <select class="form-control" id="cus_name" name="cus_name" tabindex="17" multiple>
-                                        <option value="">Select Customer</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-12 align-self-end">
-                                <div class="form-group">
-                                    <button name="submit_cus_map" id="submit_cus_map" class="btn btn-primary" tabindex="3" style="margin-top: 18px;">
-                                        <span class="icon-check"></span>&nbsp;Add
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <table id="cus_mapping_table" class="table custom-table">
-                            <thead>
-                                <tr>
-                                    <th width="20">S.No.</th>
-                                    <th>Customer Name</th>
-                                    <th>Value</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-12 text-right">
-                    <button class="btn btn-primary auction_close d-none">&nbsp; Auction Close</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()">Close</button>
-            </div>
-        </div>
-    </div>
-</div> -->
-
 <!--- --------------------------------------Auction Modal END ------------------------------- -->
 <!------------------------------------------Postpone Modal start---------------------------------->
 <div class="modal fade" id="add_pos_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
