@@ -8,7 +8,7 @@ if (isset($group_id) && !empty($group_id)) {
     $customer_list_arr = array();
 
     // Query to fetch auction details for customers who participated in past auctions
-  
+
     $taken_auction_qry = "
         SELECT
             ad.cus_name,
@@ -18,7 +18,7 @@ if (isset($group_id) && !empty($group_id)) {
             auction_details ad
         WHERE
             group_id = '$group_id' AND (
-            MONTH(ad.date) < MONTH(CURDATE()) AND YEAR(ad.date) = YEAR(CURDATE())
+            MONTH(ad.date) <= MONTH(CURDATE()) AND YEAR(ad.date) = YEAR(CURDATE())
         );
     ";
     $taken_customers = $pdo->query($taken_auction_qry)->fetchAll(PDO::FETCH_COLUMN);
@@ -34,7 +34,7 @@ if (isset($group_id) && !empty($group_id)) {
     $transaction_customers = $pdo->query($transaction_qry)->fetchAll(PDO::FETCH_COLUMN);
 
     // Main query to fetch customers along with their chit count and auction month
- 
+
     $qry = "
         SELECT
             cc.first_name,

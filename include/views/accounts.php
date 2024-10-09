@@ -503,14 +503,6 @@ function moneyFormatIndia($num1)
                                     </select>
                                 </div>
                             </div>
-                            <!-- <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="mem_id_cont"style="display:none;">
-                                <div class="form-group">
-                                    <label for="group_mem">Group Members</label><span class="text-danger">*</span>
-                                    <select class="form-control" name="group_mem" id="group_mem" tabindex="8">
-                                        <option value="">Select Group Member</option>
-                                    </select>
-                                </div>
-                            </div> -->
                             <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12" id="name_id_cont">
                                 <div class="form-group">
                                     <label for="other_trans_name">Name</label><span class="text-danger">*</span>
@@ -563,12 +555,12 @@ function moneyFormatIndia($num1)
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="other_amnt">Amount</label><span class="text-danger">*</span>
-                                    <input type="number" class="form-control" name="other_amnt" id="other_amnt" tabindex="12">
+                                    <input type="text" class="form-control" name="other_amnt" id="other_amnt" tabindex="12">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 other_month_div" style="display: none;">
                                 <div class="form-group">
-                                    <label for="auction_month">Auction_month</label><span class="text-danger">*</span>
+                                    <label for="auction_month">Auction Month</label><span class="text-danger">*</span>
                                     <input type="number" class="form-control" name="auction_month" id="auction_month" readonly tabindex="10">
                                 </div>
                             </div>
