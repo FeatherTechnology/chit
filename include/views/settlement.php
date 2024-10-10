@@ -436,7 +436,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <button name="submit_doc_info" id="submit_doc_info" class="btn btn-primary" tabindex="10" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="8">Clear</button>
+                                    <button id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="8">Clear</button>
                                 </div>
                             </div>
                         </div>
