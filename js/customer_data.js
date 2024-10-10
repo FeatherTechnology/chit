@@ -598,7 +598,7 @@ $(document).ready(function () {
                         swalError('Alert', 'Failed')
                     }
                     getDocCreationTable();
-                    $('#clear_doc_form').trigger('click');
+                  //  $('#clear_doc_form').trigger('click');
                     $('#doc_info_id').val('');
                     $('select').each(function () {
                         $(this).val($(this).find('option:first').val());
@@ -653,8 +653,8 @@ $(document).ready(function () {
 });
 
     $('#clear_doc_form').click(function () {
-        $('#doc_info_id').val('');
-        $('#doc_upload_edit').val('');
+       $('#doc_info_id').val('');
+       $('#doc_upload_edit').val('');
         $('select').each(function () {
             $(this).val($(this).find('option:first').val());
     
@@ -1808,9 +1808,9 @@ function deleteDocInfo(id) {
     }, 'json');
 }
 
-function refreshDocModal() {
-    $('#clear_doc_form').trigger('click');
-}
+// function refreshDocModal() {
+//     $('#clear_doc_form').trigger('click');
+// }
 function getDocCreationTable() {
     let cus_id = $('#cus_id').val();
     $.post('api/customer_data_files/document_info_list.php', { cus_id }, function (response) {
@@ -1829,6 +1829,10 @@ function getDocCreationTable() {
         ]
         appendDataToTable('#doc_creation_table', response, docInfoColumn);
         setdtable('#doc_creation_table')
+        $('#doc_info_form input').val('');
+        $('#doc_info_form textarea').val('');
+        $('#doc_info_form input').css('border', '1px solid #cecece');
+        $('#doc_info_form select').css('border', '1px solid #cecece');
     }, 'json');
 }
 function getDocInfoTable() {
