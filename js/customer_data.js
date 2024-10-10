@@ -358,6 +358,17 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Family Details?', getFamilyDelete, id);
         return;
     });
+    $('#clear_fam_form').click(function (event) {
+        event.preventDefault()
+        $('#family_id').val('');
+        $('#family_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
+        $('#family_form textarea').val('');
+        $('#family_form input').val('');
+       
+    })
     //////////////////////////////////////////////////////////////////////Family Modal end //////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
     $('#submit_guarantor').click(function (event) {
@@ -507,7 +518,17 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Guarantor Details?', getGuaDelete, id);
         return;
     });
-
+    $('#clear_gua_form').click(function (event) {
+        event.preventDefault()
+        $('#guarantor_id').val('');
+        $('#guarantor_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
+        $('#guarantor_form textarea').val('');
+        $('#guarantor_form input').val('');
+       
+    })
     ///////////////////////////////////////////////////////////////////Document info START ////////////////////////////////////////////////////////////////////////////
     $('#doc_holder_name').on('change', function () {
         const guarantorId = $(this).val();
@@ -598,9 +619,9 @@ $(document).ready(function () {
                         swalError('Alert', 'Failed')
                     }
                     getDocCreationTable();
-                    $('#clear_doc_form').trigger('click');
+                  //  $('#clear_doc_form').trigger('click');
                     $('#doc_info_id').val('');
-                    $('select').each(function () {
+                    $('#doc_info_form select').each(function () {
                         $(this).val($(this).find('option:first').val());
                 
                     });
@@ -652,13 +673,15 @@ $(document).ready(function () {
     }, 'json');
 });
 
-    $('#clear_doc_form').click(function () {
+    $('#clear_doc_form').click(function (event) {
+        event.preventDefault()
         $('#doc_info_id').val('');
         $('#doc_upload_edit').val('');
-        $('select').each(function () {
+        $('#doc_info_form select').each(function () {
             $(this).val($(this).find('option:first').val());
-    
         });
+        $('#doc_info_form textarea').val('');
+        $('#doc_info_form input').val('');
         $('#doc_info_form input').css('border', '1px solid #cecece');
         $('#doc_info_form select').css('border', '1px solid #cecece');
     })
@@ -1808,9 +1831,9 @@ function deleteDocInfo(id) {
     }, 'json');
 }
 
-function refreshDocModal() {
-    $('#clear_doc_form').trigger('click');
-}
+// function refreshDocModal() {
+//     $('#clear_doc_form').trigger('click');
+// }
 function getDocCreationTable() {
     let cus_id = $('#cus_id').val();
     $.post('api/customer_data_files/document_info_list.php', { cus_id }, function (response) {
@@ -1829,6 +1852,10 @@ function getDocCreationTable() {
         ]
         appendDataToTable('#doc_creation_table', response, docInfoColumn);
         setdtable('#doc_creation_table')
+        $('#doc_info_form input').val('');
+        $('#doc_info_form textarea').val('');
+        $('#doc_info_form input').css('border', '1px solid #cecece');
+        $('#doc_info_form select').css('border', '1px solid #cecece');
     }, 'json');
 }
 function getDocInfoTable() {
