@@ -162,43 +162,57 @@ $(document).ready(function () {
             $('#othertransaction_bank_name').val('').attr('disabled', true);
         }
     });
-    $('#trans_category').change(function () {
-        let category = $(this).val();
-        if (category == '7') {
-            $('#grp_id_cont').show();
-            $('#name_id_cont').hide();
-            $('#name_modl_btn').hide();
-            getGroupID();
-        } else {
-            $('#grp_id_cont').hide(); // Hide the group ID container for other categories
-            $('#mem_id_cont').hide();
-            $('#name_id_cont').show();
-            $('#name_modl_btn').show();
-            $('.other_month_div').hide();
-            $('#other_amnt').prop('readonly', false);
-            $('#group_id').val('');
-            $('#group_mem').val('');
-            $('#auction_month').val('');
-        }
-    });
-    $('#group_id').change(function () {
-        let group_id = $(this).val();
+    // let category = '';
+  // Handle the category change event
+// Handle the category change event
+$('#trans_category').change(function () {
+    let category = $(this).val();
+
+    if (category == '7') {  // If category is 7, show group-related inputs and functionalities
+        $('#grp_id_cont').show();
         $('#name_id_cont').hide();
         $('#name_modl_btn').hide();
-        $('#grp_id_cont').show();
-        $('#mem_id_cont').show();
-        $('.other_month_div').show();
-        getgroupMember(group_id);
-        getAuctionMonth(group_id);
-        settleAmount(group_id);
-        $('#other_amnt').prop('readonly', true);
 
-    });
-    $('#trans_category').change(function () {
-        let category = $(this).val();
+        getGroupID(); // Load group IDs for selection
+        getRefId(category);
+        // Bind the cat_type change event only when category == 7
+        $('#cat_type').off('change').on('change', function () {  // Off to ensure previous bindings are removed
+            let category_type = $(this).val();
+            $('.other_month_div').show();
+
+            if (category_type === '2') { // Debit
+                getAuctionMonth(group_id);
+                settleAmount(group_id);
+                $('#other_amnt').prop('readonly', true);
+                $('#auction_month').prop('readonly', true);
+            } else {  // Credit or Both
+                $('#other_amnt').val('');
+                getCreditAuctionMonth(group_id, category_type, group_mem_id);
+                $('#other_amnt').prop('readonly', false);
+                $('#auction_month').prop('readonly', true);
+            }
+        });
+
+    } else { // For all other categories
+        $('#grp_id_cont').hide();
+        $('#mem_id_cont').hide();
+        $('#name_id_cont').show();
+        $('#name_modl_btn').show();
+        $('.other_month_div').hide();
+        $('#other_amnt').prop('readonly', false);
+        $('#group_id').val('');
+        $('#group_mem').val('');
+        $('#other_amnt').val('');
+        $('#auction_month').val('');
+
+        // Unbind the cat_type change event for other categories
+        $('#cat_type').off('change');
+
+        // Continue with other categories handling
+        $('#trans_cat').val($(this).find(':selected').text());
+        $('#trans_cat').attr('data-id', category);
+
         if (category != '') {
-            $('#trans_cat').val($(this).find(':selected').text());
-            $('#trans_cat').attr('data-id', $(this).val());
             $('#name_modal_btn')
                 .attr('data-toggle', 'modal')
                 .attr('data-target', '#add_name_modal');
@@ -208,25 +222,124 @@ $(document).ready(function () {
                 .removeAttr('data-target');
         }
 
-        nameDropDown(); //To show name based on transaction category.
+        nameDropDown();  // Populate names based on selected transaction category
 
-        let catTypeOptn = '';
-        catTypeOptn += "<option value=''>Select Type</option>";
-        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9' || category == '7') { //credit / debit
-            catTypeOptn += "<option value='1'>Credit</option>";
+        // Populate cat_type options based on category value
+        let catTypeOptn = "<option value=''>Select Type</option>";
+        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9') {
+            catTypeOptn += "<option value='1'>Credit</option><option value='2'>Debit</option>";
+        } else if (category == '5') {
             catTypeOptn += "<option value='2'>Debit</option>";
-
-        } else if (category == '5') { //debit
-            catTypeOptn += "<option value='2'>Debit</option>";
-
-        } else if (category == '6' || category == '8') { //credit
+        } else if (category == '6' || category == '8') {
             catTypeOptn += "<option value='1'>Credit</option>";
         }
 
-        $('#cat_type').empty().append(catTypeOptn); //To show Type based on transaction category.
+        $('#cat_type').empty().append(catTypeOptn); // Update cat_type options
 
-        getRefId(category);
+        getRefId(category); // Fetch reference IDs based on category
+    }
+});
+
+
+    let group_id = '';
+    $('#group_id').change(function () {
+        group_id = $(this).val();
+        $('#name_id_cont').hide();
+        $('#name_modl_btn').hide();
+        $('#grp_id_cont').show();
+        $('#mem_id_cont').show();
+        $('.other_month_div').hide();
+        getgroupMember(group_id);
+        $('#other_amnt').prop('readonly', false);
+        $('#other_amnt').val('');
+        $('#cat_type').each(function () {
+            $(this).val($(this).find('option:first').val());
+
+        });
     });
+    // if (category == '7') {
+    //     $('#cat_type').change(function () {
+    //         category_type = $(this).val();
+    //         $('.other_month_div').show();
+    //         if (category_type === '2') {
+    //             getAuctionMonth(group_id);
+    //             settleAmount(group_id);
+    //             $('#other_amnt').prop('readonly', true);
+    //             $('#auction_month').prop('readonly', true);
+    //         } else {
+    //             $('#other_amnt').val('');
+    //             // $('#auction_month').val('');
+    //             getCreditAuctionMonth(group_id, category_type, group_mem_id)
+    //             $('#other_amnt').prop('readonly', false);
+    //             $('#auction_month').prop('readonly', true);
+    //         }
+    //     });
+    // }
+    let group_mem_id = '';
+    $('#group_mem').change(function () {
+        $('.other_month_div').hide();
+        $('#other_amnt').val('');
+        $('#auction_month').val('');
+        $('#other_amnt').prop('readonly', false);
+        group_mem_id = $(this).val();  // Get the selected group member ID
+        // Perform an AJAX request to fetch the cat_type based on the selected group member
+        $.post('api/accounts_files/accounts/get_cat_type.php', { group_mem_id: group_mem_id, group_id: group_id }, function (response) {
+            // Assuming the response contains 'cat_type' and other relevant data
+            let data = JSON.parse(response);
+
+            let catTypeSelect = $('#cat_type');
+            catTypeSelect.empty(); // Clear previous options
+            catTypeSelect.append(new Option('Select Type', '')); // Add a default placeholder option
+
+            // Show options based on the returned cat_type, but don't automatically select them
+            if (data.cat_type == 1 || data.cat_type == 'both') {
+                // If Credit is applicable, add Credit as an option
+                catTypeSelect.append(new Option('Credit', '1'));
+            }
+            if (data.cat_type == 2 || data.cat_type == 'both') {
+                // If Debit is applicable, add Debit as an option
+                catTypeSelect.append(new Option('Debit', '2'));
+            }
+
+            // Let the user choose between the available options
+        });
+    });
+
+
+
+    // $('#trans_category').change(function () {
+    //     let category = $(this).val();
+    //     if (category != '') {
+    //         $('#trans_cat').val($(this).find(':selected').text());
+    //         $('#trans_cat').attr('data-id', $(this).val());
+    //         $('#name_modal_btn')
+    //             .attr('data-toggle', 'modal')
+    //             .attr('data-target', '#add_name_modal');
+    //     } else {
+    //         $('#name_modal_btn')
+    //             .removeAttr('data-toggle')
+    //             .removeAttr('data-target');
+    //     }
+
+    //     nameDropDown(); //To show name based on transaction category.
+
+    //     let catTypeOptn = '';
+    //     catTypeOptn += "<option value=''>Select Type</option>";
+    //     if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9') { //credit / debit
+    //         catTypeOptn += "<option value='1'>Credit</option>";
+    //         catTypeOptn += "<option value='2'>Debit</option>";
+
+    //     } else if (category == '5') { //debit
+    //         catTypeOptn += "<option value='2'>Debit</option>";
+
+    //     } else if (category == '6' || category == '8') { //credit
+    //         catTypeOptn += "<option value='1'>Credit</option>";
+    //     }
+
+    //     $('#cat_type').empty().append(catTypeOptn); //To show Type based on transaction category.
+
+    //     getRefId(category);
+    // });
 
     $('#name_modal_btn').click(function () {
         if ($(this).attr('data-target')) {
@@ -281,11 +394,10 @@ $(document).ready(function () {
             'cat_type': $('#cat_type :selected').val(), // Debit or Credit
             'other_ref_id': $('#other_ref_id').val(),
             'other_trans_id': $('#other_trans_id').val(),
-            'other_amnt': parseFloat($('#other_amnt').val()),
+            'other_amnt': parseFloat($('#other_amnt').val().replace(/,/g, '')),
             'auction_month': $('#auction_month').val(),
             'other_remark': $('#other_remark').val()
         };
-        console.log('Other Transaction Data:', otherTransData); // Debugging output
         let otherAmount = otherTransData.other_amnt;
         let collMode = otherTransData.coll_mode;
         let catType = otherTransData.cat_type; // 1 = Credit, 2 = Debit
@@ -313,7 +425,8 @@ $(document).ready(function () {
                     if (balance !== 0) {
                         // Allow debit if balance is zero or negative, as long as debit amount does not exceed the absolute value of the balance
                         if (otherAmount > Math.abs(balance)) {
-                            swalError('Warning', 'Insufficient balance for the requested debit amount. You may only debit up to: ' + Math.abs(balance));
+                            const formattedBalance = moneyFormatIndia(Math.abs(balance));
+                            swalError('Warning', 'You may only debit up to: ' + formattedBalance);
                             return;
                         }
                     }
@@ -321,14 +434,16 @@ $(document).ready(function () {
                     // Allow credit if balance is negative or zero
                     if (balance !== 0) {
                         if (otherAmount > Math.abs(balance)) {
-                            swalError('Warning', 'Insufficient balance for the requested credit amount. You may only credit up to: ' + Math.abs(balance));
+                            const formattedBalance = moneyFormatIndia(Math.abs(balance));
+                            swalError('Warning', 'You may only credit up to: ' + formattedBalance);
                             return;
                         }
                     }
                 }
             } else if (transCategory <= 2) {
                 if (catType == '2' && totalCredit < totalDebit + otherAmount) {
-                    swalError('Warning', 'Insufficient balance for the requested debit amount. You may only debit up to: ' + Math.abs(balance));
+                    const formattedBalance = moneyFormatIndia(Math.abs(balance));
+                    swalError('Warning', 'You may only debit up to: ' + formattedBalance);
                     return;
                 }
             }
@@ -464,11 +579,25 @@ function getAuctionMonth(group_id) {
         $('#auction_month').val(''); // Clear the field if there's an error
     });
 }
+function getCreditAuctionMonth(group_id, category_type, group_mem_id) {
+    // Post the group_id to the PHP script and handle the response
+    $.post('api/accounts_files/accounts/getCreditAuctionMonth.php', { group_id: group_id, category_type: category_type, group_mem_id: group_mem_id }, function (response) {
+        // Check if the response has any data
+        if (response.length > 0) {
+            $('#auction_month').val(response[0].auction_month);
+        } else {
+            $('#auction_month').val(''); // Clear the field if no data is returned
+        }
+    }, 'json').fail(function () {
+        $('#auction_month').val(''); // Clear the field if there's an error
+    });
+}
 function settleAmount(group_id) {
     $.post('api/accounts_files/accounts/getSettleAccounts.php', { group_id: group_id }, function (response) {
         // Check if the response has any data
         if (response.length > 0) {
-            $('#other_amnt').val(response[0].settlement_amount);
+            let settle_amount = moneyFormatIndia(response[0].settlement_amount)
+            $('#other_amnt').val(settle_amount);
         } else {
             $('#other_amnt').val(''); // Clear the field if no data is returned
         }
@@ -686,7 +815,6 @@ function otherTransFormValid(data) {
 
 function otherTransTable(tableId) {
     $.post('api/accounts_files/accounts/get_other_trans_list.php', function (response) {
-        console.log(response);
         let expensesColumn = [
             'sno',
             'trans_cat',
@@ -721,7 +849,7 @@ function clearTransForm() {
     $('#name_id_cont').show();
     $('#name_modl_btn').show();
     $('.other_month_div').hide();
-     $('#other_amnt').prop('readonly', false);
+    $('#other_amnt').prop('readonly', false);
 }
 
 function deleteTrans(id, grp_id, group_mem, auction_month) {

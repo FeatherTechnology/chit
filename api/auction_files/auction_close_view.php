@@ -32,7 +32,7 @@ try {
             al.group_id = :group_id
             AND al.date = :date
         ORDER BY 
-            al.cus_name ,al.value ASC;";
+            al.id ,al.value ASC;";
     
     $stmt = $pdo->prepare($qry);
     

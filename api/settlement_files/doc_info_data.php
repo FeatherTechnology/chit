@@ -9,7 +9,8 @@ $qry = $pdo->query("
     di.*,
     CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
     ad.group_id,
-    gc.grp_name
+    gc.grp_name,
+    gc.status
 FROM
     `document_info` di
 LEFT JOIN `customer_creation` cc ON

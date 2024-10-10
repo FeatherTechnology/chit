@@ -143,7 +143,7 @@ $(document).ready(function () {
                 var formattedAuctionDate = formatDate(auctionDate); // Format the auction date
                 var auctionTime = response.auction_detail ? `${response.auction_detail.hours}:${response.auction_detail.minutes} ${response.auction_detail.ampm}` : 'N/A';
     
-                swalError('Warning', `The scheduled auction date (${formattedAuctionDate}) and time (${auctionTime}) for this month have not yet arrived. Please wait.`);
+                swalError('Please Wait', `The auction will open after ${auctionTime} on ${formattedAuctionDate}`);;
             }
         }, 'json');
     
@@ -411,6 +411,7 @@ $(document).on('click', '.icon-delete', function () {
     
                     // Update overall maximum value
                     overallMaxValue = Math.max(overallMaxValue, value); // Update the overall max
+                    maxValue=moneyFormatIndia(overallMaxValue)
                 });
             }
         });
@@ -424,7 +425,7 @@ $(document).on('click', '.icon-delete', function () {
         // Use the swalConfirm function to show confirmation alert
         swalConfirm(
             'Do you want to close the auction?', 
-            `The Final value will be ${overallMaxValue}`, // Use overallMaxValue here
+            `The Final value will be ${maxValue}`, // Use overallMaxValue here
             closeAuction, 
             { group_id: group_id, date: date, id: id, tableData: tableData }
         );
@@ -449,9 +450,6 @@ $(document).on('click', '.icon-delete', function () {
             },
         });
     }
-    
-    
-
     //////////////////////////////////////////////////////////Auction Modal End//////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////PostPone Modal Start//////////////////////////////////////////////////////////////
     $(document).on('click', '.postponeBtn', function () {
