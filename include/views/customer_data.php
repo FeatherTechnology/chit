@@ -479,6 +479,7 @@
         </div>
     </form>
     <form id="customer_summary" name="customer_summary" style="display: none;">
+    <input type="hidden" id="customer_id">
         <div class="col-12">
             <div class="card group_current">
                 <div class="card-header">
@@ -908,7 +909,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Document Info</h5>
-                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getDocInfoTable();refreshDocModal();">
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getDocInfoTable();">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
