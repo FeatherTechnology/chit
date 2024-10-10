@@ -91,7 +91,7 @@ $(document).ready(function () {
         $('#doc_curr_closed').hide();
         swapTableAndCreation();
         editCustomerCreation(id)
-        // viewCustomerGroups(id);
+         //viewCustomerGroups(id);
         $('#cus_id').val('');
         $('#imgshow').attr('src', 'img/avatar.png');
         $('.toRefresh').hide();
@@ -600,6 +600,10 @@ $(document).ready(function () {
                     getDocCreationTable();
                     $('#clear_doc_form').trigger('click');
                     $('#doc_info_id').val('');
+                    $('select').each(function () {
+                        $(this).val($(this).find('option:first').val());
+                
+                    });
                 }
             });
         }
@@ -607,32 +611,54 @@ $(document).ready(function () {
 
     $(document).on('click', '.docActionBtn', function () {
         let id = $(this).attr('value');
+        
         $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
-            // Extract auction_id from the response
+            if (response[0].status == 4) {
+                // Show a SweetAlert warning and prevent editing
+                swalError('Access Denied', 'Group is closed.');
+                return; // Stop further execution
+            }
+            
+            // Populate fields if status is not 4
             $('#doc_name').val(response[0].doc_name);
             $('#doc_type').val(response[0].doc_type);
             $('#doc_holder_name').val(response[0].holder_name);
             $('#grp_id').val(response[0].group_id);
             $('#group_name').val(response[0].grp_name);
-
+    
             $('#group_month_edit').val(response[0].auction_id);
-
-            getGroupMonth();
+            
+            getGroupMonth(); // Load related data for group month
+    
             $('#doc_relationship').val(response[0].relationship);
             $('#remarks').val(response[0].remarks);
             $('#doc_upload_edit').val(response[0].upload);
             $('#doc_info_id').val(response[0].id);
+            
         }, 'json');
     });
-
-    $(document).on('click', '.docDeleteBtn', function () {
-        let id = $(this).attr('value');
-        swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
-    });
+   $(document).on('click', '.docDeleteBtn', function () {
+    let id = $(this).attr('value');
+    
+    // Check the group status first before allowing delete
+    $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
+        if (response[0].status == 4) {
+            // If the group status is 4, show a warning and prevent deletion
+            swalError('Access Denied', 'Group is closed.');
+        } else {
+            // If the group status is not 4, proceed with delete confirmation
+            swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
+        }
+    }, 'json');
+});
 
     $('#clear_doc_form').click(function () {
         $('#doc_info_id').val('');
         $('#doc_upload_edit').val('');
+        $('select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
         $('#doc_info_form input').css('border', '1px solid #cecece');
         $('#doc_info_form select').css('border', '1px solid #cecece');
     })
