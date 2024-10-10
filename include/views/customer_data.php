@@ -762,7 +762,7 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_family" id="submit_family" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_fam_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
+                                    <button id="clear_fam_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -873,7 +873,7 @@
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-right">
                                 <div class="form-group">
                                     <button name="submit_guarantor" id="submit_guarantor" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_gua_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
+                                    <button id="clear_gua_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -987,7 +987,7 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <button name="submit_doc_info" id="submit_doc_info" class="btn btn-primary" tabindex="10" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="11">Clear</button>
+                                    <button  id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="11">Clear</button>
                                 </div>
                             </div>
                         </div>
