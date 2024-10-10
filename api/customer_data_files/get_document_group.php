@@ -22,7 +22,7 @@ $qry = $pdo->query("
     LEFT JOIN customer_creation cc ON
         gcm.cus_id = cc.id
     WHERE
-        cc.cus_id = '$cus_id' AND ad.cus_name = cc.id GROUP BY ad.id
+        cc.cus_id = '$cus_id' AND ad.cus_name = cc.id  AND gc.status !=4 GROUP BY ad.id
 ");
 
 // Initialize an array to hold the results
