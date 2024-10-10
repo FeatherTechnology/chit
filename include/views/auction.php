@@ -110,19 +110,19 @@
                         <div class="row">
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="group_id"> Group ID</label><span class="text-danger">*</span>
+                                    <label for="group_id"> Group ID</label>
                                     <input type="text" class="form-control" id="group_id" name="group_id" disabled tabindex="1">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="grp_name"> Group Name </label><span class="text-danger">*</span>
+                                    <label for="grp_name"> Group Name </label>
                                     <input type="text" class="form-control" id="grp_name" name="grp_name" disabled tabindex="2">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="auction_date">Auction Date</label><span class="text-danger">*</span>
+                                    <label for="auction_date">Auction Date</label>
                                     <input type="text" class="form-control" id="auction_date" name="auction_date" readonly tabindex="3">
                                 </div>
                             </div>
