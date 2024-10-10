@@ -470,7 +470,8 @@ $(document).on('click', '.docDeleteBtn', function () {
     swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
 });
 
-$('#clear_doc_form').click(function () {
+$('#clear_doc_form').click(function (event) {
+    event.preventDefault();
     $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
     $('#doc_info_id').val('');
     $('#doc_upload_edit').val('');
