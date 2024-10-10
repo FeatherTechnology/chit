@@ -252,6 +252,17 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Family Details?', getFamilyDelete, id);
         return;
     });
+    $('#clear_fam_form').click(function (event) {
+        event.preventDefault()
+        $('#family_id').val('');
+        $('#family_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
+        $('#family_form textarea').val('');
+        $('#family_form input').val('');
+       
+    })
     //////////////////////////////////////////////////////////////////////Family Modal end //////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
     $('#submit_guarantor').click(function (event) {
@@ -401,6 +412,18 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Guarantor Details?', getGuaDelete, id);
         return;
     });
+
+    $('#clear_gua_form').click(function (event) {
+        event.preventDefault()
+        $('#guarantor_id').val('');
+        $('#guarantor_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
+        $('#guarantor_form textarea').val('');
+        $('#guarantor_form input').val('');
+       
+    })
     ///////////////////////////////////////////////////////////////////////Guarantor Modal End////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////Customer creation Start/////////////////////////////////////////////////////////
 
