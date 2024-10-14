@@ -26,7 +26,7 @@ if ($s_cr_h_qry->rowCount() > 0) {
 } else {
     $s_cr_h = 0;
 }
-$s_cr_b_qry = $pdo->query("SELECT SUM(cheque_val + transaction_val) AS settlr_br_amnt FROM settlement_info WHERE settle_type >= 2 AND DATE(created_on) = CURDATE() - INTERVAL 1 DAY"); //Hand Cash
+$s_cr_b_qry = $pdo->query("SELECT COALESCE(SUM(cheque_val) + SUM(transaction_val),0) AS settlr_br_amnt FROM settlement_info WHERE settle_type >= 2 AND DATE(created_on) = CURDATE() - INTERVAL 1 DAY"); //Hand Cash
 if ($s_cr_b_qry->rowCount() > 0) {
     $s_cr_b = $s_cr_b_qry->fetch()['settlr_br_amnt'];
 } else {
@@ -55,7 +55,7 @@ if ($ot_cr_h_qry->rowCount() > 0) {
     $ot_cr_h = 0;
 }
 
-$ot_dr_h_qry = $pdo->query("SELECT SUM(amount) AS ot_amnt FROM other_transaction WHERE coll_mode = 1 AND type = 2 AND DATE(created_on) = CURDATE() - INTERVAL 1 DAY "); //Hand Cash //debit
+$ot_dr_h_qry = $pdo->query("SELECT SUM(amount) AS ot_amnt FROM other_transaction WHERE coll_mode = 1 AND type = 2 AND trans_cat !=7 AND DATE(created_on) = CURDATE() - INTERVAL 1 DAY "); //Hand Cash //debit
 if ($ot_dr_h_qry->rowCount() > 0) {
     $ot_dr_h = $ot_dr_h_qry->fetch()['ot_amnt'];
 } else {
@@ -69,7 +69,7 @@ if ($ot_cr_b_qry->rowCount() > 0) {
     $ot_cr_b = 0;
 }
 
-$ot_dr_b_qry = $pdo->query("SELECT SUM(amount) AS ot_amnt FROM other_transaction WHERE coll_mode = 2 AND type = 2 AND DATE(created_on) = CURDATE() - INTERVAL 1 DAY "); //Bank Cash //debit
+$ot_dr_b_qry = $pdo->query("SELECT SUM(amount) AS ot_amnt FROM other_transaction WHERE coll_mode = 2 AND type = 2 AND trans_cat !=7 AND DATE(created_on) = CURDATE() - INTERVAL 1 DAY "); //Bank Cash //debit
 if ($ot_dr_b_qry->rowCount() > 0) {
     $ot_dr_b = $ot_dr_b_qry->fetch()['ot_amnt'];
 } else {
