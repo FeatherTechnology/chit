@@ -185,6 +185,7 @@ $(document).ready(function () {
         // Show the modal
         $('#add_commitment_modal').modal('show');
         $('#label').css('border', '1px solid #cecece');
+        $('#commitment_date').css('border', '1px solid #cecece');
         $('#remark').css('border', '1px solid #cecece');
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
@@ -200,6 +201,7 @@ $(document).ready(function () {
             // Validation
             let label = $('#label').val();
             let remark = $('#remark').val();
+            let commitment_date = $('#commitment_date').val();
 
             var isValid = true;
 
@@ -210,6 +212,9 @@ $(document).ready(function () {
             if (!validateField(remark, 'remark')) {
                 isValid = false;
             }
+            if (!validateField(commitment_date, 'commitment_date')) {
+                isValid = false;
+            }
 
             // If all fields are valid, proceed with the AJAX call
             if (isValid) {
@@ -217,12 +222,14 @@ $(document).ready(function () {
                     group_id: groupId,
                     cus_mapping_id: cusMappingID, // Pass cus_mapping_id
                     label: label,
-                    remark: remark
+                    remark: remark,
+                    commitment_date:commitment_date
                 }, function (response) {
                     if (response == '1') {
                         swalSuccess('Success', 'Commitment Added Successfully!');
                         $('#label').val('');
                         $('#remark').val('');
+                        $('#commitment_date').val('');
                         getCommitmentInfoTable(cusMappingID, groupId);
                     } else {
                         swalError('Warning', 'Commitment Not Added!');
@@ -369,6 +376,7 @@ function closeChartsModal() {
     $('#add_commitment_modal').modal('hide');
     $('#label').val('');
     $('#remark').val('');
+    $('#commitment_date').val('');
 }
 $(function () {
     getCollectionTable();
@@ -429,6 +437,7 @@ function getCommitmentInfoTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
             'action'
 
@@ -453,6 +462,7 @@ function getCommitmentChartTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
         ];
         appendDataToTable('#commitment_chart_table', response, columnMapping);

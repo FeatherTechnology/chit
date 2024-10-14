@@ -278,7 +278,7 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                         <div class="form-group">
-                            <label for="comm_date "> Date </label> <span class="required">&nbsp;*</span>
+                            <label for="comm_date "> Date </label> 
                             <input type="text" class="form-control" id="comm_date" name="comm_date" tabindex='1' readonly>
                         </div>
                     </div>
@@ -290,6 +290,10 @@
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                        <div class="form-group">
+                            <label for="commitment_date"> Commitment Date</label><span class="required">&nbsp;*</span>
+                            <input type="date" class="form-control" id="commitment_date" name="commitment_date" placeholder="Enter Commitment Date" tabindex="1">
+                        </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                         <div class="form-group">
@@ -309,6 +313,7 @@
                                 <th width="15%"> S.No </th>
                                 <th>Date</th>
                                 <th> Label </th>
+                                <th>Commitment Date</th>
                                 <th> Remark </th>
                                 <th> Action</th>
                             </tr>
@@ -379,6 +384,7 @@
                             <th width="20">S.No</th>
                             <th>Date</th>
                             <th>Label</th>
+                            <th>Commitment Date</th>
                             <th>Remark</th>
                         </thead>
                         <tbody>
