@@ -310,43 +310,49 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 
 // Function to append data to table
 function serverSideTable(tableSelector, params, apiUrl) {
-	$(tableSelector).DataTable().destroy();
-	$(tableSelector).DataTable({
-		'order': [[0, "desc"]],
-		'processing': true,
-		'serverSide': true,
-		'serverMethod': 'post',
-		'ajax': {
-			'url': apiUrl,
-			'data': function (data) {
-				var search = $(tableSelector + '_search').val();
-				data.search = search;
-				data.params = params;
-			}
-		},
-		dom: 'lBfrtip',
-		buttons: [
-			{
-				extend: 'excel',
-				title: "Branch List"
-			},
-			{
-				extend: 'colvis',
-				collectionLayout: 'fixed four-column',
-			}
-		],
-		"lengthMenu": [
-			[10, 25, 50, -1],
-			[10, 25, 50, "All"]
-		],
-		'drawCallback': function () {
-			setDropdownScripts();
-			let new_id = tableSelector.split("#").pop();
-			$(tableSelector + '_filter input').attr('id', new_id + '_search');
-		}
-	});
-
+    $(tableSelector).DataTable().destroy();
+    $(tableSelector).DataTable({
+        'order': [[0, "desc"]],
+        'processing': true,
+        'serverSide': true,
+        'serverMethod': 'post',
+        'ajax': {
+            'url': apiUrl,
+            'data': function (data) {
+                var search = $(tableSelector + '_search').val();
+                data.search = search;
+                data.params = params;
+            }
+        },
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'excel',
+                title: "Branch List"
+            },
+            {
+                extend: 'colvis',
+                collectionLayout: 'fixed four-column',
+            }
+        ],
+        "lengthMenu": [
+            [10, 25, 50, -1],
+            [10, 25, 50, "All"]
+        ],
+        'drawCallback': function () {
+            setDropdownScripts();
+            let new_id = tableSelector.split("#").pop();
+            $(tableSelector + '_filter input').attr('id', new_id + '_search');
+            
+            // Increase the size of the search bar
+            $(tableSelector + '_filter input').css({
+                'width': '170px',   // Adjust this width as per your requirement
+                'padding': '7px'   // Optional: Adjust padding if needed
+            });
+        }
+    });
 }
+
 
 
 

@@ -629,7 +629,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="updateFieldsVisibility()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getGuarantorInfoTable();updateFieldsVisibility()">Close</button>
             </div>
         </div>
     </div>

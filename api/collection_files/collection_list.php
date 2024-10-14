@@ -5,8 +5,10 @@ $currentMonth = date('m');
 $currentYear = date('Y');
 $user_id = $_SESSION['user_id'];
 include './collection_list_sts.php';
+include'./grace_period_list.php';
 
 $collectionSts = new CollectStsClass($pdo);
+$graceperiodSts = new GraceperiodClass($pdo);
 
 $column = array(
     'cc.id',
@@ -104,22 +106,14 @@ foreach ($result as $row) {
 
     // Fetch status using the correct method call
     $status = $collectionSts->updateCollectStatus($row['cus_id'],$row['id']);
+    $grace_status = $graceperiodSts->updateGraceStatus($row['cus_id'],$row['id']);
     $sub_array[] = $status;
-
-    $grace_period = isset($row['grace_period']) ? $row['grace_period'] : 0;
-    $date = isset($row['date']) ? $row['date'] : '';
-
-    $due_date = date('Y-m-d', strtotime($date));
-    $grace_start_date = $due_date;
-    $grace_end_date = date('Y-m-d', strtotime($due_date . ' + ' . $grace_period . ' days'));
- 
-    $current_date = date('Y-m-d');
-
+      
     if ($status === "Paid") {
         $status_color = 'green'; // Payment is made
-    } elseif ($grace_end_date >= $current_date) {
+    } elseif ($grace_status === 'orange') {
         $status_color = 'orange'; // Payment is due but not yet
-    } elseif ($grace_end_date < $current_date) {
+    } elseif ($grace_status === 'red') {
         $status_color = 'red'; // Missed payment after grace period
     }
     $sub_array[] = "<span style='display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: $status_color;'></span>";
