@@ -16,7 +16,7 @@ if ($cash_type == '1') {
     $amount_column = "si.settle_cash";
 } elseif ($cash_type == '2') {
     // Assuming '2' means bank (cheque and transaction)
-    $amount_column = "si.cheque_val + si.transaction_val";
+    $amount_column = "COALESCE(si.cheque_val, 0) + COALESCE(si.transaction_val, 0)";
     $bank_condition = "AND si.bank_id = '$bank_id'";
 }
 
