@@ -13,7 +13,8 @@ class CollectStsClass
 
     public function updateCollectStatus($cus_id,$id)
 {
-    
+    $currentMonth = date('m');
+    $currentYear = date('Y');
 
     // Fetch all groups for the customer
    $qry1 = "SELECT DISTINCT ad.group_id
@@ -21,7 +22,8 @@ class CollectStsClass
              LEFT JOIN group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
              LEFT JOIN customer_creation cc ON gcm.cus_id = cc.id
              WHERE cc.cus_id = '$cus_id'
-               AND ad.status IN (2, 3)";
+               AND ad.status IN (2, 3) AND YEAR(ad.date) = '$currentYear'
+                           AND MONTH(ad.date) = '$currentMonth' ";
 
     $statement = $this->pdo->query($qry1);
     
@@ -50,7 +52,8 @@ class CollectStsClass
                      FROM collection c
                      LEFT JOIN auction_details ad ON c.auction_id = ad.id
                      WHERE c.cus_mapping_id =  '$cus_mapping_id'
-                       AND c.group_id ='$group_id'
+                       AND c.group_id ='$group_id'  AND YEAR(ad.date) = '$currentYear'
+                           AND MONTH(ad.date) = '$currentMonth' AND ad.status IN (2, 3)
                      ORDER BY c.created_on DESC
                      LIMIT 1";
 
