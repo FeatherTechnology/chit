@@ -10,13 +10,21 @@ if ($type == 'today') {
 } else if ($type == 'day') {
     $from_date = $_POST['from_date'];
     $to_date = $_POST['to_date'];
-    $where = " (DATE(created_on) >= '$from_date' && DATE(created_on) <= '$to_date' ) $userwhere ";
+    //$where = " (DATE(created_on) >= '$from_date' && DATE(created_on) <= '$from_date' ) $userwhere ";
+    $where = " DATE(created_on) = DATE('$from_date') - INTERVAL 1 DAY $userwhere";
+
 
 } else if ($type == 'month') {
-    $month = date('m', strtotime($_POST['month']));
-    $year = date('Y', strtotime($_POST['month']));
-    $where = " (MONTH(created_on) = '$month' AND YEAR(created_on) = $year) $userwhere";
-
+    // Get the selected month and subtract one month
+    $selectedMonth = $_POST['month'];
+    $previousMonth = date('Y-m', strtotime('-1 month', strtotime($selectedMonth)));
+    
+    // Extract the previous month and year
+    $month = date('m', strtotime($previousMonth));
+    $year = date('Y', strtotime($previousMonth));
+    
+    // Apply the filter to fetch data from the previous month
+    $where = " (MONTH(created_on) = '$month' AND YEAR(created_on) = '$year') $userwhere";
 }
 
 $op_data = array();
@@ -24,6 +32,7 @@ $op_data[0]['hand_cash'] = 0;
 $op_data[0]['bank_cash'] = 0;
 
 //Collection credit.
+
 $c_cr_h_qry = $pdo->query("SELECT SUM(collection_amnt) AS coll_cr_amnt FROM accounts_collect_entry WHERE coll_mode = 1 AND $where "); //Hand Cash
 if ($c_cr_h_qry->rowCount() > 0) {
     $c_cr_h = $c_cr_h_qry->fetch()['coll_cr_amnt'];
