@@ -1,8 +1,9 @@
 <style>
-    .highlight-row {
-    background-color: #d4edda; /* Light green background */
-    color: #155724;           /* Dark green text color */
+.highlight-row {
+    background-color: #d4edda !important; /* Light green background */
+    color: #155724 !important;            /* Dark green text color */
 }
+
 
     /* Reduce size of table header */
     .input-container {
