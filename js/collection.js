@@ -127,11 +127,16 @@ $(document).ready(function () {
             }
 
             if (coll_mode === '2') {
-                if (!validateField(transaction_id, 'transaction_id') && !validateField(bank_name, 'bank_name')) {
+                // Check if transaction_id is empty
+                if (!validateField(transaction_id, 'transaction_id')) {
+                    isValid = false;
+                }
+                
+                // Check if bank_name is empty (assuming bank_name is required for coll_mode '2')
+                if (!validateField(bank_name, 'bank_name')) {
                     isValid = false;
                 }
             }
-
             // Check if collection amount is less than or equal to payable amount
             if (collectionAmount > payableAmount) {
                 isValid = false;
