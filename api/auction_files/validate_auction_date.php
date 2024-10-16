@@ -11,12 +11,12 @@ $auction_detail = $auction_result->fetch(PDO::FETCH_ASSOC); // Use fetch with PD
 
 // Get current date and time
 $current_date = date('Y-m-d');
-$current_hour = date('h');
+$current_hour = date('h'); // 12-hour format
 $current_minute = date('i');
-$current_ampm = date('A');
+$current_ampm = date('A'); // AM/PM
 
 // Fetch group details from group_creation table to check time
-$group_qry = "SELECT hours, minutes, ampm,grp_name,chit_value FROM group_creation WHERE grp_id = '$group_id'";
+$group_qry = "SELECT hours, minutes, ampm, grp_name, chit_value FROM group_creation WHERE grp_id = '$group_id'";
 $group_result = $pdo->query($group_qry);
 $group_time = $group_result->fetch(PDO::FETCH_ASSOC); // Use fetch with PDO::FETCH_ASSOC to get associative array
 
@@ -25,15 +25,19 @@ $is_valid = false;
 if ($auction_detail && $group_time) {
     $auction_date = $auction_detail['date']; // Auction date from database
     $group_hour = $group_time['hours']; // Auction start hour
-    $group_minute = $group_time['minutes']; // Auction start minute
+    $group_minute = str_pad($group_time['minutes'], 2, '0', STR_PAD_LEFT); // Ensure minute is two digits
     $group_ampm = $group_time['ampm']; // Auction start AM/PM
 
+    $formatted_group_time = "$group_hour:$group_minute $group_ampm";
+   
     // Check if the auction date is today or in the future
     if ($auction_date < $current_date) {
         $is_valid = true; // Future auction date, so it's valid
     } else if ($auction_date == $current_date) {
+        // Get current time as a timestamp
         $current_time = strtotime("$current_hour:$current_minute $current_ampm");
-        $auction_time = strtotime("$group_hour:$group_minute $group_ampm");
+        // Get auction time as a timestamp
+        $auction_time = strtotime($formatted_group_time);
         if ($current_time >= $auction_time) {
             $is_valid = true;
         }
@@ -48,6 +52,7 @@ $response = [
 // Ensure group name is included in the response
 if ($group_time) {
     $response['auction_detail']['group_name'] = $group_time['grp_name']; // Add group name to auction detail
-    $response['auction_detail']['chit_value'] = $group_time['chit_value']; // Add group name to auction detail
+    $response['auction_detail']['chit_value'] = $group_time['chit_value']; // Add chit value to auction detail
 }
+
 echo json_encode($response);
