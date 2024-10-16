@@ -574,6 +574,11 @@ a.bg-pink:focus {
   box-shadow: 0 0 15px #e5e9ec;
   border-bottom: 1px solid #d7dbe2;
 }
+.custo-search {
+  width: 170px; /* Set the desired width */
+  padding: 7px; /* Optional: Adjust padding if needed */
+}
+
 
 .custom-search .search-query:focus {
   outline: none;

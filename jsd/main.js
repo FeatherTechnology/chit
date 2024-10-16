@@ -308,7 +308,6 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 }
 /////////////////////////////////////////////////////
 
-// Function to append data to table
 function serverSideTable(tableSelector, params, apiUrl) {
     $(tableSelector).DataTable().destroy();
     $(tableSelector).DataTable({
@@ -342,16 +341,15 @@ function serverSideTable(tableSelector, params, apiUrl) {
         'drawCallback': function () {
             setDropdownScripts();
             let new_id = tableSelector.split("#").pop();
-            $(tableSelector + '_filter input').attr('id', new_id + '_search');
-            
-            // Increase the size of the search bar
-            $(tableSelector + '_filter input').css({
-                'width': '170px',   // Adjust this width as per your requirement
-                'padding': '7px'   // Optional: Adjust padding if needed
-            });
+            $(tableSelector + '_filter input')
+                .attr('id', new_id + '_search')
+                .addClass('custo-search'); // Add your custom class here
+
+            // You can remove the JS width and padding adjustments now
         }
     });
 }
+
 
 
 
