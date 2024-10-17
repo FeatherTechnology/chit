@@ -64,22 +64,20 @@ $(document).ready(function () {
     
         // Iterate through each row of the customer mapping table
         $('#cus_mapping_table tbody tr').each(function () {
+            var $row = $(this); // Current row
+            
             // Find all input values in the current row (including all relevant containers)
-            let values = $(this).find('input[name="cus_value[]"]').map(function () {
-                return $(this).val(); // Collect all values for this customer
-            }).get(); // Get values as an array
-    
-            // Check if at least one input in this row is non-empty
-            let hasValidInput = values.some(function (value) {
-                return value.trim() !== ''; // Check for at least one non-empty value
-            });
-    
-            // If there are no valid inputs, set isValid to false
-            if (!hasValidInput) {
+            var $valueColumn = $row.find('.value-column');
+            
+            // Check if the last input in the row is empty
+            var $lastInput = $valueColumn.find('input:last');
+            
+            // If the last input exists and is empty
+            if ($lastInput.length > 0 && $lastInput.val().trim() === '') {
                 isValid = false; // Set isValid to false if no valid values
-                $(this).find('input[name="cus_value[]"]').css('border', '1px solid red'); // Highlight empty fields
+                $lastInput.css('border', '1px solid red'); // Highlight empty fields
             } else {
-                $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
+                $lastInput.css('border', ''); // Reset border if filled
             }
         });
     
@@ -87,14 +85,15 @@ $(document).ready(function () {
         if (isValid) {
             // Change the background color to green for button 1
             $(this).removeClass('btn-primary').addClass('btn-success'); // Use Bootstrap class for green color
-            
+    
             // Enable auction_round2
             $('#auction_round2').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
         } else {
             // Show a warning message if not all fields are filled
-            swalError('Input Required', 'Please fill in all required fields before proceeding.');
+            swalError('Warning', 'Please fill in all required fields before proceeding.');
         }
     });
+    
     $('#auction_round2').on('click', function (e) {
         // Change the background color to green
         e.preventDefault();
@@ -214,6 +213,7 @@ $(document).ready(function () {
                 $('#auction_round1').prop('disabled', true)
                 $('.auction_close').prop('disabled', true)
                 $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
+                $('#auction_start').prop('disabled', false);
             } 
         }, 'json');
 
@@ -249,7 +249,7 @@ $(document).on('click', '#auction_start', function (event) {
                     $(this).prop('readonly', false); // Make non-company rows editable
                 }
             });
-
+            $('#auction_start').prop('disabled', true);
             // Enable auction rounds
             $('#auction_round1').prop('disabled', false);
             // If "Company" row exists, enable auction close button
@@ -294,10 +294,10 @@ $('#submit_cus_map').on('click', function (e) {
                         </td>
                     </tr>
                 `);
-                $('#submit_cus_map').prop('disabled', true);
+                $('#submit_cus_map').prop('disabled', true); // Disable the submit button after adding company
                 if (hasCompany) {
                     $('.auction_close').removeClass('d-none').prop('disabled', false);
-               }
+                }
             } else if (cusId != -1) {
                 var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim();
                 var uniqueIdentifier = cusId + '_' + new Date().getTime();
@@ -315,12 +315,17 @@ $('#submit_cus_map').on('click', function (e) {
                         </td>
                     </tr>
                 `);
+                
+                // Enable input for the customer if the auction has started
                 if (auctionStarted) {
                     $(`#cus_mapping_table tbody tr[data-unique-id="${uniqueIdentifier}"] input.form-control`).prop('readonly', false);
                 }
             }
         });
 
+        // Reset border styles for all inputs in the table
+        $('#cus_mapping_table tbody input[name="cus_value[]"]').css('border', '');
+        
         // Clear the selection
         cus_name.removeActiveItems();
         let groupId = $(this).attr('data-group_id');
@@ -335,11 +340,12 @@ $('#submit_cus_map').on('click', function (e) {
 
         updateDeleteIcon();
         resetRoundButtons();
+    } else {
+        // Show an alert if no customers were selected
+        swalError('Warning', 'Please select at least one customer before submitting.');
     }
 });
 
-
-    
 
     function updateDeleteIcon() {
         // Remove any existing delete icons from all input containers
@@ -355,86 +361,6 @@ $('#submit_cus_map').on('click', function (e) {
         });
     }
 
-
-    // $('#submit_cus_map').on('click', function (e) {
-    //     e.preventDefault();
-
-    //     // Get the selected customers (can be multiple)
-    //     var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
-    //     var lowValue = $('#submit_cus_map').attr('data-low_value'); // Get the low_value
-
-    //     // Check if "Company" already exists in the table
-    //     var companyExists = $('#cus_mapping_table tbody .company-row').length > 0;
-
-    //     if (selectedCustomers && selectedCustomers.length > 0) {
-    //         // Flag to track if the "Company" entry has been added
-    //         var companyAdded = false;
-
-    //         // Iterate over each selected customer
-    //         selectedCustomers.forEach(function (cusId) {
-    //             // Handle special case for the company
-    //             if (cusId == -1 && !companyExists) {
-    //                 // Create a unique identifier for the Company entry
-    //                 var uniqueIdentifier = 'company_' + new Date().getTime();
-
-    //                 // Append the "Company" entry to the table (without delete icon)
-    //                 $('#cus_mapping_table tbody').append(`
-    //                 <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}" class="company-row">
-    //                     <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-    //                     <td class="cus-name-column">Company</td>
-    //                     <td class="value-column">
-    //                         <div class="input-container">
-    //                             <input type="number" name="cus_value[]" class="form-control" value="${lowValue}" placeholder="Enter value" readonly>
-    //                             <!-- No delete icon for Company row -->
-    //                         </div>
-    //                     </td>
-    //                 </tr>
-    //             `);
-    //                 companyAdded = true; // Mark that the company has been added
-    //                 $('#submit_cus_map').prop('disabled', true);
-    //             } else if (cusId != -1) {
-    //                 // Get the customer name for the given ID
-    //                 var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim();
-
-    //                 // Create a unique identifier for each entry using timestamp
-    //                 var uniqueIdentifier = cusId + '_' + new Date().getTime();
-
-    //                 // Append the selected customer to the table as a new row (with delete icon)
-    //                 $('#cus_mapping_table tbody').append(`
-    //                 <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
-    //                     <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
-    //                     <td class="cus-name-column">${cusName}</td>
-    //                     <td class="value-column">
-    //                         <div class="input-container">
-    //                             <input type="number" name="cus_value[]" class="form-control" data-cus-id="${cusId}" value="" placeholder="Enter value">
-    //                             <i class="icon-delete delete-icon" style="width:25px;"></i> <!-- Show delete icon -->
-    //                         </div>
-    //                     </td>
-    //                 </tr>
-    //             `);
-    //             }
-    //         });
-
-    //         // Clear the selection
-    //         cus_name.removeActiveItems();
-    //         let groupId = $(this).attr('data-group_id');
-    //         getCusName(groupId);
-
-    //         // Show the auction close button if rows exist
-    //         if ($('#cus_mapping_table tbody tr').length > 0) {
-    //             $('.auction_close').removeClass('d-none');
-    //             $('#auction_round1').removeClass('d-none');
-    //             $('#auction_round2').removeClass('d-none');
-    //             $('#auction_round3').removeClass('d-none');
-    //         }
-
-    //         // Update delete icon to appear only in the last input of each row
-    //         updateDeleteIcon();
-    //         resetRoundButtons();
-    //     }
-    // });
-
-  
 
     $(document).on('click', '#cus_mapping_table tbody tr .cus-name-column', function () {
         if (!allowCusNameClick) {
@@ -470,7 +396,7 @@ $('#submit_cus_map').on('click', function (e) {
             <i class="icon-delete delete-icon" style="width:25px;"></i>
         </div>
     `);
-
+   $row.find('input[name="cus_value[]"]').css('border', '');
         // Show the auction close button if rows exist
         if ($('#cus_mapping_table tbody tr').length > 0) {
             $('.auction_close').removeClass('d-none');
@@ -523,13 +449,6 @@ $('#submit_cus_map').on('click', function (e) {
     });
 
   
-    // // Function to reset round button states
-    // function resetRoundButtons() {
-    //     $('#auction_round1').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-    //     $('#auction_round2').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-    //     $('#auction_round2').prop('disabled', true); // Disable and hide button 2
-    //     $('#auction_round3').prop('disabled', true); // Disable and hide button 2
-    // }
     let hasCompany = false;
     function resetRoundButtons() {
         let round1Value = 0;
@@ -609,14 +528,14 @@ $('#submit_cus_map').on('click', function (e) {
 
         // Show warning if the value must be greater than all previous values (only if previous values exist)
         if (hasPreviousValues && !isValid) {
-            swalError('Warning', 'The value must be greater than all previous values in the table.');
+            swalError('Warning', 'Please enter a higher bid value than the previous one.');
             $(this).val(''); // Clear the invalid value
             return;
         }
 
         // Show warning if the value is not unique
         if (!isUnique) {
-            swalError('Warning', 'The value must be unique across all input fields in the table.');
+            swalError('Warning', 'The bid value must be unique for each entry');
             $(this).val(''); // Clear the invalid value
             return;
         }
