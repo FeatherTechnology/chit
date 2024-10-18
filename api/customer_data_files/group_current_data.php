@@ -38,6 +38,20 @@ $statement = $pdo->prepare($query);
 $statement->execute([':id' => $id]);
 
 $result = [];
+$settleStatusQuery = "SELECT
+    gcm.id AS cus_mapping_id,
+    gcm.settle_status
+FROM
+    group_cus_mapping gcm
+JOIN
+    auction_details ad ON gcm.grp_creation_id = ad.group_id
+WHERE
+    gcm.cus_id = (SELECT id FROM customer_creation WHERE id = '$id')"; 
+
+$settleStatuses = [];
+foreach ($pdo->query($settleStatusQuery) as $row) {
+    $settleStatuses[$row['cus_mapping_id']] = $row['settle_status'];
+}
 
 if ($statement->rowCount() > 0) {
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
@@ -99,7 +113,8 @@ if ($statement->rowCount() > 0) {
         } else {
             $sub_array['collection_status'] = 'In Collection';
         }
-
+        $settle_status = $settleStatuses[$row['cus_mapping_id']] ?? ''; // Default to 'N/A' if not found
+        $sub_array['settle_status'] = $settle_status;
         // Add other relevant data to sub_array
         $sub_array['id'] = $row['auction_id'];
         $sub_array['cus_mapping_id'] = $row['cus_mapping_id'];
