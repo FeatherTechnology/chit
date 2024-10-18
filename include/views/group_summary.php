@@ -1,4 +1,4 @@
-<div class="radio-container"id="curr_closed">
+<div class="radio-container" id="curr_closed">
     <div class="selector">
         <div class="selector-item">
             <input type="radio" id="group_current" name="customer_data_type" class="selector-item_radio" value="cus_profile" checked>
@@ -105,7 +105,7 @@
     </div>
 </div>
 <!-- /////////////////////////////////////////////////////////////////// Auction Chart Modal END ////////////////////////////////////////////////////////////////////// -->
- <!-- /////////////////////////////////////////////////////////////////// Settlement Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////////// Settlement Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
 <div class="modal fade bd-example-modal-lg" id="settlement_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
         <div class="modal-content" style="background-color: white">
@@ -140,7 +140,7 @@
     </div>
 </div>
 <!-- /////////////////////////////////////////////////////////////////// Settlement Chart Modal END ////////////////////////////////////////////////////////////////////// -->
- <!-- /////////////////////////////////////////////////////////////////// Collection Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
+<!-- /////////////////////////////////////////////////////////////////// Collection Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
 <div class="modal fade bd-example-modal-lg" id="collection_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
         <div class="modal-content" style="background-color: white">
@@ -161,13 +161,44 @@
                             <th>Occupation</th>
                             <th>Mobile</th>
                             <th>Action</th>
+                            <th>Settlement</th>
                         </thead>
                         <tbody>
+                            <!-- Dynamic table data will be inserted here -->
                         </tbody>
                     </table>
                 </div>
 
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                    <div class="col-sm-1 col-md-1 col-lg-1">
+                        <div class="form-group">
+                            <label for="opening_bal" class="lbl-style-cls">Paid</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                    <div class="col-sm-1 col-md-1 col-lg-1">
+                        <div class="form-group">
+                            <label for="opening_hand_cash" class="lbl-style-cls">UnPaid</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                    <div class="col-sm-1 col-md-1 col-lg-1">
+                        <div class="form-group">
+                            <label for="opening_hand_cash" class="lbl-style-cls">Pending Amount</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
+                </div>
             </div>
+
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()" tabindex="4">Close</button>
             </div>

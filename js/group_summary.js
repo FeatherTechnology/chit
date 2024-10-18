@@ -259,7 +259,7 @@ function collectionList(group_id,auction_month) {
                 var occupations = item.occupations;
                 var mobile1 = item.mobile1;
                 var action = item.action; // Action button HTML from PHP
-
+                var settle_status = item.settle_status;
                 // Create the row HTML
                 var row = '<tr>' +
                     '<td>' + serialNo + '</td>' +  // Use serialNo instead of index
@@ -269,6 +269,7 @@ function collectionList(group_id,auction_month) {
                     '<td>' + occupations + '</td>' +
                     '<td>' + mobile1 + '</td>' +
                     '<td>' + action + '</td>' + 
+                    '<td>' + settle_status + '</td>' + 
                     '</tr>';
 
                 tbody.append(row);
