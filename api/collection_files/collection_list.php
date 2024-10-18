@@ -1,11 +1,12 @@
 <?php
 @session_start();
 require '../../ajaxconfig.php';
+
 $currentMonth = date('m');
 $currentYear = date('Y');
 $user_id = $_SESSION['user_id'];
 include './collection_list_sts.php';
-include'./grace_period_list.php';
+include './grace_period_list.php';
 
 $collectionSts = new CollectStsClass($pdo);
 $graceperiodSts = new GraceperiodClass($pdo);
@@ -59,7 +60,8 @@ JOIN users us ON
 WHERE
     gc.status=3
     AND YEAR(ad.date) = '$currentYear'
-    AND MONTH(ad.date) ='$currentMonth'";
+    AND MONTH(ad.date) ='$currentMonth'
+"; // Removed the subquery checking for 'Paid' status
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
@@ -90,14 +92,22 @@ $number_filter_row = $statement->rowCount();
 
 $statement = $pdo->prepare($query . $query1);
 $statement->execute();
-$result = $statement->fetchAll();
+$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+// Now filter out those that are already 'Paid'
+$filtered_results = [];
+foreach ($result as $row) {
+    $status = $collectionSts->updateCollectStatus($row['cus_id'], $row['id']);
+    if ($status !== 'Paid') {
+        $filtered_results[] = $row; // Only include those not 'Paid'
+    }
+}
 
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];
-foreach ($result as $row) {
+foreach ($filtered_results as $row) {
     $sub_array = array();
     $sub_array[] = $sno++;
-    // $sub_array[] = isset($row['group_id']) ? $row['group_id'] : '';
     $sub_array[] = isset($row['cus_id']) ? $row['cus_id'] : '';
     $sub_array[] = isset($row['cus_name']) ? $row['cus_name'] : '';
     $sub_array[] = isset($row['mobile1']) ? $row['mobile1'] : '';
@@ -105,8 +115,8 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['occupations']) ? $row['occupations'] : '';
 
     // Fetch status using the correct method call
-    $status = $collectionSts->updateCollectStatus($row['cus_id'],$row['id']);
-    $grace_status = $graceperiodSts->updateGraceStatus($row['cus_id'],$row['id']);
+    $status = $collectionSts->updateCollectStatus($row['cus_id'], $row['id']);
+    $grace_status = $graceperiodSts->updateGraceStatus($row['cus_id'], $row['id']);
     $sub_array[] = $status;
       
     if ($status === "Paid") {
@@ -134,8 +144,9 @@ function count_all_data($pdo)
 $output = array(
     'draw' => isset($_POST['draw']) ? intval($_POST['draw']) : 0,
     'recordsTotal' => count_all_data($pdo),
-    'recordsFiltered' => $number_filter_row,
+    'recordsFiltered' => count($filtered_results), // Use filtered results count
     'data' => $data
 );
 
 echo json_encode($output);
+?>
