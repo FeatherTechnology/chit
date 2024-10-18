@@ -34,9 +34,18 @@ if ($payment_type == "1") {
     if ($balance_amount == 0) {
         // Update auction_details status
         $update_query = $pdo->query("UPDATE auction_details SET 
-                    status = '3', update_login_id = '$user_id', updated_on = NOW() 
-                    WHERE id = '$auction_id'");
-        if ($qry && $update_query) {
+            status = '3', update_login_id = '$user_id', updated_on = NOW() 
+            WHERE id = '$auction_id'");
+
+        // Update group_cus_mapping settle_status
+        $qry2 = $pdo->query("UPDATE `group_cus_mapping` 
+            SET `settle_status` = 'Yes' 
+            WHERE `grp_creation_id` = '$group_id' 
+            AND `cus_id` = '$cus_name' 
+            AND `settle_status` IS NULL 
+            LIMIT 1");
+
+        if ($qry && $update_query && $qry2) {
             $result = 1;
         } else {
             $result = 0;
@@ -47,13 +56,23 @@ if ($payment_type == "1") {
 } else if ($payment_type == "2") {
     // Always update auction_details status for payment_type 2
     $update_query = $pdo->query("UPDATE auction_details SET 
-                status = '3', update_login_id = '$user_id', updated_on = NOW() 
-                WHERE id = '$auction_id'");
-    $result = $qry && $update_query ? 1 : 0;
+        status = '3', update_login_id = '$user_id', updated_on = NOW() 
+        WHERE id = '$auction_id'");
+
+    // Update group_cus_mapping settle_status
+    $qry2 = $pdo->query("UPDATE `group_cus_mapping` 
+        SET `settle_status` = 'Yes' 
+        WHERE `grp_creation_id` = '$group_id' 
+        AND `cus_id` = '$cus_name' 
+        AND `settle_status` IS NULL 
+        LIMIT 1");
+
+    $result = ($qry && $update_query && $qry2) ? 1 : 0;
 } else {
     $result = 0;
 }
 
+// Return result
 echo json_encode($result);
 
 // Close the connection
