@@ -71,6 +71,7 @@ $(document).on('click', '.collectionActionBtn', function (event) {
     let auction_month = values[1]; 
 
     collectionList(group_id, auction_month);
+    getCollection(group_id,auction_month) ;
 });
 
 ////////////////////////////////////////////////////////////////////////Collection Chart End/////////////////////////////////////////////////////////////
@@ -285,4 +286,42 @@ function collectionList(group_id,auction_month) {
             console.error('AJAX Error: ' + status + error);
         }
     });
+}
+function getCollection(group_id, auction_month) {
+    $.post('api/group_summary_files/calculate_balance_data.php', 
+        { 
+            group_id: group_id, 
+            auction_month: auction_month 
+        }, 
+        function (response) {
+            // Ensure response is a valid object
+            if (response && response.month_paid !== undefined) {
+                // Format the amounts for paid, unpaid, and pending
+                let formattedAmount = moneyFormatIndia(response.month_paid); 
+                let formattedUnpaid = moneyFormatIndia(response.month_unpaid); 
+                let formattedPending = moneyFormatIndia(response.month_pending); 
+
+                // Set formatted values to hidden inputs and displayed text
+                $('#month_paid').val(formattedAmount); 
+                $('#paidValue').text(formattedAmount); 
+
+                $('#month_unpaid').val(formattedUnpaid); 
+                $('#unpaidValue').text(formattedUnpaid); 
+
+                $('#month_pending').val(formattedPending); 
+                $('#pendingValue').text(formattedPending); 
+            } else {
+                // Set default values to 0 if response is not valid
+                $('#month_paid').val(0);
+                $('#paidValue').text('0'); 
+
+                $('#month_unpaid').val(0);
+                $('#unpaidValue').text('0'); 
+
+                $('#month_pending').val(0);
+                $('#pendingValue').text('0'); 
+            }
+        }, 
+        'json'
+    );
 }

@@ -1,3 +1,38 @@
+<?php
+//Format number in Indian Format
+function moneyFormatIndia($num1)
+{
+    if ($num1 < 0) {
+        $num = str_replace("-", "", $num1);
+    } else {
+        $num = $num1;
+    }
+    $explrestunits = "";
+    if (strlen($num) > 3) {
+        $lastthree = substr($num, strlen($num) - 3, strlen($num));
+        $restunits = substr($num, 0, strlen($num) - 3);
+        $restunits = (strlen($restunits) % 2 == 1) ? "0" . $restunits : $restunits;
+        $expunit = str_split($restunits, 2);
+        for ($i = 0; $i < sizeof($expunit); $i++) {
+            if ($i == 0) {
+                $explrestunits .= (int)$expunit[$i] . ",";
+            } else {
+                $explrestunits .= $expunit[$i] . ",";
+            }
+        }
+        $thecash = $explrestunits . $lastthree;
+    } else {
+        $thecash = $num;
+    }
+
+    if ($num1 < 0 && $num1 != '') {
+        $thecash = "-" . $thecash;
+    }
+
+    return $thecash;
+}
+?>
+
 <div class="radio-container" id="curr_closed">
     <div class="selector">
         <div class="selector-item">
@@ -145,12 +180,15 @@
     <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
-                <h5 class="modal-title" id="dueChartTitle">Collection Chart</h5>
+            <h5 class="modal-title" id="dueChartTitle">Collection Chart - Paid : <span id="paidValue">0</span> UnPaid : <span id="unpaidValue">0</span> Pending : <span id="pendingValue">0</span></h5>
                 <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="closeChartsModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
+            <input type="hidden" id="month_paid">
+                <input type="hidden" id="month_unpaid">
+                <input type="hidden" id="month_pending">
                 <div class="container-fluid" id="collect_chart_table_div">
                     <table id="collect_chart_table" class="table custom-table">
                         <thead>
@@ -168,37 +206,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="row">
-                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
-                    <div class="col-sm-1 col-md-1 col-lg-1">
-                        <div class="form-group">
-                            <label for="opening_bal" class="lbl-style-cls">Paid</label>
-                        </div>
-                    </div>
-                    <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
-                    <div class="col-sm-1 col-md-1 col-lg-1">
-                        <div class="form-group">
-                            <label for="opening_hand_cash" class="lbl-style-cls">UnPaid</label>
-                        </div>
-                    </div>
-                    <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-3 col-md-3 col-lg-3"></div>
-                    <div class="col-sm-1 col-md-1 col-lg-1">
-                        <div class="form-group">
-                            <label for="opening_hand_cash" class="lbl-style-cls">Pending Amount</label>
-                        </div>
-                    </div>
-                    <div class="col-sm-1 col-md-1 col-lg-1"><label class="lbl-style-cls">:</label></div>
-                </div>
-            </div>
-
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal" onclick="closeChartsModal()" tabindex="4">Close</button>
             </div>

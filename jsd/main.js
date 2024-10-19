@@ -499,29 +499,37 @@ function validateMultiSelectField(fieldId, choicesInstance) {
 }
 
 function moneyFormatIndia(num) {
-	var isNegative = false;
-	if (num < 0) {
-		isNegative = true;
-		num = Math.abs(num);
-	}
+    // Check if num is undefined or not a number
+    if (num === undefined || num === null || isNaN(num)) {
+        return '0'; // Return a default value if the input is invalid
+    }
+    
+    // Convert num to a number type if it's a string
+    num = Number(num);
 
-	var explrestunits = "";
-	if (num.toString().length > 3) {
-		var lastthree = num.toString().substr(num.toString().length - 3);
-		var restunits = num.toString().substr(0, num.toString().length - 3);
-		restunits = (restunits.length % 2 == 1) ? "0" + restunits : restunits;
-		var expunit = restunits.match(/.{1,2}/g);
-		for (var i = 0; i < expunit.length; i++) {
-			if (i == 0) {
-				explrestunits += parseInt(expunit[i]) + ",";
-			} else {
-				explrestunits += expunit[i] + ",";
-			}
-		}
-		var thecash = explrestunits + lastthree;
-	} else {
-		var thecash = num;
-	}
+    var isNegative = false;
+    if (num < 0) {
+        isNegative = true;
+        num = Math.abs(num);
+    }
 
-	return isNegative ? "-" + thecash : thecash;
+    var explrestunits = "";
+    if (num.toString().length > 3) {
+        var lastthree = num.toString().substr(num.toString().length - 3);
+        var restunits = num.toString().substr(0, num.toString().length - 3);
+        restunits = (restunits.length % 2 === 1) ? "0" + restunits : restunits; // Add leading zero if necessary
+        var expunit = restunits.match(/.{1,2}/g);
+        for (var i = 0; i < expunit.length; i++) {
+            if (i === 0) {
+                explrestunits += parseInt(expunit[i]) + ",";
+            } else {
+                explrestunits += expunit[i] + ",";
+            }
+        }
+        var thecash = explrestunits + lastthree;
+    } else {
+        var thecash = num.toString(); // Ensure it's a string
+    }
+
+    return isNegative ? "-" + thecash : thecash;
 }
