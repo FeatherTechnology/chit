@@ -103,7 +103,7 @@ $(document).ready(function () {
         $('#auction_round3').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
     });
     let allowCusNameClick = true;
-    let allowDeleteClick = true;
+  //  let allowDeleteClick = true;
 
     $('#auction_round3').on('click', function (e) {
         e.preventDefault(); // Prevent default action
@@ -208,7 +208,7 @@ $(document).ready(function () {
 
                 // Fetch customer names based on groupId
                 getCusName(groupId, auction_month);
-                allowDeleteClick = false;
+               // allowDeleteClick = false;
                 auctionStarted = false;
                 $('#auction_round1').prop('disabled', true)
                 $('.auction_close').prop('disabled', true)
@@ -235,7 +235,7 @@ $(document).on('click', '#auction_start', function (event) {
 
     $.post('api/auction_files/validate_auction_start.php', { group_id: group_id, auction_month: auction_month }, function (response) {
         if (response.is_valid) {
-            allowDeleteClick = true;
+           // allowDeleteClick = true;
             swalSuccess('Success', "Auction Can Start Now");
 
             // Set the auctionStarted flag to true
@@ -262,7 +262,7 @@ $(document).on('click', '#auction_start', function (event) {
             var auctionTime = response.auction_detail ? `${response.auction_detail.hours}:${response.auction_detail.minutes} ${response.auction_detail.ampm}` : 'N/A';
 
             swalError('Please Wait', `The auction will open after ${auctionTime} on ${formattedAuctionDate}`);
-            allowDeleteClick = false;
+           // allowDeleteClick = false;
         }
     }, 'json');
 });
@@ -412,9 +412,9 @@ $('#submit_cus_map').on('click', function (e) {
 
 
     $(document).on('click', '.icon-delete', function () {
-        if (!allowDeleteClick) {
-            return; // Exit if the click event is disabled
-        }
+        // if (!allowDeleteClick) {
+        //     return; // Exit if the click event is disabled
+        // }
         var $inputContainer = $(this).closest('.input-container'); // Find the closest input container
         var $row = $(this).closest('tr'); // Find the row for the clicked delete icon
 
