@@ -4,6 +4,7 @@ $(document).ready(function () {
         getApprovalCounts();
         getCollectionCounts();
         getClosedCounts();
+        getColsummaryCounts();
             
     });
 
@@ -44,7 +45,14 @@ $(document).ready(function () {
             }
         }, 500);
     });
-
+    $('#coll_summary_title').click(function () {
+        $('#coll_summ_body').slideToggle();
+        setTimeout(() => {
+            if ($('#coll_summ_body').is(':visible')) {
+                getColsummaryCounts();
+            }
+        }, 500);
+    });
     $(document).on('click','.open-group-creation',function(event){
         event.preventDefault();
         let grpId = $(this).attr('value');
@@ -81,6 +89,9 @@ function checkUserScreenAccess() {
         }
         if (screens.includes('9')) {
             $('.settlement-card').show();
+        }
+        if (screens.includes('10')) {
+            $('.collection-summary-card').show();
         }
     }, 'json').then(function () {
         getBranchList();
@@ -124,5 +135,15 @@ function getClosedCounts() {
     $.post('api/dashboard_files/get_settlement_details.php', { branchId }, function (response) {
         $('#tot_settle').text(response['total_settle'])
         $('#today_settle').text(response['today_settle'])
+    }, 'json');
+}
+function getColsummaryCounts() {
+    let branchId = $('#branch_id :selected').val();
+    $.post('api/dashboard_files/get_collection_summary_details.php', { branchId }, function (response) {
+        $('#month_paid').text(response['month_paid'])
+        $('#month_unpaid').text(response['month_unpaid'])
+        $('#prev_pen_amount').text(response['prev_pen_amount'])
+        $('#total_outstanding').text(response['total_outstanding'])
+
     }, 'json');
 }
