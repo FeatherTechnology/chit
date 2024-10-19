@@ -34,8 +34,37 @@ WHERE
 GROUP BY 
     gc.grp_id;
 ";
+$prev_pen_amount  = "
+    SELECT  
+    (SELECT SUM(COALESCE(ad.chit_amount, 0) * gc.total_members)
+     FROM auction_details ad
+     WHERE ad.group_id = gc.grp_id
+       AND ad.date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND ad.status IN (2, 3)
+    ) AS total_chit_amount, 
+    (SELECT COALESCE(SUM(c.collection_amount), 0)
+     FROM collection c
+     WHERE c.group_id = gc.grp_id
+       AND c.collection_date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+    ) AS total_paid_amount,
+    ( (SELECT SUM(COALESCE(ad.chit_amount, 0) * gc.total_members)
+       FROM auction_details ad
+       WHERE ad.group_id = gc.grp_id
+         AND ad.date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+         AND ad.status IN (2, 3)
+      ) - 
+      (SELECT COALESCE(SUM(c.collection_amount), 0)
+       FROM collection c
+       WHERE c.group_id = gc.grp_id
+         AND c.collection_date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+      )
+    ) AS month_pending
+FROM 
+    group_creation gc WHERE  gc.grp_id ='$group_id'   ";
 $qry = $pdo->query($month_paid);
 $response['month_paid'] = $qry->fetch()['month_paid'];
 $qry = $pdo->query($month_unpaid);
 $response['month_unpaid'] = $qry->fetch()['month_unpaid'];
+$qry = $pdo->query($prev_pen_amount);
+$response['month_pending'] = $qry->fetch()['month_pending'];
 echo json_encode($response);
