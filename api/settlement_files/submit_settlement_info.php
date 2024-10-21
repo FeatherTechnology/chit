@@ -22,13 +22,28 @@ $transaction_remark = $_POST['transaction_remark'];
 $balance_amount = $_POST['balance_amount'];
 $gua_name = $_POST['gua_name'];
 $gua_relationship = $_POST['gua_relationship'];
+if (!empty($_FILES['den_upload']['name'])) {
+    $path = "../../uploads/denomination_upload/";
+    $picture = $_FILES['den_upload']['name'];
+    $pic_temp = $_FILES['den_upload']['tmp_name'];
+    $picfolder = $path . $picture;
+    $fileExtension = pathinfo($picfolder, PATHINFO_EXTENSION); //get the file extention
+    $picture = uniqid() . '.' . $fileExtension;
+    while (file_exists($path . $picture)) {
+        //this loop will continue until it generates a unique file name
+        $picture = uniqid() . '.' . $fileExtension;
+    }
+    move_uploaded_file($pic_temp, $path . $picture);
+} else {
+    $picture = (isset($_POST['den_upload_edit'])) ? $_POST['den_upload_edit'] : '';
+}
 $date = DateTime::createFromFormat('d-m-Y', $settle_date); 
 $settle_date_formatted = $date->format('Y-m-d');
 $qry1 = $pdo->query("SELECT id as cus_name FROM customer_creation WHERE cus_id='$cus_id'"); 
 $cus_name = $qry1->fetchColumn();
 $qry = $pdo->query("INSERT INTO settlement_info (auction_id, settle_date,group_id,cus_name, settle_amount, settle_balance, payment_type, settle_type, bank_id, settle_cash, cheque_no, cheque_val, cheque_remark, transaction_id, transaction_val, transaction_remark, 
-        balance_amount, guarantor_name, guarantor_relationship, insert_login_id, created_on) VALUES ('$auction_id','$settle_date_formatted','$group_id','$cus_name', '$settle_amount', '$settle_balance', '$payment_type', '$settle_type', '$bank_name', '$settle_cash', '$cheque_no', '$cheque_val', '$cheque_remark', '$transaction_id', 
-        '$transaction_val', '$transaction_remark', '$balance_amount', '$gua_name', '$gua_relationship','$user_id', NOW())");
+        balance_amount, guarantor_name, guarantor_relationship,den_upload, insert_login_id, created_on) VALUES ('$auction_id','$settle_date_formatted','$group_id','$cus_name', '$settle_amount', '$settle_balance', '$payment_type', '$settle_type', '$bank_name', '$settle_cash', '$cheque_no', '$cheque_val', '$cheque_remark', '$transaction_id', 
+        '$transaction_val', '$transaction_remark', '$balance_amount', '$gua_name', '$gua_relationship','$picture','$user_id', NOW())");
 if ($payment_type == "1") {
     // Check if balance_amount is zero
     if ($balance_amount == 0) {

@@ -36,6 +36,7 @@
         <input type="hidden" id="groupid">
         <input type="hidden" id="hand_cash">
         <input type="hidden" id="bank_cash">
+        <input type="hidden" id="auction_date">
         <!-- Row start -->
         <div class="row gutters">
             <div class="col-12">
@@ -225,6 +226,18 @@
                                     <input type="text" class="form-control" id="settle_cash" name="settle_cash" tabindex="21">
                                 </div>
                             </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12 " id="cash_denom" style="margin-top: 18px; display: none;">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="add_grup" name="add_grup"
+                                        data-toggle="modal" data-target="#denomination"
+                                        onclick="calDenomination()"
+                                        style="padding: 3px 20px; font-size: 14px;" tabindex='30'>
+                                        <span class="icon-add"></span>&nbsp;Denomination
+                                    </button>
+
+                                    <!-- <button type="button" class="btn btn-primary" id="denomination" name="denomination" tabindex='16'><span class="icon-add"></span>&nbsp;Denomination</button> -->
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-4" id="cheque_no_container" style="display: none;">
@@ -330,6 +343,13 @@
                                     <input type="text" class="form-control" id="gua_relationship" name="gua_relationship" tabindex="29" readonly>
                                 </div>
                             </div>
+                            <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4" id="deno_upload_cont" style="display:none">
+                                <div class="form-group">
+                                    <label for="den_upload"> Denomination Upload</label>
+                                    <input type="file" class="form-control" name="den_upload" id="den_upload" tabindex='9'>
+                                    <input type="hidden" name="den_upload_edit" id="den_upload_edit">
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <table id="guarantor_table" class="table custom-table">
                                     <thead>
@@ -428,7 +448,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="doc_upload">Upload</label>
+                                    <label for="doc_upload"> Upload</label>
                                     <input type="file" class="form-control" name="doc_upload" id="doc_upload" tabindex='9'>
                                     <input type="hidden" name="doc_upload_edit" id="doc_upload_edit">
                                 </div>
@@ -473,3 +493,148 @@
     </div>
 </div>
 <!-- ------------------------------------------------------------ Document Info Modal END --------------------------------------------------------------- -->
+<!--Print Info Modal-->
+<div class="modal fade" id="denomination" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cash Denomination</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetDenominationTable()" tabindex="1">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row justify-content-end">
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary" onclick="printDenomination();">Print</button>
+                    </div>
+                </div>
+                <div id="denominationContent">
+                    <form id="family_form">
+                        <div class="row">
+                            <input type="hidden" name="family_id" id='family_id'>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="grop_id">Group ID</label>
+                                    <input type="text" class="form-control" name="grop_id" id="grop_id" tabindex="1" readonly>
+                                    <input type="hidden" id="addfam_name_id" value='0'>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="denon_name">Group Name</label>
+                                    <input type="text" class="form-control" name="denon_name" id="denon_name" tabindex="1" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="cht_value">Chit Value</label>
+                                    <input type="text" class="form-control" name="cht_value" id="cht_value" tabindex="1" readonly>
+                                    <input type="hidden" id="addoccupation_id" value='0'>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="auct_date">Date</label>
+                                    <input type="text" class="form-control" name="auct_date" id="auct_date" tabindex="1" readonly>
+                                    <input type="hidden" id="addaadhar_id" value='0'>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="auc_month">Auction Month</label>
+                                    <input type="text" class="form-control" name="auc_month" id="auc_month" tabindex="1" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="act_val">Auction Value</label>
+                                    <input type="text" class="form-control" name="act_val" id="act_val" tabindex="1" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="cht_com">Commission</label>
+                                    <input type="text" class="form-control" name="cht_com" id="cht_com" tabindex="1" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="total_val">Total Value</label>
+                                    <input type="text" class="form-control" name="total_val" id="total_val" tabindex="1" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container-fluid">
+                            <table class="table table-bordered" id="denominationTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="denominationTableBody">
+                                    <tr>
+                                        <td>500</td>
+                                        <td><input type="number" class="form-control " value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>200</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>100</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>50</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>20</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"><b>Total:</b></td>
+                                        <td><input type="text" class="form-control" id="totalAmount" value="0" readonly></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="row" style="margin-top: 50px;">
+                                <div class="col-md-6">
+                                    <h5>Manager's Signature</h5>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <h5>Customer's Signature</h5>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="resetDenominationTable()" tabindex="1">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Print Modal End-->

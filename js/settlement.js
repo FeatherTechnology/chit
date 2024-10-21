@@ -2,14 +2,16 @@ $(document).ready(function () {
     $(document).on('click', '.back_btn', function () {
         $('.settlement_table_content').show();
         $('#settlement_content,.back_btn').hide();
-        $('#settle_type_container, #bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+        $('#settle_type_container, #bank_container, #cash_container,#cash_denom,#deno_upload_cont, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
         $('#payment_type').val('');
         $('#settle_type').val('');
+        $('#den_upload').val(''); // This won't work, see below for the workaround
+    $('#den_upload_edit').val(''); 
         resetValidation()
     });
 
     // Initial Hide of all optional fields
-    $('#settle_type_container, #bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+    $('#settle_type_container, #bank_container, #cash_container,#cash_denom, #deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
 
     // Payment Type Change
     $('#payment_type').change(function () {
@@ -21,17 +23,22 @@ $(document).ready(function () {
         if (paymentType == "1") { // Split Payment
             $('#settle_type_container').show();
             getBankName()
-            $('#bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+            $('#bank_container, #cash_container,#deno_upload_cont,#cash_denom, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
             // Calculate balance amount whenever the cash, cheque, or transaction values are entered
             $('#settle_cash, #cheque_val, #transaction_val').on('input', function () {
                 calculateBalance();
             });
         } else if (paymentType == "2") { // Single Payment
             $('#settle_type_container').show();
-            $('#bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+            $('#bank_container, #cash_container,#cash_denom,deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
         } else {
-            $('#settle_type_container, #bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+            $('#settle_type_container, #bank_container, #cash_container, #cash_denom,#deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
         }
+    });
+    // Event listener for quantity input changes
+    $('#denominationTableBody').on('keyup', 'input[type="number"]', function () {
+        lastQuantityInput = $(this); // Store the last quantity input
+        updateTotalValue(); // Call the function to update total value
     });
 
     $('#settle_type').change(function () {
@@ -43,6 +50,8 @@ $(document).ready(function () {
             if (settleType == "1") { // Cash
                 resetValidation();
                 $('#cash_container').show();
+                $('#cash_denom').show();
+                $('#deno_upload_cont').show();
                 $('#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
                 $('#settle_cash').prop('readonly', true);
                 $('#transaction_val').val('');
@@ -51,7 +60,7 @@ $(document).ready(function () {
                 resetValidation();
                 getBankName();
                 $('#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container').show();
-                $('#cash_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
+                $('#cash_container, #cash_denom,#deno_upload_cont,#transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
                 $('#cheque_val').prop('readonly', true);
                 $('#settle_cash').val('');
                 $('#transaction_val').val('');
@@ -59,17 +68,22 @@ $(document).ready(function () {
                 resetValidation();
                 getBankName();
                 $('#bank_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').show();
-                $('#cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container').hide();
+                $('#cash_container, #cash_denom,#deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container').hide();
                 $('#transaction_val').prop('readonly', true);
                 $('#cheque_val').val('');
                 $('#settle_cash').val('');
             } else {
-                $('#cash_container, #bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
+                $('#cash_container, #cash_denom,#deno_upload_cont,#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
             }
         } else if (paymentType == '1') {  // Handling for Payment Type 1 (assuming it's another value, modify if needed)
             if (settleType == "1") { // Cash
                 resetValidation();
+                $('#add_grup')
+                    .removeAttr('data-toggle')
+                    .removeAttr('data-target');
                 $('#cash_container').show();
+                $('#deno_upload_cont').show();
+                $('#cash_denom').show();
                 $('#balance_remark_container').show();
                 $('#settle_cash').prop('readonly', false);
                 $('#balance_amount').val('');
@@ -80,7 +94,7 @@ $(document).ready(function () {
                 $('#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container').show();
                 $('#balance_remark_container').show();
                 $('#cheque_val').prop('readonly', false);
-                $('#cash_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
+                $('#cash_container, #cash_denom,#deno_upload_cont,#transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
                 $('#balance_amount').val('');
             } else if (settleType == "3") { // Bank Transfer
                 resetValidation();
@@ -88,10 +102,10 @@ $(document).ready(function () {
                 $('#bank_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').show();
                 $('#balance_remark_container').show();
                 $('#transaction_val').prop('readonly', false);
-                $('#cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container').hide();
+                $('#cash_container, #cash_denom,#deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container').hide();
                 $('#balance_amount').val('');
             } else {
-                $('#cash_container, #bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
+                $('#cash_container, #cash_denom,#deno_upload_cont,#bank_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container').hide();
             }
         }
         let openingHandCash = 0, openingBankCash = 0, closingHandCash = 0, closingBankCash = 0;
@@ -147,7 +161,7 @@ $(document).ready(function () {
                     swalError('Warning', `Hand cash (₹${moneyFormatIndia(settle_cash)}) exceeds the available total balance (₹${moneyFormatIndia(totalHandCash)}).`);
                     submitButtonDisabled = true;
 
-                }                
+                }
 
                 if (totalBankCashAmount > totalBankCash) {
                     swalError('Warning', `Bank cash (₹${totalBankCashAmount}) exceeds the available total balance (₹${totalBankCash}).`);
@@ -184,13 +198,14 @@ $(document).ready(function () {
         fetchSettlementData(id)
         $('#groupid').val(id);
         checkBalance()
-        setTimeout(function() { 
-            getDocInfoTable(); 
-            getCashAck();  
+        setTimeout(function () {
+            getDocInfoTable();
+            getCashAck();
         }, 1000);
-      
+        $('#add_grup')
+            .removeAttr('data-toggle')
+            .removeAttr('data-target');
         $('#submit_settle_info').attr('disabled', false);
-
     })
 
     // $('#gua_name').on('change', function () {
@@ -235,7 +250,7 @@ $(document).ready(function () {
         let settle_cash = parseFloat($('#settle_cash').val().replace(/,/g, '')) || 0; // Convert to float, default to 0 if empty
         let cheque_val = parseFloat($('#cheque_val').val().replace(/,/g, '')) || 0; // Convert to float, default to 0 if empty
         let transaction_val = parseFloat($('#transaction_val').val().replace(/,/g, '')) || 0; // Convert to float, default to 0 if empty
-
+        getModalAttr()
         if (payment_type == '1') { // Split Payment
             var totalAmount = settle_cash + cheque_val + transaction_val;
 
@@ -303,7 +318,7 @@ $(document).ready(function () {
                     swalError('Warning', `Hand cash (₹${moneyFormatIndia(settle_cash)}) exceeds the available total balance (₹${moneyFormatIndia(totalHandCash)}).`);
                     $('#settle_cash').val('');
                     submitButtonDisabled = true;
-                }                
+                }
 
 
                 if (totalBankCashAmount > totalBankCash) {
@@ -332,153 +347,172 @@ $(document).ready(function () {
 
     });
 
-
     $('#submit_settle_info').click(function (event) {
         event.preventDefault();
-
-        // Gathering form data into an object
-        let settleInfo = {
-            'auction_id': $('#groupid').val(),
-            'group_id': $('#group_id').val(),
-            'cus_id': $('#cus_id').val(),
-            'settle_date': $('#settle_date').val(),
-            'settle_amount': $('#settle_amount').val().replace(/,/g, ''),
-            'settle_balance': parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0,
-            'payment_type': $('#payment_type').val(),
-            'settle_type': $('#settle_type').val(),
-            'bank_name': $('#bank_name').val(),
-            'settle_cash': parseFloat($('#settle_cash').val().replace(/,/g, '')) || 0,
-            'cheque_no': $('#cheque_no').val(),
-            'cheque_val': parseFloat($('#cheque_val').val().replace(/,/g, '')) || 0,
-            'cheque_remark': $('#cheque_remark').val(),
-            'transaction_id': $('#transaction_id').val(),
-            'transaction_val': parseFloat($('#transaction_val').val().replace(/,/g, '')) || 0,
-            'transaction_remark': $('#transaction_remark').val(),
-            'balance_amount': $('#balance_amount').val().replace(/,/g, ''),
-            'gua_name': $('#gua_name').val(),
-            'gua_relationship': $('#gua_relationship').val(),
-        };
-
+    
+        // Create a FormData object to hold the form data
+        let settleInfo = new FormData();
+    
+        // Append all your form fields to the FormData object
+        settleInfo.append('auction_id', $('#groupid').val());
+        settleInfo.append('group_id', $('#group_id').val());
+        settleInfo.append('cus_id', $('#cus_id').val());
+        settleInfo.append('settle_date', $('#settle_date').val());
+        settleInfo.append('settle_amount', $('#settle_amount').val().replace(/,/g, ''));
+        settleInfo.append('settle_balance', parseFloat($('#settle_balance').val().replace(/,/g, '')) || 0);
+        settleInfo.append('payment_type', $('#payment_type').val());
+        settleInfo.append('settle_type', $('#settle_type').val());
+        settleInfo.append('bank_name', $('#bank_name').val());
+        settleInfo.append('settle_cash', parseFloat($('#settle_cash').val().replace(/,/g, '')) || 0);
+        settleInfo.append('cheque_no', $('#cheque_no').val());
+        settleInfo.append('cheque_val', parseFloat($('#cheque_val').val().replace(/,/g, '')) || 0);
+        settleInfo.append('cheque_remark', $('#cheque_remark').val());
+        settleInfo.append('transaction_id', $('#transaction_id').val());
+        settleInfo.append('transaction_val', parseFloat($('#transaction_val').val().replace(/,/g, '')) || 0);
+        settleInfo.append('transaction_remark', $('#transaction_remark').val());
+        settleInfo.append('balance_amount', $('#balance_amount').val().replace(/,/g, ''));
+        settleInfo.append('gua_name', $('#gua_name').val());
+        settleInfo.append('gua_relationship', $('#gua_relationship').val());
+    
+        // Append the file from the file input
+        let fileInput = $('#den_upload')[0].files[0];
+        if (fileInput) {
+            settleInfo.append('den_upload', fileInput);
+        }
+    
+        settleInfo.append('den_upload_edit', $('#den_upload_edit').val());
+    
         // Validate the form data
         let isValid = isFormDataValid(settleInfo);
-
+    
         // Validate settlement amounts for Split Payment
-        if (settleInfo.payment_type == '1') { // Split Payment
-            var totalAmount = settleInfo.settle_cash + settleInfo.cheque_val + settleInfo.transaction_val;
-
-            // Compare totalAmount with settle_balance, ensuring both are in a comparable format (no commas)
-            if (totalAmount > settleInfo.settle_balance) {
+        if (settleInfo.get('payment_type') == '1') { // Split Payment
+            var totalAmount = settleInfo.get('settle_cash') + settleInfo.get('cheque_val') + settleInfo.get('transaction_val');
+    
+            // Compare totalAmount with settle_balance
+            if (totalAmount > settleInfo.get('settle_balance')) {
                 swalError('Warning', 'The entered amount exceeds the settlement balance.');
                 isValid = false; // Ensure the form doesn't submit if invalid
             }
         }
-
+    
         // Check if the form is valid before submission
         if (isValid) {
-            $.post('api/settlement_files/submit_settlement_info.php', settleInfo, function (response) {
-                if (response == '1') {
-                    swalSuccess('Success', 'Settlement Successfully');
-                    $('.settlement_table_content').show();
-                    $('#settlement_content, .back_btn').hide();
-                    getSettlementTable();
-                    $('#groupid').val('');
-                    $('#settlement_screen').trigger('reset');
-                } else {
-                    swalError('Warning', 'Settlement Failed.');
+            $.ajax({
+                url: 'api/settlement_files/submit_settlement_info.php',
+                type: 'POST',
+                data: settleInfo,
+                processData: false, // Prevent jQuery from automatically processing the data
+                contentType: false, // Prevent jQuery from setting content type
+                success: function (response) {
+                    if (response == '1') {
+                        swalSuccess('Success', 'Settlement Successfully');
+                        $('.settlement_table_content').show();
+                        $('#settlement_content, .back_btn').hide();
+                        getSettlementTable();
+                        $('#groupid').val('');
+                        $('#settlement_screen').trigger('reset');
+                    } else {
+                        swalError('Warning', 'Settlement Failed.');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    swalError('Error', 'An error occurred while submitting the settlement info: ' + error);
+                }
+            });
+        }
+    });
+    
+
+    ///////////////////////////////////////////////////////////////////Document info START ////////////////////////////////////////////////////////////////////////////
+
+    $('#submit_doc_info').click(function (event) {
+        event.preventDefault();
+        let doc_name = $('#doc_name').val();
+        let doc_type = $('#doc_type').val();
+        let doc_holder_name = $('#doc_holder_name').val();
+        let doc_relationship = $('#doc_relationship').val();
+        let remarks = $('#remarks').val();
+        let doc_upload = $('#doc_upload')[0].files[0];
+        let doc_upload_edit = $('#doc_upload_edit').val();
+        let doc_info_id = $('#doc_info_id').val();
+        let cus_id = $('#cus_id').val();
+        let auction_id = $('#groupid').val();
+        var data = ['doc_name', 'doc_type', 'doc_holder_name', 'doc_relationship']
+
+        var isValid = true;
+        data.forEach(function (entry) {
+            var fieldIsValid = validateField($('#' + entry).val(), entry);
+            if (!fieldIsValid) {
+                isValid = false;
+            }
+        });
+        if (isValid) {
+            let docInfo = new FormData();
+            docInfo.append('doc_name', doc_name);
+            docInfo.append('doc_type', doc_type);
+            docInfo.append('doc_holder_name', doc_holder_name);
+            docInfo.append('doc_relationship', doc_relationship);
+            docInfo.append('remarks', remarks);
+            docInfo.append('doc_upload', doc_upload);
+            docInfo.append('doc_upload_edit', doc_upload_edit);
+            docInfo.append('cus_id', cus_id);
+            docInfo.append('groupid', auction_id);
+            docInfo.append('id', doc_info_id);
+
+            $.ajax({
+                url: 'api/settlement_files/submit_document_info.php',
+                type: 'post',
+                data: docInfo,
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function (response) {
+                    if (response == '1') {
+                        swalSuccess('Success', 'Document Info Updated Successfully')
+                    } else if (response == '2') {
+                        swalSuccess('Success', 'Document Info Added Successfully')
+                    } else {
+                        swalError('Alert', 'Failed')
+                    }
+                    groupData()
+                    getDocCreationTable();
+                    $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
+                    //$('#clear_doc_form').trigger('click');
+                    $('#doc_info_id').val('');
+                    $('#doc_upload_edit').val('');
                 }
             });
         }
     });
 
-///////////////////////////////////////////////////////////////////Document info START ////////////////////////////////////////////////////////////////////////////
-
-$('#submit_doc_info').click(function (event) {
-    event.preventDefault();
-    let doc_name = $('#doc_name').val();
-    let doc_type = $('#doc_type').val();
-    let doc_holder_name = $('#doc_holder_name').val();
-    let doc_relationship = $('#doc_relationship').val();
-    let remarks = $('#remarks').val();
-    let doc_upload = $('#doc_upload')[0].files[0];
-    let doc_upload_edit = $('#doc_upload_edit').val();
-    let doc_info_id = $('#doc_info_id').val();
-    let cus_id = $('#cus_id').val();
-    let auction_id = $('#groupid').val();
-    var data = ['doc_name', 'doc_type', 'doc_holder_name', 'doc_relationship']
-
-    var isValid = true;
-    data.forEach(function (entry) {
-        var fieldIsValid = validateField($('#' + entry).val(), entry);
-        if (!fieldIsValid) {
-            isValid = false;
-        }
+    $(document).on('click', '.docActionBtn', function () {
+        let id = $(this).attr('value');
+        $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
+            $('#doc_name').val(response[0].doc_name);
+            $('#doc_type').val(response[0].doc_type);
+            $('#doc_holder_name').val(response[0].holder_name);
+            $('#doc_relationship').val(response[0].relationship);
+            $('#remarks').val(response[0].remarks);
+            $('#doc_upload_edit').val(response[0].upload);
+            $('#doc_info_id').val(response[0].id);
+        }, 'json');
     });
-    if (isValid) {
-        let docInfo = new FormData();
-        docInfo.append('doc_name', doc_name);
-        docInfo.append('doc_type', doc_type);
-        docInfo.append('doc_holder_name', doc_holder_name);
-        docInfo.append('doc_relationship', doc_relationship);
-        docInfo.append('remarks', remarks);
-        docInfo.append('doc_upload', doc_upload);
-        docInfo.append('doc_upload_edit', doc_upload_edit);
-        docInfo.append('cus_id', cus_id);
-        docInfo.append('groupid', auction_id);
-        docInfo.append('id', doc_info_id);
 
-        $.ajax({
-            url: 'api/settlement_files/submit_document_info.php',
-            type: 'post',
-            data: docInfo,
-            contentType: false,
-            processData: false,
-            cache: false,
-            success: function (response) {
-                if (response == '1') {
-                    swalSuccess('Success', 'Document Info Updated Successfully')
-                } else if (response == '2') {
-                    swalSuccess('Success', 'Document Info Added Successfully')  
-                } else {
-                    swalError('Alert', 'Failed')
-                }
-                groupData()
-                getDocCreationTable();
-                $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
-                //$('#clear_doc_form').trigger('click');
-                $('#doc_info_id').val('');
-                $('#doc_upload_edit').val('');
-            }
-        });
-    }
-});
+    $(document).on('click', '.docDeleteBtn', function () {
+        let id = $(this).attr('value');
+        swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
+    });
 
-$(document).on('click', '.docActionBtn', function () {
-    let id = $(this).attr('value');
-    $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
-        $('#doc_name').val(response[0].doc_name);
-        $('#doc_type').val(response[0].doc_type);
-        $('#doc_holder_name').val(response[0].holder_name);
-        $('#doc_relationship').val(response[0].relationship);
-        $('#remarks').val(response[0].remarks);
-        $('#doc_upload_edit').val(response[0].upload);
-        $('#doc_info_id').val(response[0].id);
-    }, 'json');
-});
-
-$(document).on('click', '.docDeleteBtn', function () {
-    let id = $(this).attr('value');
-    swalConfirm('Delete', 'Are you sure you want to delete this document?', deleteDocInfo, id);
-});
-
-$('#clear_doc_form').click(function (event) {
-    event.preventDefault();
-    $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
-    $('#doc_info_id').val('');
-    $('#doc_upload_edit').val('');
-    $('#doc_info_form input').css('border', '1px solid #cecece');
-    $('#doc_info_form select').css('border', '1px solid #cecece');
-})
-///////////////////////////////////////////////////////////////////Document info END ////////////////////////////////////////////////////////////////////////////
+    $('#clear_doc_form').click(function (event) {
+        event.preventDefault();
+        $('#doc_info_form input:not(#grp_id):not(#grp_name):not(#auction_month)').val('');
+        $('#doc_info_id').val('');
+        $('#doc_upload_edit').val('');
+        $('#doc_info_form input').css('border', '1px solid #cecece');
+        $('#doc_info_form select').css('border', '1px solid #cecece');
+    })
+    ///////////////////////////////////////////////////////////////////Document info END ////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////Document End/////////////////////////////////////////////
 
@@ -505,11 +539,12 @@ function editGroupCreation(id) {
             $('#start_month').val(data.start_month);
             $('#end_month').val(data.end_month);
             $('#grp_month').val(data.auction_month);
+            $('#auction_date').val(data.date);
         }
     }, 'json');
 }
-function groupData(){
-    let group_id= $('#group_id').val();
+function groupData() {
+    let group_id = $('#group_id').val();
     $('#grp_id').val(group_id);
     let group_name = $('#group_name').val();
     $('#grp_name').val(group_name);
@@ -595,21 +630,21 @@ function getDocGuarantor() {
         let appendGuarantorOption = "<option value=''>Select Name</option>";
         $.each(response, function (index, val) {
             let selected = '';
-            appendGuarantorOption += "<option value='" + val.id + "' " + selected + ">" + val.name + "</option>"; 
+            appendGuarantorOption += "<option value='" + val.id + "' " + selected + ">" + val.name + "</option>";
         });
 
         $('#doc_holder_name').empty().append(appendGuarantorOption);
         $('#doc_relationship').val('');
-    }, 'json');   
+    }, 'json');
 }
 function deleteDocInfo(id) {
     $.post('api/settlement_files/delete_doc_info.php', { id }, function (response) {
         if (response == '1') {
             swalSuccess('success', 'Doc Info Deleted Successfully');
             getDocCreationTable();
-        }else if (response == '2') {
+        } else if (response == '2') {
             swalError('Access Denied', 'Used in NOC Summary');
-        }   else {
+        } else {
             swalError('Alert', 'Delete Failed')
         }
     }, 'json');
@@ -674,7 +709,7 @@ function fetchSettlementData(id) {
 function getDocCreationTable() {
     let cus_id = $('#cus_id').val();
     let auction_id = $('#groupid').val();
-    $.post('api/settlement_files/doc_info_list.php', { cus_id,auction_id }, function (response) {
+    $.post('api/settlement_files/doc_info_list.php', { cus_id, auction_id }, function (response) {
         let docInfoColumn = [
             "sno",
             "grp_name",
@@ -703,7 +738,7 @@ function getDocInfoTable() {
     let cus_id = $('#cus_id').val();
     let auction_id = $('#groupid').val();
     console.log(cus_id);
-    $.post('api/settlement_files/doc_info_list.php', { cus_id,auction_id }, function (response) {
+    $.post('api/settlement_files/doc_info_list.php', { cus_id, auction_id }, function (response) {
         let docColumn = [
             "sno",
             "grp_name",
@@ -728,7 +763,7 @@ function updateSettleAmount() {
     const settleBalance = $('#settle_balance').val();
 
     // Hide all containers initially
-    $('#cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #bank_container').hide();
+    $('#cash_container, #cash_denom,#deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #bank_container').hide();
 
     // Show relevant containers based on payment type and settlement type
     if (paymentType == "2") { // Single Payment
@@ -740,6 +775,9 @@ function updateSettleAmount() {
         if (settleType == "1") { // Cash
             $('#settle_cash').val(settleBalance);
             $('#cash_container').show(); // Show the cash container
+            $('#deno_upload_cont').show(); // Show the cash container
+            $('#cash_denom').show(); // Show the cash container
+            getModalAttr()
         } else if (settleType == "2") { // Cheque
             $('#cheque_val').val(settleBalance);
             $('#cheque_no_container, #cheque_val_container, #cheque_remark_container, #bank_container').show(); // Show cheque containers
@@ -748,7 +786,7 @@ function updateSettleAmount() {
             $('#transaction_id_container, #transaction_val_container, #transaction_remark_container, #bank_container').show(); // Show transaction containers
         }
     } else if (paymentType == "1") { // Split Payment
-        $('#bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+        $('#bank_container, #cash_container, #cash_denom,#deno_upload_cont,#cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
         $('#settle_type_container').show();
         $('#settle_cash').val('');
         $('#cheque_val').val('');
@@ -759,7 +797,7 @@ function updateSettleAmount() {
         $('#cheque_no').val('');
         $('#transaction_remark').val('');
     } else {
-        $('#settle_type_container, #bank_container, #cash_container, #cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
+        $('#settle_type_container, #bank_container, #cash_container,#deno_upload_cont, #cash_denom,#cheque_no_container, #cheque_val_container, #cheque_remark_container, #transaction_id_container, #transaction_val_container, #transaction_remark_container, #balance_remark_container').hide();
     }
 }
 
@@ -781,44 +819,45 @@ function isFormDataValid(settleInfo) {
     let isValid = true;
 
     // Validate gua_name field
-    if (!validateField(settleInfo.gua_name, 'gua_name')) {
+    if (!validateField(settleInfo.get('gua_name'), 'gua_name')) {
         isValid = false;
     }
 
     // Validate payment type
-    if (!validateField(settleInfo.payment_type, 'payment_type')) {
+    if (!validateField(settleInfo.get('payment_type'), 'payment_type')) {
         isValid = false;
     }
 
-    if (settleInfo.payment_type == "1") { // Split Payment
+    // Split Payment
+    if (settleInfo.get('payment_type') == "1") {
         // Validate settle type
-        if (!validateField(settleInfo.settle_type, 'settle_type')) {
+        if (!validateField(settleInfo.get('settle_type'), 'settle_type')) {
             isValid = false;
         }
 
         // Validate specific fields based on settle_type
-        if (settleInfo.settle_type == "1") { // Cash
-            if (!validateField(settleInfo.settle_cash, 'settle_cash')) {
+        if (settleInfo.get('settle_type') == "1") { // Cash
+            if (!validateField(settleInfo.get('settle_cash'), 'settle_cash')) {
                 isValid = false;
             }
-        } else if (settleInfo.settle_type == "2") { // Cheque
-            if (!validateField(settleInfo.cheque_no, 'cheque_no') ||
-                !validateField(settleInfo.cheque_val, 'cheque_val') ||
-                !validateField(settleInfo.bank_name, 'bank_name')) {
+        } else if (settleInfo.get('settle_type') == "2") { // Cheque
+            if (!validateField(settleInfo.get('cheque_no'), 'cheque_no') ||
+                !validateField(settleInfo.get('cheque_val'), 'cheque_val') ||
+                !validateField(settleInfo.get('bank_name'), 'bank_name')) {
                 isValid = false;
             }
-        } else if (settleInfo.settle_type == "3") { // Transaction
-            if (!validateField(settleInfo.transaction_id, 'transaction_id') ||
-                !validateField(settleInfo.transaction_val, 'transaction_val') ||
-                !validateField(settleInfo.bank_name, 'bank_name')) {
+        } else if (settleInfo.get('settle_type') == "3") { // Transaction
+            if (!validateField(settleInfo.get('transaction_id'), 'transaction_id') ||
+                !validateField(settleInfo.get('transaction_val'), 'transaction_val') ||
+                !validateField(settleInfo.get('bank_name'), 'bank_name')) {
                 isValid = false;
             }
         }
 
         // Ensure that at least one payment method is filled
-        let isCashFilled = settleInfo.settle_cash && settleInfo.settle_cash > 0;
-        let isChequeFilled = settleInfo.cheque_val && settleInfo.cheque_val > 0;
-        let isTransactionFilled = settleInfo.transaction_val && settleInfo.transaction_val > 0;
+        let isCashFilled = settleInfo.get('settle_cash') > 0;
+        let isChequeFilled = settleInfo.get('cheque_val') > 0;
+        let isTransactionFilled = settleInfo.get('transaction_val') > 0;
 
         if (!(isCashFilled || isChequeFilled || isTransactionFilled)) {
             isValid = false;
@@ -826,32 +865,34 @@ function isFormDataValid(settleInfo) {
         } else {
             resetFieldBorders(['settle_cash', 'cheque_val', 'transaction_val']);
         }
-    } else if (settleInfo.payment_type == "2") { // Single Payment
-        if (!validateField(settleInfo.settle_type, 'settle_type')) {
+    } else if (settleInfo.get('payment_type') == "2") { // Single Payment
+        if (!validateField(settleInfo.get('settle_type'), 'settle_type')) {
             isValid = false;
         }
 
-        if (settleInfo.settle_type == "1") { // Cash
-            if (!validateField(settleInfo.settle_cash, 'settle_cash')) {
+        if (settleInfo.get('settle_type') == "1") { // Cash
+            if (!validateField(settleInfo.get('settle_cash'), 'settle_cash')) {
                 isValid = false;
             }
-        } else if (settleInfo.settle_type == "2") { // Cheque
-            if (!validateField(settleInfo.cheque_no, 'cheque_no') ||
-                !validateField(settleInfo.cheque_val, 'cheque_val') ||
-                !validateField(settleInfo.bank_name, 'bank_name')) {
+        } else if (settleInfo.get('settle_type') == "2") { // Cheque
+            if (!validateField(settleInfo.get('cheque_no'), 'cheque_no') ||
+                !validateField(settleInfo.get('cheque_val'), 'cheque_val') ||
+                !validateField(settleInfo.get('bank_name'), 'bank_name')) {
                 isValid = false;
             }
-        } else if (settleInfo.settle_type == "3") { // Transaction
-            if (!validateField(settleInfo.transaction_id, 'transaction_id') ||
-                !validateField(settleInfo.transaction_val, 'transaction_val') ||
-                !validateField(settleInfo.bank_name, 'bank_name')) {
+        } else if (settleInfo.get('settle_type') == "3") { // Transaction
+            if (!validateField(settleInfo.get('transaction_id'), 'transaction_id') ||
+                !validateField(settleInfo.get('transaction_val'), 'transaction_val') ||
+                !validateField(settleInfo.get('bank_name'), 'bank_name')) {
                 isValid = false;
             }
         }
     }
 
+    console.log('Form validation status:', isValid); // Debug log
     return isValid;
 }
+
 
 function resetFieldBorders(fields) {
     fields.forEach(field => {
@@ -874,7 +915,7 @@ function resetValidation() {
 function getCashAck() {
     let auction_id = $('#groupid').val();
     let cus_id = $('#cus_id').val();
-    $.post('api/settlement_files/get_cashack_list.php', { auction_id,cus_id }, function (response) {
+    $.post('api/settlement_files/get_cashack_list.php', { auction_id, cus_id }, function (response) {
         let tableBody = $('#guarantor_table tbody');
         tableBody.empty(); // Clear existing rows
 
@@ -931,4 +972,233 @@ function checkBalance() {
         }
     });
 }
+function getModalAttr() {
+    let settleCash = parseFloat($('#settle_cash').val()) || 0; // Get settle cash amount
+    if (settleCash != '') {
+        $('#add_grup')
+            .attr('data-toggle', 'modal')
+            .attr('data-target', '#denomination');
+    } else {
+        $('#add_grup')
+            .removeAttr('data-toggle')
+            .removeAttr('data-target');
+    }
+}
 
+function calDenomination() {
+    let settleCashInput = $('#settle_cash').val().replace(/,/g, ''); // Get settle cash input value as a string
+    if (settleCashInput === '') {
+        swalError('Alert', 'Kindly Fill the Cash!');
+        return;
+    }
+    let settleCash = parseFloat(settleCashInput) || 0;
+    let group_id = $('#group_id').val();
+    $('#grop_id').val(group_id);
+    let grp_month = $('#grp_month').val();
+    $('#auc_month').val(grp_month);
+    let date = $('#auction_date').val();
+    let com = $('#commission').val();
+    $('#cht_com').val(com);
+    let cht_value = $('#chit_value').val();
+    $('#cht_value').val(cht_value);
+    $.post('api/auction_files/fetch_calculation_data.php', { group_id: group_id, date: date }, function (response) {
+        if (response) {
+            // Since response is an object, access its properties directly
+            let dateParts = response.cal_date.split('-');
+            let formattedDate = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+            $('#auct_date').val(formattedDate);
+            $('#denon_name').val(response.group_name);
+            $('#total_val').val(moneyFormatIndia(response.total_value));
+            $('#act_val').val(moneyFormatIndia(response.auction_value));
+        } else {
+            console.error('No data found');
+        }
+    }, 'json');
+
+}
+
+let lastQuantityInput = null; // Variable to keep track of the last quantity input that was modified
+function updateTotalValue() {
+    let totalAmount = 0;
+    let settleCash = parseFloat($('#settle_cash').val().replace(/,/g, '')) || 0;
+
+    // Loop through each row in the denomination table
+    $('#denominationTableBody tr').each(function () {
+        const $row = $(this);
+
+        // Parse the denomination
+        const denomination = parseFloat($row.find('td:first').text());
+
+        // Check if denomination is valid
+        if (isNaN(denomination)) {
+            return; // Skip this row if denomination is not valid
+        }
+
+        // Get the quantity input value, defaulting to 0 if not a valid number
+        let quantity = parseFloat($row.find('input[type="number"]').val()) || 0;
+
+        // Calculate the total value for this row
+        const totalValue = denomination * quantity;
+
+        // Set the calculated total value in the corresponding text input
+        $row.find('input[type="text"]').val(totalValue);
+
+        // Add to the overall total amount
+        totalAmount += totalValue;
+    });
+
+    // Update the total amount display
+    $('#totalAmount').val(totalAmount);
+
+    // Validate against settle_cash input
+    if (totalAmount > settleCash) {
+        // Check if the last modified input exceeds the settle cash
+        if (lastQuantityInput) {
+            const $lastRow = lastQuantityInput.closest('tr'); // Get the row of the last input
+            const denomination = parseFloat($lastRow.find('td:first').text());
+            const lastQuantity = parseFloat(lastQuantityInput.val()) || 0;
+            const lastTotalValue = denomination * lastQuantity;
+            swalError('Warning', `Total value (₹${moneyFormatIndia(totalAmount)}) exceeds settle cash amount (₹${moneyFormatIndia(settleCash)})!`);
+            // Reset the last quantity and total value
+            $lastRow.find('input[type="number"]').val(''); // Reset quantity to 0
+            $lastRow.find('input[type="text"]').val(0); // Reset total value to 0
+            totalAmount -= lastTotalValue; // Adjust total amount
+        }
+
+        // // Update the total amount display after adjustments
+        $('#totalAmount').val(totalAmount);
+
+        // Show alert message to user
+        // swalError('Warning', `Total value (₹${moneyFormatIndia(totalAmount)}) exceeds settle cash amount (₹${moneyFormatIndia(settleCash)})!`);
+    }
+}
+
+function resetDenominationTable() {
+    // Reset all number inputs and total value to 0
+    $('#denominationTableBody tr').each(function () {
+        $(this).find('input[type="number"]').val(''); // Reset quantity inputs
+        $(this).find('input[type="text"]').val(0);    // Reset total value inputs
+    });
+    $('#totalAmount').val(0); // Reset total amount
+}
+function printDenomination() {
+    // Clone the denomination content
+    var printContent = $('#denominationContent').clone();
+
+    // Retrieve and format values from inputs
+    const chitValue = $('#cht_value').val().replace(/,/g, '');
+    const commission = $('#cht_com').val().replace(/,/g, '');
+    const auctionValue = $('#act_val').val().replace(/,/g, '');
+    const totalValue = $('#total_val').val().replace(/,/g, '');
+
+    const formattedChitValue = moneyFormatIndia(chitValue);
+    const formattedCommission = moneyFormatIndia(commission);
+    const formattedAuctionValue = moneyFormatIndia(auctionValue);
+    const formattedTotalValue = moneyFormatIndia(totalValue);
+
+    // Create the HTML content for printing
+    let content = ` 
+        <div id="print_content" style="text-align: center;">
+            <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                Cash Denomination
+            </h2>
+            <table style="margin: 0 auto; border-collapse: collapse; width: 45%;">
+                <tr>
+                    <td><strong>Group Name</strong></td>
+                    <td>${$('#denon_name').val()}</td>
+                </tr>
+                <tr>
+                    <td><strong>Auction Month</strong></td>
+                    <td>${$('#auc_month').val()}</td>
+                </tr>
+                <tr>
+                    <td><strong>Date</strong></td>
+                    <td>${$('#auct_date').val()}</td>
+                </tr>
+                <tr>
+                    <td><strong>Chit Value</strong></td>
+                    <td>${formattedChitValue}</td>
+                </tr>
+                <tr>
+                    <td><strong>Auction Value</strong></td>
+                    <td>${formattedAuctionValue}</td>
+                </tr>
+                <tr>
+                    <td><strong>Commission</strong></td>
+                    <td>${formattedCommission}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Value</strong></td>
+                    <td>${formattedTotalValue}</td>
+                </tr>
+            </table>
+        </div>
+        <br />
+        <div style="text-align: center;">
+            <h3>Denomination Table</h3>
+            <table style="margin: 0 auto; border-collapse: collapse; width: 45%;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid black; padding: 10px;">Amount</th>
+                        <th style="border: 1px solid black; padding: 10px;">Quantity</th>
+                        <th style="border: 1px solid black; padding: 10px;">Total Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    // Append rows for each denomination
+    $('#denominationTableBody tr').each(function () {
+        let amount = $(this).find('td:first').text(); // Amount
+        let quantity = $(this).find('input[type="number"]').val(); // Quantity
+        let totalValue = $(this).find('input[type="text"]').val(); // Total Value
+
+        // Check for undefined or empty values
+        const formattedQuantity = quantity ? quantity : ''; // Use empty string if undefined or empty
+        const formattedTotalValue = totalValue ? moneyFormatIndia(totalValue) : ''; // Use empty string if undefined or empty
+
+        content += `
+            <tr>
+                <td style="border: 1px solid black; padding: 10px;">${amount}</td>
+                <td style="border: 1px solid black; padding: 10px;">${formattedQuantity}</td>
+                <td style="border: 1px solid black; padding: 10px;">${formattedTotalValue}</td>
+            </tr>
+        `;
+    });
+
+    content += `
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <div class="row" style="margin-top: 50px;">
+            <div class="col-md-6">
+                <h5>Manager's Signature</h5>
+            </div>
+            <div class="col-md-6 text-right">
+                <h5>Customer's Signature</h5>
+            </div>
+        </div>
+    `;
+
+    // Open a new window for printing
+    const printWindow = window.open('', '_blank');
+
+    // Write the modal content into the new window
+    printWindow.document.write('<html><head><title>Print Denomination</title>');
+    printWindow.document.write('<style>body{font-family: Arial, sans-serif; margin: 20px;} .table { width: 100%; border-collapse: collapse; } .table, .table th, .table td { border: 1px solid black; } .table th, .table td { padding: 10px; text-align: left; } .text-right { text-align: right; }</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(content); // Use the modified content
+    printWindow.document.write('</body></html>');
+
+    // Close the document to signal that the writing process is complete
+    printWindow.document.close();
+
+    // Trigger the print dialog
+    printWindow.print();
+
+    // Optionally close the print window after printing
+    printWindow.onafterprint = function () {
+        printWindow.close();
+    };
+}
