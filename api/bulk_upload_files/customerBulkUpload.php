@@ -23,9 +23,9 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
             if ($rowChange != 0) { // omitted 0,1 to avoid headers
 
                 $data = $obj->fetchAllRowData($Row);
-                $data['loan_id'] = isset($data['loan_id']) ? $data['loan_id'] : '';
-                if (isset($data['loan_id'])) {
-                    $data['loan_id'] = $obj->getLoanCode($pdo, $data['loan_id']);
+                $data['cus_id'] = isset($data['cus_id']) ? $data['cus_id'] : '';
+                if (isset($data['cus_id'])) {
+                    $data['cus_id'] = $obj->getcusId($pdo, $data['cus_id']);
                 }
 
                 $loan_cat_id = $obj->getLoanCategoryId($pdo, $data['loan_category']);
@@ -39,17 +39,9 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
 
                 $areaLine = $obj->getAreaLine($pdo, $data['area_id']);
                 $data['line_id'] = $areaLine;
+               
                 
-                $cus_data_response = $obj->checkCustomerData($pdo, $data['cus_id'], $data['cus_profile_id']);
-                $data['cus_data'] = $cus_data_response['cus_data'];
-                $data['id'] = $cus_data_response['id'];
-                
-                // Set customer status based on the returned value
-                if ($cus_data_response['cus_data'] == 'Existing') {
-                    $data['cus_status'] = $cus_data_response['cus_status']; // 'Additional' or 'Renewal'
-                } else {
-                    $data['cus_status'] = ''; // For new customers, status is empty
-                }
+             
                 $data['scheme_id'] = $obj->getSchemeId($pdo, $data['scheme_name']);
 
                 $err_columns = $obj->handleError($data);

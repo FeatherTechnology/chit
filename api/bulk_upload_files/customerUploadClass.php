@@ -45,61 +45,17 @@ class customerUploadClass
             'joining_month' => isset($Row[18]) ? $Row[18] : "",
         );
 
-        $dataArray['cus_id'] = strlen($dataArray['cus_id']) == 12 ? $dataArray['cus_id'] : 'Invalid';
-        $cus_dataArray = ['New' => 'New', 'Existing' => 'Existing'];
-        $dataArray['cus_data'] = $this->arrayItemChecker($cus_dataArray, $dataArray['cus_data']);
-
-        $cus_exist_typeArray = ['Additional' => 'Additional', 'Renewal' => 'Renewal'];
-        $cus_status = $this->arrayItemChecker($cus_exist_typeArray, $dataArray['cus_status']);
-        $dataArray['cus_status'] = ($cus_status == 'Not Found') ? '' : $cus_status; //cause cus_exist_type may not be available
-        $dataArray['mobile'] = strlen($dataArray['mobile']) == 10 ? $dataArray['mobile'] : 'Invalid';
-
-        $dataArray['dob'] = $this->dateFormatChecker($dataArray['dob']);
-
-        $genderArray = ['Male' => '1', 'Female' => '2', 'Others' => '3'];
-        $dataArray['gender'] = $this->arrayItemChecker($genderArray, $dataArray['gender']);
-
-        $dataArray['guarantor_aadhar_no'] = strlen($dataArray['guarantor_aadhar_no']) == 12 ? $dataArray['guarantor_aadhar_no'] : 'Invalid';
+        $dataArray['guarantor_aadhar'] = strlen($dataArray['guarantor_aadhar']) == 12 ? $dataArray['guarantor_aadhar'] : 'Invalid';
+       
+        $dataArray['mobile1'] = strlen($dataArray['mobile1']) == 10 ? $dataArray['mobile1'] : 'Invalid';
+        $dataArray['fam_aadhar'] = strlen($dataArray['fam_aadhar']) == 12 ? $dataArray['fam_aadhar'] : 'Invalid';
+        $dataArray['aadhar_number'] = strlen($dataArray['aadhar_number']) == 12 ? $dataArray['aadhar_number'] : 'Invalid';
 
         $guarantor_relationshipArray = ['Father' => 'Father', 'Mother' => 'Mother', 'Spouse' => 'Spouse', 'Sister' => 'Sister', 'Brother' => 'Brother', 'Son' => 'Son', 'Daughter' => 'Daughter'];
-        $dataArray['guarantor_relationship'] = $this->arrayItemChecker($guarantor_relationshipArray, $dataArray['guarantor_relationship']);
-        $dataArray['guarantor_mobile_no'] = strlen($dataArray['guarantor_mobile_no']) == 10 ? $dataArray['guarantor_mobile_no'] : 'Invalid';
-
-        $liveArray = ['Live' => '1', 'Deceased' => '2'];
-        $dataArray['guarantor_live'] = $this->arrayItemChecker($liveArray, $dataArray['guarantor_live']);
-
-        $residential_typeArray = ['Own' => '1', 'Rental' => '2', 'Lease' => '3', 'Quarters' => '4'];
-        $residential_type = $this->arrayItemChecker($residential_typeArray, $dataArray['residential_type']);
-        $dataArray['residential_type'] = ($residential_type == 'Not Found') ? '' : $residential_type; //cause residential_type may not be available
-
-        $area_confirm_typeArray = ['Resident' => '1', 'Occupation' => '2'];
-        $dataArray['area_confirm'] = $this->arrayItemChecker($area_confirm_typeArray, $dataArray['area_confirm']);
-
-        $profit_typeArray = ['Calculation' => '0', 'Scheme' => '1'];
-        $dataArray['profit_type'] = $this->arrayItemChecker($profit_typeArray, $dataArray['profit_type']);
-
-        $due_method_calcArray = ['Monthly' => 'Monthly', 'Weekly' => 'Weekly', 'Daily' => 'Daily'];
-        $dataArray['due_method'] = $this->arrayItemChecker($due_method_calcArray, $dataArray['due_method']);
-
-        $due_method_schemeArray = ['Monthly' => '1', 'Weekly' => '2', 'Daily' => '3'];
-        $due_method_scheme = $this->arrayItemChecker($due_method_schemeArray, $dataArray['due_method_scheme']);
-        $dataArray['due_method_scheme'] = ($due_method_scheme == 'Not Found') ? '' : $due_method_scheme; //cause due_method_scheme may not be available
-
-        $schemeday_typeArray = ['Monday' => '1','Tuesday' => '2','Wednesday'=>'3','Thursday'=>'4','Friday'=>'5','Saturday'=>'6','Sunday'=>'7'];
-        $dataArray['scheme_day'] = $this->arrayItemChecker($schemeday_typeArray, $dataArray['scheme_day']);
-        $dataArray['loan_date'] = $this->dateFormatChecker($dataArray['loan_date']);
-
-        $dataArray['dueStart_date'] = $this->dateFormatChecker($dataArray['dueStart_date']);
-
-        $dataArray['maturity_date'] = $this->dateFormatChecker($dataArray['maturity_date']);
-        $dataArray['issue_date'] = $this->dateFormatChecker($dataArray['issue_date']);
-
-        $referred_typeArray = ['Yes' => '0', 'No' => '1'];
-        $dataArray['referred'] = $this->arrayItemChecker($referred_typeArray, $dataArray['referred']);
-
-        $payment_typeArray = ['Cash' => '1', 'Bank Transfer' => '2', 'Cheque' => '3'];
-        $dataArray['payment_mode'] = $this->arrayItemChecker($payment_typeArray, $dataArray['payment_mode']);
-
+        $dataArray['fam_relationship'] = $this->arrayItemChecker($guarantor_relationshipArray, $dataArray['fam_relationship']);
+        $dataArray['fam_mobile'] = strlen($dataArray['fam_mobile']) == 10 ? $dataArray['fam_mobile'] : 'Invalid';
+        $referred_typeArray = ['Yes' => '1', 'No' => '2'];
+        $dataArray['reference'] = $this->arrayItemChecker($referred_typeArray, $dataArray['reference']);
         return $dataArray;
     }
     function dateFormatChecker($checkdate)
@@ -124,71 +80,35 @@ class customerUploadClass
         return $arrayItem;
     }
    
-    function getLoanCode($pdo, $id)
+    function getcusId($pdo, $id)
     {
         if (!isset($id) || $id == '') {
-            $qry = $pdo->query("SELECT loan_id FROM loan_entry_loan_calculation WHERE loan_id != '' ORDER BY id DESC LIMIT 1");
+            $qry = $pdo->query("SELECT cus_id FROM customer_creation WHERE cus_id != '' ORDER BY id DESC LIMIT 1");
 
             if ($qry->rowCount() > 0) {
                 $qry_info = $qry->fetch();
-                $l_no = ltrim(strstr($qry_info['loan_id'], '-'), '-');
+                $l_no = ltrim(strstr($qry_info['cus_id'], '-'), '-');
                 $l_no = $l_no + 1;
-                $loan_ID_final = "LID-" . "$l_no";
+                $cus_ID_final = "C-" . "$l_no";
             } else {
-                $loan_ID_final = "LID-101";
+                $cus_ID_final = "C-101";
             }
         } else {
-            $stmt = $pdo->prepare("SELECT loan_id FROM loan_entry_loan_calculation WHERE id = :id");
+            $stmt = $pdo->prepare("SELECT cus_id FROM customer_creation WHERE id = :id");
             $stmt->execute(['id' => $id]);
 
             if ($stmt->rowCount() > 0) {
                 $qry_info = $stmt->fetch();
-                $loan_ID_final = $qry_info['loan_id'];
+                $cus_ID_final = $qry_info['cus_id'];
             } else {
-                $loan_ID_final = "LID-101"; // Default value if not found
+                $cus_ID_final = "C-101"; // Default value if not found
             }
         }
 
-        return $loan_ID_final;
+        return $cus_ID_final;
     }
 
-    function checkCustomerData($pdo, $cus_id, $cus_profile_id)
-    {
-        $cus_id = strip_tags($cus_id); // Sanitize input
-    
-        // Query to check customer profile and status
-        $qry = $pdo->query("SELECT cp.*, cs.status 
-                            FROM customer_profile cp
-                            INNER JOIN customer_status cs ON cp.cus_id = cs.cus_id
-                            WHERE cp.cus_id = '$cus_id' 
-                            AND cp.id != '$cus_profile_id'");
-    
-        if ($qry && $qry->rowCount() > 0) {
-            $result = $qry->fetch(PDO::FETCH_ASSOC);
-            $status = $result['status'];  // Fetch the customer status
-    
-            // Determine cus_status based on status value
-            if ($status >= 1 && $status <= 6) {
-                $cus_status = '';  // For status between 1 and 6, cus_status is empty
-            } elseif ($status == 7 || $status == 8) {
-                $cus_status = 'Additional';  // For status 7 or 8, cus_status is 'Additional'
-            } elseif ($status >= 9) {
-                $cus_status = 'Renewal';  // For status 9 or above, cus_status is 'Renewal'
-            }
-    
-            $response['cus_data'] = 'Existing';  // Customer is 'Existing'
-            $response['id'] = $result['id'];     // Return the customer ID
-            $response['cus_status'] = $cus_status;  // Include the determined cus_status
-    
-        } else {
-            // If no result is found, it's a new customer
-            $response['cus_data'] = 'New';   // Customer is 'New'
-            $response['id'] = '';            // No ID for new customers
-            $response['cus_status'] = '';    // cus_status is empty for new customers
-        }
-    
-        return $response;
-    }
+   
     function guarantorName($pdo,$cus_id)
     {
         $stmt = $pdo->query("SELECT id, fam_name FROM  family_info WHERE cus_id = '$cus_id'");
