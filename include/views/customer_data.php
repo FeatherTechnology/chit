@@ -1041,6 +1041,7 @@
                             <th width="20">S.No</th>
                             <th>Date</th>
                             <th>Label</th>
+                            <th>Commitment Date</th>
                             <th>Remark</th>
                         </thead>
                         <tbody>

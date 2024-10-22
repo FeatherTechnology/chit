@@ -1562,6 +1562,7 @@ function getCommitmentChartTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
         ];
         appendDataToTable('#commitment_chart_table', response, columnMapping);
