@@ -384,18 +384,6 @@ $(document).ready(function () {
 
         // Validate the form data
         let isValid = isFormDataValid(settleInfo);
-
-        // Validate settlement amounts for Split Payment
-        if (settleInfo.get('payment_type') == '1') { // Split Payment
-            var totalAmount = settleInfo.get('settle_cash') + settleInfo.get('cheque_val') + settleInfo.get('transaction_val');
-
-            // Compare totalAmount with settle_balance
-            if (totalAmount > settleInfo.get('settle_balance')) {
-                swalError('Warning', 'The entered amount exceeds the settlement balance.');
-                isValid = false; // Ensure the form doesn't submit if invalid
-            }
-        }
-
         // Check if the form is valid before submission
         if (isValid) {
             $.ajax({
@@ -1001,7 +989,7 @@ function calDenomination() {
     $('#cht_com').val(com);
     let cht_value = $('#chit_value').val();
     $('#cht_value').val(cht_value);
-    $('#set_val').val(moneyFormatIndia(settleCashInput));
+    $('#set_val').val(moneyFormatIndia(settleCash));
     $.post('api/auction_files/fetch_calculation_data.php', { group_id: group_id, date: date }, function (response) {
         if (response) {
             // Since response is an object, access its properties directly
