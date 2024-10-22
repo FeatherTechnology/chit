@@ -5,13 +5,13 @@ $type = $_POST['type'];
 $user_id = ($_POST['user_id'] != '') ? $userwhere = " AND insert_login_id = '" . $_POST['user_id'] . "' " : $userwhere = ''; //for user based
 
 if ($type == 'today') {
-    $where = " DATE(created_on) = CURDATE() - INTERVAL 1 DAY $userwhere";
+    $where = " DATE(created_on) <= CURDATE() - INTERVAL 1 DAY $userwhere";
 
 } else if ($type == 'day') {
     $from_date = $_POST['from_date'];
     $to_date = $_POST['to_date'];
     //$where = " (DATE(created_on) >= '$from_date' && DATE(created_on) <= '$from_date' ) $userwhere ";
-    $where = " DATE(created_on) = DATE('$from_date') - INTERVAL 1 DAY $userwhere";
+    $where = " DATE(created_on) <= DATE('$from_date') - INTERVAL 1 DAY $userwhere";
 
 
 } else if ($type == 'month') {
@@ -24,7 +24,7 @@ if ($type == 'today') {
     $year = date('Y', strtotime($previousMonth));
     
     // Apply the filter to fetch data from the previous month
-    $where = " (MONTH(created_on) = '$month' AND YEAR(created_on) = '$year') $userwhere";
+    $where = " (MONTH(created_on) <= '$month' AND YEAR(created_on) = '$year') $userwhere";
 }
 
 $op_data = array();
