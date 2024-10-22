@@ -460,6 +460,7 @@
                                     <th>Collection Status</th>
                                     <th>Grace Period</th>
                                     <th>Customer Status</th>
+                                    <th>Settlement Status</th>
                                     <th>Charts</th>
                                     </tr>
                                 </thead>
@@ -488,6 +489,7 @@
                                     <th>Group Status</th>
                                     <th>Collection Status</th>
                                     <th>Customer Status</th>
+                                    <th>Settlement Status</th>
                                     <th>Charts</th>
                                     </tr>
                                 </thead>
