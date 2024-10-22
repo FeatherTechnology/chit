@@ -1,4 +1,3 @@
-
 <div class="col-12  text-center">
     <button class="btn btn-primary mx-4  today text-center">&nbsp;Today</button>
     <button class="btn btn-primary mx-4  this_month text-center">&nbsp;This Month</button>
@@ -94,26 +93,44 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
+                                    <label for="branch_name"> Branch Name </label>
+                                    <input type="text" class="form-control" id="branch_name" name="branch_name" disabled tabindex="3">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="chit_val"> Chit Value </label>
+                                    <input type="text" class="form-control" id="chit_val" name="chit_val" disabled tabindex="4">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
                                     <label for="auction_date">Auction Date</label>
-                                    <input type="text" class="form-control" id="auction_date" name="auction_date" readonly tabindex="3">
+                                    <input type="text" class="form-control" id="auction_date" name="auction_date" readonly tabindex="5">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="auction_time">Auction Time</label>
+                                    <input type="text" class="form-control" id="auction_time" name="auction_time" readonly tabindex="6">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="grp_month"> Auction Month</label>
-                                    <input type="text" class="form-control" id="grp_month" name="grp_month" readonly tabindex="4">
+                                    <input type="text" class="form-control" id="grp_month" name="grp_month" readonly tabindex="7">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="low_value"> Low Value</label>
-                                    <input type="text" class="form-control" id="low_value" name="low_value" readonly tabindex="5">
+                                    <input type="text" class="form-control" id="low_value" name="low_value" readonly tabindex="8">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="high_value"> High Value</label>
-                                    <input type="text" class="form-control" id="high_value" name="high_value" readonly tabindex="6">
+                                    <input type="text" class="form-control" id="high_value" name="high_value" readonly tabindex="9">
                                 </div>
                             </div>
                         </div>
@@ -139,8 +156,12 @@
                                     <button name="submit_cus_map" id="submit_cus_map" class="btn btn-primary" tabindex="3" style="margin-top: 18px;">
                                         <span class="icon-check"></span>&nbsp;Add
                                     </button>
+                                    <button name="auction_start" id="auction_start" class="btn btn-primary" tabindex="34" style="margin-top: 18px; margin-left: 15px;">
+                                        &nbsp;Auction Start
+                                    </button>
                                 </div>
                             </div>
+                           
 
                         </div>
                         <div class="row">
@@ -157,10 +178,13 @@
                                 </table>
                             </div>
                         </div>
-
-
                         <div class="col-12 text-right">
-                            <button class="btn btn-primary auction_close d-none">&nbsp; Auction Close</button>
+                            <div class="d-inline-flex align-items-center">
+                                <button class="btn btn-primary rounded-circle d-none" id="auction_round1" disabled style="margin-right: 5px;">&nbsp;1</button>
+                                <button class="btn btn-primary rounded-circle d-none" id="auction_round2" disabled style="margin-right: 5px;">&nbsp;2</button>
+                                <button class="btn btn-primary rounded-circle d-none" id="auction_round3" disabled style="margin-right: 45px;">&nbsp;3</button>
+                                <button class="btn btn-primary auction_close d-none"disabled>&nbsp; Auction Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -174,7 +198,7 @@
     <div class="modal-dialog modal-lg " role="document">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Auction Postpone</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Auction Reschedule</h5>
                 <button type="button" class="close" data-dismiss="modal" tabindex="1" onclick="closeChartsModal()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
