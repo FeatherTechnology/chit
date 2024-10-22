@@ -560,8 +560,14 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="total_val">Total Value</label>
+                                    <label for="total_val">Total Amount</label>
                                     <input type="text" class="form-control" name="total_val" id="total_val" tabindex="1" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="set_val">Settlement Amount</label>
+                                    <input type="text" class="form-control" name="set_val" id="set_val" tabindex="1" readonly>
                                 </div>
                             </div>
                         </div>
@@ -612,7 +618,7 @@
                                         <td><input type="text" class="form-control" value="0" readonly></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2"><b>Total:</b></td>
+                                        <td colspan="2"><b>Total</b></td>
                                         <td><input type="text" class="form-control" id="totalAmount" value="0" readonly></td>
                                     </tr>
                                 </tbody>

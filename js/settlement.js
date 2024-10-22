@@ -6,7 +6,7 @@ $(document).ready(function () {
         $('#payment_type').val('');
         $('#settle_type').val('');
         $('#den_upload').val(''); // This won't work, see below for the workaround
-    $('#den_upload_edit').val(''); 
+        $('#den_upload_edit').val('');
         resetValidation()
     });
 
@@ -349,10 +349,10 @@ $(document).ready(function () {
 
     $('#submit_settle_info').click(function (event) {
         event.preventDefault();
-    
+
         // Create a FormData object to hold the form data
         let settleInfo = new FormData();
-    
+
         // Append all your form fields to the FormData object
         settleInfo.append('auction_id', $('#groupid').val());
         settleInfo.append('group_id', $('#group_id').val());
@@ -373,29 +373,29 @@ $(document).ready(function () {
         settleInfo.append('balance_amount', $('#balance_amount').val().replace(/,/g, ''));
         settleInfo.append('gua_name', $('#gua_name').val());
         settleInfo.append('gua_relationship', $('#gua_relationship').val());
-    
+
         // Append the file from the file input
         let fileInput = $('#den_upload')[0].files[0];
         if (fileInput) {
             settleInfo.append('den_upload', fileInput);
         }
-    
+
         settleInfo.append('den_upload_edit', $('#den_upload_edit').val());
-    
+
         // Validate the form data
         let isValid = isFormDataValid(settleInfo);
-    
+
         // Validate settlement amounts for Split Payment
         if (settleInfo.get('payment_type') == '1') { // Split Payment
             var totalAmount = settleInfo.get('settle_cash') + settleInfo.get('cheque_val') + settleInfo.get('transaction_val');
-    
+
             // Compare totalAmount with settle_balance
             if (totalAmount > settleInfo.get('settle_balance')) {
                 swalError('Warning', 'The entered amount exceeds the settlement balance.');
                 isValid = false; // Ensure the form doesn't submit if invalid
             }
         }
-    
+
         // Check if the form is valid before submission
         if (isValid) {
             $.ajax({
@@ -422,7 +422,7 @@ $(document).ready(function () {
             });
         }
     });
-    
+
 
     ///////////////////////////////////////////////////////////////////Document info START ////////////////////////////////////////////////////////////////////////////
 
@@ -1001,6 +1001,7 @@ function calDenomination() {
     $('#cht_com').val(com);
     let cht_value = $('#chit_value').val();
     $('#cht_value').val(cht_value);
+    $('#set_val').val(moneyFormatIndia(settleCashInput));
     $.post('api/auction_files/fetch_calculation_data.php', { group_id: group_id, date: date }, function (response) {
         if (response) {
             // Since response is an object, access its properties directly
@@ -1058,7 +1059,7 @@ function updateTotalValue() {
             const denomination = parseFloat($lastRow.find('td:first').text());
             const lastQuantity = parseFloat(lastQuantityInput.val()) || 0;
             const lastTotalValue = denomination * lastQuantity;
-            swalError('Warning', `Total value (₹${moneyFormatIndia(totalAmount)}) exceeds settle cash amount (₹${moneyFormatIndia(settleCash)})!`);
+            swalError('Warning', `Please enter a value less than the settlement amount (₹${moneyFormatIndia(settleCash)}).`);
             // Reset the last quantity and total value
             $lastRow.find('input[type="number"]').val(''); // Reset quantity to 0
             $lastRow.find('input[type="text"]').val(0); // Reset total value to 0
@@ -1081,20 +1082,29 @@ function resetDenominationTable() {
     });
     $('#totalAmount').val(0); // Reset total amount
 }
+
 function printDenomination() {
     // Clone the denomination content
-    var printContent = $('#denominationContent').clone();
+    let totalAmount = parseFloat($('#totalAmount').val().replace(/,/g, ''));
 
+    // Check if the total amount is 0 or not a number
+    if (totalAmount === 0 || isNaN(totalAmount)) {
+        swalError('Warning', 'Please fill in the denomination values before printing.');
+        return; // Exit the function if total amount is 0
+    }
+    
     // Retrieve and format values from inputs
     const chitValue = $('#cht_value').val().replace(/,/g, '');
     const commission = $('#cht_com').val().replace(/,/g, '');
     const auctionValue = $('#act_val').val().replace(/,/g, '');
     const totalValue = $('#total_val').val().replace(/,/g, '');
+    const setVal = $('#set_val').val().replace(/,/g, '');
 
     const formattedChitValue = moneyFormatIndia(chitValue);
     const formattedCommission = moneyFormatIndia(commission);
     const formattedAuctionValue = moneyFormatIndia(auctionValue);
     const formattedTotalValue = moneyFormatIndia(totalValue);
+    const formattedSetlValue = moneyFormatIndia(setVal);
 
     // Create the HTML content for printing
     let content = ` 
@@ -1104,32 +1114,36 @@ function printDenomination() {
             </h2>
             <table style="margin: 0 auto; border-collapse: collapse; width: 45%;">
                 <tr>
-                    <td><strong>Group Name</strong></td>
-                    <td>${$('#denon_name').val()}</td>
+                    <td style="padding-bottom: 10px;"><strong>Group Name</strong></td>
+                    <td style="padding-bottom: 10px;">${$('#denon_name').val()}</td>
                 </tr>
                 <tr>
-                    <td><strong>Auction Month</strong></td>
-                    <td>${$('#auc_month').val()}</td>
+                    <td style="padding-bottom: 10px;"><strong>Auction Month</strong></td>
+                    <td style="padding-bottom: 10px;">${$('#auc_month').val()}</td>
                 </tr>
                 <tr>
-                    <td><strong>Date</strong></td>
-                    <td>${$('#auct_date').val()}</td>
+                    <td style="padding-bottom: 10px;"><strong>Date</strong></td>
+                    <td style="padding-bottom: 10px;">${$('#auct_date').val()}</td>
                 </tr>
                 <tr>
-                    <td><strong>Chit Value</strong></td>
-                    <td>${formattedChitValue}</td>
+                    <td style="padding-bottom: 10px;"><strong>Chit Value</strong></td>
+                    <td style="padding-bottom: 10px;">${formattedChitValue}</td>
                 </tr>
                 <tr>
-                    <td><strong>Auction Value</strong></td>
-                    <td>${formattedAuctionValue}</td>
+                    <td style="padding-bottom: 10px;"><strong>Auction Value</strong></td>
+                    <td style="padding-bottom: 10px;">${formattedAuctionValue}</td>
                 </tr>
                 <tr>
-                    <td><strong>Commission</strong></td>
-                    <td>${formattedCommission}</td>
+                    <td style="padding-bottom: 10px;"><strong>Commission</strong></td>
+                    <td style="padding-bottom: 10px;">${formattedCommission}</td>
                 </tr>
                 <tr>
-                    <td><strong>Total Value</strong></td>
-                    <td>${formattedTotalValue}</td>
+                    <td style="padding-bottom: 10px;"><strong>Total Amount</strong></td>
+                    <td style="padding-bottom: 10px;">${formattedTotalValue}</td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom: 10px;"><strong>Settlement Amount</strong></td>
+                    <td style="padding-bottom: 10px;">${formattedSetlValue}</td>
                 </tr>
             </table>
         </div>
@@ -1147,35 +1161,44 @@ function printDenomination() {
                 <tbody>
     `;
 
-    // Append rows for each denomination
     $('#denominationTableBody tr').each(function () {
         let amount = $(this).find('td:first').text(); // Amount
         let quantity = $(this).find('input[type="number"]').val(); // Quantity
         let totalValue = $(this).find('input[type="text"]').val(); // Total Value
-
+        
         // Check for undefined or empty values
-        const formattedQuantity = quantity ? quantity : ''; // Use empty string if undefined or empty
-        const formattedTotalValue = totalValue ? moneyFormatIndia(totalValue) : ''; // Use empty string if undefined or empty
-
-        content += `
+        const formattedQuantity = quantity ? quantity : '';
+        const formattedTotalValue = totalValue ? moneyFormatIndia(totalValue) : '';
+        
+        // Check if this is the Total row
+        if ($(this).find('td').eq(0).attr('colspan') === '2') {
+          content += `
             <tr>
-                <td style="border: 1px solid black; padding: 10px;">${amount}</td>
-                <td style="border: 1px solid black; padding: 10px;">${formattedQuantity}</td>
-                <td style="border: 1px solid black; padding: 10px;">${formattedTotalValue}</td>
+              <td colspan="2" style="border: 1px solid black; padding: 10px; text-align: right;"><strong>Total</strong></td>
+              <td style="border: 1px solid black; padding: 10px;">${moneyFormatIndia($('#totalAmount').val().replace(/,/g, ''))}</td>
             </tr>
-        `;
-    });
+          `;
+        } else {
+          content += `
+            <tr>
+              <td style="border: 1px solid black; padding: 10px;">${amount}</td>
+              <td style="border: 1px solid black; padding: 10px;">${formattedQuantity}</td>
+              <td style="border: 1px solid black; padding: 10px;">${formattedTotalValue}</td>
+            </tr>
+          `;
+        }
+      });
 
     content += `
                 </tbody>
             </table>
         </div>
         <br />
-        <div class="row" style="margin-top: 50px;">
-            <div class="col-md-6">
+        <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+            <div>
                 <h5>Manager's Signature</h5>
             </div>
-            <div class="col-md-6 text-right">
+            <div>
                 <h5>Customer's Signature</h5>
             </div>
         </div>
@@ -1184,21 +1207,20 @@ function printDenomination() {
     // Open a new window for printing
     const printWindow = window.open('', '_blank');
 
-    // Write the modal content into the new window
+    // Write the content into the new window
     printWindow.document.write('<html><head><title>Print Denomination</title>');
     printWindow.document.write('<style>body{font-family: Arial, sans-serif; margin: 20px;} .table { width: 100%; border-collapse: collapse; } .table, .table th, .table td { border: 1px solid black; } .table th, .table td { padding: 10px; text-align: left; } .text-right { text-align: right; }</style>');
     printWindow.document.write('</head><body>');
-    printWindow.document.write(content); // Use the modified content
+    printWindow.document.write(content);
     printWindow.document.write('</body></html>');
 
-    // Close the document to signal that the writing process is complete
+    // Close the document and trigger the print
     printWindow.document.close();
-
-    // Trigger the print dialog
     printWindow.print();
 
-    // Optionally close the print window after printing
+    // Close the print window after printing
     printWindow.onafterprint = function () {
         printWindow.close();
     };
 }
+
