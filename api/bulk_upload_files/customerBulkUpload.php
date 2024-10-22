@@ -33,10 +33,6 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
                 $agent_id = $obj->checkAgent($pdo, $data['agent_name']);
                 $data['agent_id'] = $agent_id;
                  
-
-                $area_id = $obj->getAreaId($pdo, $data['area']);
-                $data['area_id'] = $area_id;
-
                 $areaLine = $obj->getAreaLine($pdo, $data['area_id']);
                 $data['line_id'] = $areaLine;
                
@@ -47,10 +43,11 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
                 $err_columns = $obj->handleError($data);
                 if (empty($err_columns)) {
                     // Call LoanEntryTables function
-                    $obj->FamilyTable($pdo, $data);
-                    $gur_id = $obj->guarantorName($pdo, $data['cus_id']);
-                    $data['gur_id'] = $gur_id;   
-                    $obj->LoanEntryTables($pdo, $data);
+                    $obj1->FamilyTable($pdo, $data);
+                    $obj->PlaceTable($pdo, $data);
+                    $pl_id = $obj->placeName($pdo, $data['place']);
+                    $data['pl_id'] = $pl_id;   
+                    $obj->customerEntryTables($pdo, $data);
                 } else {
                     $errtxt = "Please Check the input given in Serial No: " . ($rowChange) . " on below. <br><br>";
                     $errtxt .= "<ul>";

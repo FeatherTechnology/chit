@@ -119,18 +119,14 @@ class customerUploadClass
         return $gur_id;
     }
 
-    function getAreaId($pdo, $areaname)
+    function placeName($pdo,$place)
     {
-        $stmt = $pdo->query("SELECT anc.id, anc.areaname  FROM area_creation ac JOIN area_name_creation anc ON FIND_IN_SET(anc.id, ac.area_id)
-        WHERE  LOWER(REPLACE(TRIM(anc.areaname),' ','')) = LOWER(REPLACE(TRIM('$areaname'),' ',''))");
+        $stmt = $pdo->query("SELECT id, place FROM  place WHERE LOWER(REPLACE(TRIM(place),' ' ,'')) = LOWER(REPLACE(TRIM('$place'),' ' ,''))");
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $area_id = $row["id"];
-        } else {
-            $area_id = 'Not Found';
+            $pl_id = $row["id"];
         }
-
-        return $area_id;
+        return $pl_id;
     }
 
     function getLoanCategoryId($pdo, $loan_category)
@@ -204,45 +200,99 @@ class customerUploadClass
     function FamilyTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-        $check_query = "SELECT id FROM family_info WHERE cus_id = '" . $data['cus_id'] . "' AND fam_aadhar = '" . $data['guarantor_aadhar_no'] . "'";
+        $check_query = "SELECT id FROM family_info WHERE cus_id = '" . $data['cus_id'] . "' AND fam_aadhar = '" . $data['fam_aadhar'] . "'";
         $result = $pdo->query($check_query);
         if ($result->rowCount() == 0) {
-            $insert_query = "INSERT INTO family_info (cus_id, fam_name, fam_relationship, fam_age, fam_live, fam_occupation,fam_aadhar, fam_mobile, insert_login_id, created_on, updated_on) 
+            $insert_query = "INSERT INTO family_info (cus_id, fam_name, fam_relationship,fam_aadhar, fam_mobile, insert_login_id, created_on) 
                 VALUES (
                     '" . $data['cus_id'] . "',
-                    '" . $data['guarantor_name'] . "',
-                    '" . $data['guarantor_relationship'] . "',
-                    '" . $data['guarantor_age'] . "',
-                    '" . $data['guarantor_live'] . "',
-                    '" . $data['guarantor_occupation'] . "',
-                    '" . $data['guarantor_aadhar_no'] . "',
-                    '" . $data['guarantor_mobile_no'] . "',
+                    '" . $data['fam_name'] . "',
+                    '" . $data['fam_relationship'] . "',
+                    '" . $data['fam_aadhar'] . "',
+                    '" . $data['fam_mobile'] . "',
                     '" . $user_id . "',
-                    '" . strip_tags($data['loan_date']) . "',
-                    '" . strip_tags($data['loan_date']) . "'
+                   NOW(),
                 )
             ";
 
             $pdo->query($insert_query);
         }
     }
-
-    function LoanEntryTables($pdo, $data)
+    function PlaceTable($pdo, $data)
+    {
+        $user_id = $_SESSION['user_id'];
+    
+        // Check if the place already exists (case-insensitive and ignoring spaces)
+        $check_querys= "SELECT id FROM place 
+        WHERE LOWER(REPLACE(TRIM(place), ' ', '')) = LOWER(REPLACE(TRIM('" . $data['place'] . "'), ' ', ''))";
+        // Execute the query
+        $result1 = $pdo->query($check_querys);
+    
+        // If the place does not exist, insert it
+        if ($result1->rowCount() == 0) {
+            $insert_query = "INSERT INTO place (place, insert_login_id, created_on) 
+                             VALUES ('" . strip_tags($data['place']) . "',, '$user_id', NOW())";
+    
+            // Execute the insert query
+            $pdo->query($insert_query);
+        }
+    }
+    function sourceTable($pdo, $data)
+    {
+        $user_id = $_SESSION['user_id'];
+    
+        // Check if the place already exists (case-insensitive and ignoring spaces)
+        $check_queryss = "SELECT id FROM family_info WHERE cus_id = '" . $data['cus_id'] . "' '";
+        
+        // Execute the query
+        $result1 = $pdo->query($check_queryss);
+    
+        // If the place does not exist, insert it
+        if ($result1->rowCount() == 0) {
+            $insert_query = "INSERT INTO place (place, insert_login_id, created_on) 
+                             VALUES ('$', '$user_id', NOW())";
+    
+            // Execute the insert query
+            $pdo->query($insert_query);
+        }
+    }
+    function CustomerEntryTables($pdo, $data)
     {
         // Print or log $data to see what values are being passed
         $user_id = $_SESSION['user_id'];
-        $insert_cp_query = "INSERT INTO customer_profile (
-            cus_id, cus_name, gender, dob, age, mobile1,pic, guarantor_name, gu_pic, cus_data, cus_status, res_type, res_detail, res_address, native_address, occupation, occ_detail, occ_income, occ_address, area_confirm, area, line, cus_limit, about_cus, insert_login_id, created_on, updated_on
+        $che_query = "SELECT id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "' AND aadhar_number = '" . $data['aadhar_number'] . "'";
+        $result2 = $pdo->query($che_query);
+        if ($result2->rowCount() == 0) {
+        $insertQuery = "INSERT INTO `customer_creation` (
+             `cus_id`,
+            `first_name`, 
+            `last_name`, 
+            `aadhar_number`, 
+            `place`, 
+            `mobile1`, 
+            `address`, 
+            `chit_limit`, 
+            `reference`, 
+            `insert_login_id`, `created_on`
         ) VALUES (
-            '" . strip_tags($data['cus_id']) . "', '" . strip_tags($data['cus_name']) . "', '" . strip_tags($data['gender']) . "', '" . strip_tags($data['dob']) . "', '" . strip_tags($data['age']) . "', 
-            '" . strip_tags($data['mobile']) . "', '', '" . strip_tags($data['gur_id']) . "', '', '" . strip_tags($data['cus_data']) . "', 
-            '" . strip_tags($data['cus_status']) . "', '" . strip_tags($data['residential_type']) . "', '" . strip_tags($data['resident_detail']) . "', '" . strip_tags($data['res_address']) . "', 
-            '" . strip_tags($data['native_address']) . "', '" . strip_tags($data['occupation']) . "', '" . strip_tags($data['occ_detail']) . "', '" . strip_tags($data['occ_income']) . "', 
-            '" . strip_tags($data['occ_address']) . "', '" . strip_tags($data['area_confirm']) . "', '" . strip_tags($data['area_id']) . "', '" . strip_tags($data['line_id']) . "', 
-             '" . strip_tags($data['cus_limit']) . "',  '" . strip_tags($data['about_cus']) . "', '" . $user_id . "', '" . strip_tags($data['loan_date']) . "', '" . strip_tags($data['loan_date']) . "'
+        '" . strip_tags($data['cus_id']) . "',
+            '" . strip_tags($data['first_name']) . "',
+            '" . strip_tags($data['last_name']) . "',
+            '" . strip_tags($data['aadhar_number']) . "',
+            '" . strip_tags($data['pl_id']) . "',
+            '" . strip_tags($data['mobile1']) . "',
+            '" . strip_tags($data['address']) . "',
+            '" . strip_tags($data['occupation']) . "',
+            '" . strip_tags($data['occ_detail']) . "',
+            '" . strip_tags($data['income']) . "',
+            '" . strip_tags($data['chit_limit']) . "',
+            '" . strip_tags($data['reference']) . "',
+               '" . $user_id . "', 
+            NOW()
         )";
-
-        $pdo->query($insert_cp_query);
+        
+        }
+        $pdo->query($insertQuery);
 
         // Get the last inserted ID
         $cus_profile_id = $pdo->lastInsertId();
