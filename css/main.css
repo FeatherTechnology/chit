@@ -574,6 +574,11 @@ a.bg-pink:focus {
   box-shadow: 0 0 15px #e5e9ec;
   border-bottom: 1px solid #d7dbe2;
 }
+.custo-search {
+  width: 170px; /* Set the desired width */
+  padding: 7px; /* Optional: Adjust padding if needed */
+}
+
 
 .custom-search .search-query:focus {
   outline: none;
@@ -9405,4 +9410,71 @@ table.dataTable th {
 }
 .dwnmrgn{
   margin-bottom: 20px !important;
+}
+/*Auction Screen*/
+.highlight-row {
+  background-color: #d4edda !important; /* Light green background */
+  color: #155724 !important;            /* Dark green text color */
+}
+
+
+  /* Reduce size of table header */
+  .input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+  }
+
+  .form-control {
+      padding-right: 30px;
+      /* Add padding to prevent text overlap with delete icon */
+  }
+
+  .delete-icon {
+      position: absolute;
+      right: 10px;
+      /* Adjust as needed to align with the input field */
+      cursor: pointer;
+      color: balack;
+      /* Or any color you want */
+      font-size: 16px;
+      /* Adjust size if needed */
+  }
+  /*Customer Data*/
+  .selecto {
+    position: relative;
+    width: 35%;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selector-item_labe {
+    position: relative;
+    height: 35px;
+    width: 100px;
+    text-align: center;
+    border-radius: 9999px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    transition-duration: .5s;
+    transition-property: transform, box-shadow;
+    transform: none;
+    box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
+    cursor: pointer;
+}
+
+.selector-item_radio,
+.selector-item_labe {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selector-item_radio:checked+.selector-item_labe {
+    background-color: var(--primary-color);
+    color: var(--white);
+    box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
+    transform: translateY(-2px);
 }

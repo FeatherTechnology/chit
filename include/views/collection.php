@@ -116,6 +116,7 @@
                                                 <th>Group Name</th>
                                                 <th>Chit Value</th>
                                                 <th>Chit Amount</th>
+                                                <th>Settlement</th>
                                                 <th>Status</th>
                                                 <th>Grace Period</th>
                                                 <th>Charts</th>

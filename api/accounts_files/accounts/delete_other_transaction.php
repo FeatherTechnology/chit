@@ -11,8 +11,13 @@ $result = 2; // Default failure response
     // Proceed with the deletion only if all required values are provided
     $qry = $pdo->query("DELETE FROM `other_transaction` WHERE id='$id'");
     $qry1 = $pdo->query("DELETE FROM `settlement_info` WHERE group_id='$group_id' AND cus_name='$group_mem' AND auction_month='$auction_month'");
-
-    if ($qry && $qry1) {
+    $qry2 = $pdo->query("UPDATE `group_cus_mapping` 
+    SET `settle_status` = NULL 
+    WHERE `grp_creation_id` = '$group_id' 
+    AND `cus_id` = '$group_mem' 
+    AND `settle_status`='Yes' 
+    LIMIT 1");
+    if ($qry && $qry1 && $qry2) {
         $result = 1; // Success response
     }
 

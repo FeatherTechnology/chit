@@ -1494,6 +1494,7 @@ function viewCustomerGroups(id) {
             "collection_status",
             "grace_period",
             "status",
+            "settle_status",
             "charts",
 
         ];
@@ -1514,6 +1515,7 @@ function viewCustomerClosedGroups(id) {
             "grp_status",
             "collection_status",
             "status",
+            "settle_status",
             "charts",
 
         ];
@@ -1560,6 +1562,7 @@ function getCommitmentChartTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
         ];
         appendDataToTable('#commitment_chart_table', response, columnMapping);
