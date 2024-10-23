@@ -46,7 +46,7 @@ class customerUploadClass
         );
 
         $dataArray['guarantor_aadhar'] = strlen($dataArray['guarantor_aadhar']) == 12 ? $dataArray['guarantor_aadhar'] : 'Invalid';
-       
+
         $dataArray['mobile1'] = strlen($dataArray['mobile1']) == 10 ? $dataArray['mobile1'] : 'Invalid';
         $dataArray['fam_aadhar'] = strlen($dataArray['fam_aadhar']) == 12 ? $dataArray['fam_aadhar'] : 'Invalid';
         $dataArray['aadhar_number'] = strlen($dataArray['aadhar_number']) == 12 ? $dataArray['aadhar_number'] : 'Invalid';
@@ -79,7 +79,7 @@ class customerUploadClass
         }
         return $arrayItem;
     }
-   
+
     function getcusId($pdo, $id)
     {
         if (!isset($id) || $id == '') {
@@ -107,103 +107,66 @@ class customerUploadClass
 
         return $cus_ID_final;
     }
-
-   
-    function guarantorName($pdo,$cus_id)
+    function groupName($pdo, $grp_name)
     {
-        $stmt = $pdo->query("SELECT id, fam_name FROM  family_info WHERE cus_id = '$cus_id'");
+        // Use a direct query (ensure $grp_name is properly sanitized before using)
+        $stmt = $pdo->query("SELECT grp_id FROM group_creation WHERE grp_name = '$grp_name'");
+
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $grp_id = $row['grp_id']; // Fetch the 'grp_id' column
+        } else {
+            $grp_id = 'Not Found'; // Return null if no result is found
+        }
+
+        return $grp_id;
+    }
+
+    function getCustomerId($pdo,$aadhar_number)
+    {
+        $stmt = $pdo->query("SELECT id FROM  customer_creation WHERE aadhar_number = '$aadhar_number'");
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $cust_id = $row["id"];
+        } else {
+            $cust_id = 'Not Found'; // Return null if no result is found
+        }
+
+
+        return $cust_id;
+    }
+    function guarantorName($pdo, $guarantor_aadhar)
+    {
+        $stmt = $pdo->query("SELECT id, fam_name FROM  family_info WHERE fam_aadhar = '$guarantor_aadhar'");
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $gur_id = $row["id"];
+        } else {
+            $gur_id = 'Not Found'; // Return null if no result is found
         }
         return $gur_id;
     }
 
-    function placeName($pdo,$place)
+    function placeName($pdo, $place)
     {
         $stmt = $pdo->query("SELECT id, place FROM  place WHERE LOWER(REPLACE(TRIM(place),' ' ,'')) = LOWER(REPLACE(TRIM('$place'),' ' ,''))");
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $pl_id = $row["id"];
+        } else {
+            $pl_id = 'Not Found'; // Return null if no result is found
         }
         return $pl_id;
     }
 
-    function getLoanCategoryId($pdo, $loan_category)
-    {
-        $stmt = $pdo->query("SELECT lcc.id FROM loan_category_creation lcc LEFT JOIN loan_category lc ON lcc.loan_category = lc.id WHERE LOWER(REPLACE(TRIM(lc.loan_category),' ' ,'')) = LOWER(REPLACE(TRIM('$loan_category'),' ' ,'')) ");
-        //  $stmt->execute(['loan_category' => $loan_category]);
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $loan_cat_id = $row["id"];
-        } else {
-            $loan_cat_id = 'Not Found';
-        }
 
-        return $loan_cat_id;
-    }
-    function getAreaLine($pdo, $areaId)
-    {
-        $defaultLinename = 'Invalid';
-        $defaultLineId = null;
-        $query = "SELECT ac.line_id, lnc.linename 
-            FROM `area_creation` ac 
-            LEFT JOIN line_name_creation lnc ON ac.line_id = lnc.id
-            WHERE FIND_IN_SET(:areaId, ac.area_id)";
-
-        $stmt = $pdo->prepare($query);
-        $stmt->execute([':areaId' => $areaId]);
-
-        if ($stmt) {
-            if ($stmt->rowCount() > 0) {
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                $lineId = $result['line_id'];
-            } else {
-                $lineId = $defaultLineId; // If no matching line_id found, set to default
-            }
-        } else {
-            $lineId = $defaultLineId;
-        }
-
-        return $lineId;
-    }
-
-    function checkAgent($pdo, $agent_name)
-    {
-        if ($agent_name != '') { // because it's not mandatory
-            $stmt = $pdo->query("SELECT id FROM `agent_creation` WHERE LOWER(REPLACE(TRIM(agent_name),' ' ,'')) = LOWER(REPLACE(TRIM('$agent_name'),' ' ,'')) ");
-            if ($stmt->rowCount() > 0) {
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                $agentCheck = $row["id"];
-            } else {
-                $agentCheck = 'Not Found';
-            }
-        } else {
-            $agentCheck = '';
-        }
-        return $agentCheck;
-    }
-
-    function getSchemeId($pdo, $scheme_name)
-    {
-        $stmt = $pdo->query("SELECT s.id
-        FROM `loan_category_creation` lcc 
-        JOIN scheme s ON FIND_IN_SET(s.id, lcc.scheme_name)
-        WHERE LOWER(REPLACE(TRIM(s.scheme_name),' ' ,'')) = LOWER(REPLACE(TRIM('$scheme_name'),' ' ,'')) ");
-        if ($stmt->rowCount() > 0) {
-            $scheme_id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
-        } else {
-            $scheme_id = '';
-        }
-        return $scheme_id;
-    }
     function FamilyTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-        $check_query = "SELECT id FROM family_info WHERE cus_id = '" . $data['cus_id'] . "' AND fam_aadhar = '" . $data['fam_aadhar'] . "'";
+        $check_query = "SELECT id FROM family_info WHERE fam_aadhar = '" . $data['fam_aadhar'] . "'";
         $result = $pdo->query($check_query);
         if ($result->rowCount() == 0) {
-            $insert_query = "INSERT INTO family_info (cus_id, fam_name, fam_relationship,fam_aadhar, fam_mobile, insert_login_id, created_on) 
+            $insert_query1 = "INSERT INTO family_info (cus_id, fam_name, fam_relationship,fam_aadhar, fam_mobile, insert_login_id, created_on) 
                 VALUES (
                     '" . $data['cus_id'] . "',
                     '" . $data['fam_name'] . "',
@@ -211,59 +174,54 @@ class customerUploadClass
                     '" . $data['fam_aadhar'] . "',
                     '" . $data['fam_mobile'] . "',
                     '" . $user_id . "',
-                   NOW(),
+                   NOW()
                 )
             ";
 
-            $pdo->query($insert_query);
+            $pdo->query($insert_query1);
         }
     }
     function PlaceTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-    
+
         // Check if the place already exists (case-insensitive and ignoring spaces)
-        $check_querys= "SELECT id FROM place 
+        $check_querys = "SELECT id FROM place 
         WHERE LOWER(REPLACE(TRIM(place), ' ', '')) = LOWER(REPLACE(TRIM('" . $data['place'] . "'), ' ', ''))";
         // Execute the query
         $result1 = $pdo->query($check_querys);
-    
+
         // If the place does not exist, insert it
         if ($result1->rowCount() == 0) {
-            $insert_query = "INSERT INTO place (place, insert_login_id, created_on) 
-                             VALUES ('" . strip_tags($data['place']) . "',, '$user_id', NOW())";
-    
+            $insert_query2 = "INSERT INTO place (place, insert_login_id, created_on) 
+                             VALUES ('" . strip_tags($data['place']) . "', '$user_id', NOW())";
+
             // Execute the insert query
-            $pdo->query($insert_query);
+            $pdo->query($insert_query2);
         }
     }
-    function sourceTable($pdo, $data)
+    function guarantorTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-    
-        // Check if the place already exists (case-insensitive and ignoring spaces)
-        $check_queryss = "SELECT id FROM family_info WHERE cus_id = '" . $data['cus_id'] . "' '";
-        
-        // Execute the query
-        $result1 = $pdo->query($check_queryss);
-    
-        // If the place does not exist, insert it
-        if ($result1->rowCount() == 0) {
-            $insert_query = "INSERT INTO place (place, insert_login_id, created_on) 
-                             VALUES ('$', '$user_id', NOW())";
-    
-            // Execute the insert query
-            $pdo->query($insert_query);
+        $check_query1 = "SELECT family_id FROM guarantor_info WHERE family_id = '" . $data['gur_id'] . "'";
+        $result2 = $pdo->query($check_query1);
+
+        if ($result2->rowCount() == 0) {
+            $insert_query4 = "INSERT INTO `guarantor_info` (`cus_id`, `relationship_type`, `guarantor_name`, `family_id`, `guarantor_relationship`, `insert_login_id`, `created_on`) 
+            VALUES ('" . strip_tags($data['cus_id']) . "', 3, '" . $data['fam_name'] . "', '" . $data['gur_id'] . "', '" . $data['fam_relationship'] . "', '$user_id', now())";
+
+            $pdo->exec($insert_query4);
         }
     }
-    function CustomerEntryTables($pdo, $data)
+
+    function customerEntryTables($pdo, $data)
     {
         // Print or log $data to see what values are being passed
         $user_id = $_SESSION['user_id'];
-        $che_query = "SELECT id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "' AND aadhar_number = '" . $data['aadhar_number'] . "'";
+        $che_query = "SELECT id FROM customer_creation WHERE  aadhar_number = '" . $data['aadhar_number'] . "'";
         $result2 = $pdo->query($che_query);
         if ($result2->rowCount() == 0) {
-        $insertQuery = "INSERT INTO `customer_creation` (
+            $insertQuery = "INSERT INTO `customer_creation` (
              `cus_id`,
             `first_name`, 
             `last_name`, 
@@ -271,6 +229,7 @@ class customerUploadClass
             `place`, 
             `mobile1`, 
             `address`, 
+            `tot_income`,
             `chit_limit`, 
             `reference`, 
             `insert_login_id`, `created_on`
@@ -282,260 +241,145 @@ class customerUploadClass
             '" . strip_tags($data['pl_id']) . "',
             '" . strip_tags($data['mobile1']) . "',
             '" . strip_tags($data['address']) . "',
-            '" . strip_tags($data['occupation']) . "',
-            '" . strip_tags($data['occ_detail']) . "',
-            '" . strip_tags($data['income']) . "',
+             '" . strip_tags($data['income']) . "',
             '" . strip_tags($data['chit_limit']) . "',
             '" . strip_tags($data['reference']) . "',
                '" . $user_id . "', 
             NOW()
         )";
-        
-        }
         $pdo->query($insertQuery);
-
-        // Get the last inserted ID
-        $cus_profile_id = $pdo->lastInsertId();
-        $cus_sts_insert_query = "INSERT INTO `customer_status` (`cus_profile_id`, `status`, `update_login_id`, `updated_on`, `cus_id`)  VALUES (:cus_profile_id, 1, :user_id, NOW(), :cus_id)";
-        $stmt = $pdo->prepare($cus_sts_insert_query);
-        $stmt->execute([
-            ':cus_profile_id' => $cus_profile_id,
-            ':user_id' => $user_id,
-            ':cus_id' => strip_tags($data['cus_id'])
-        ]);
-
-        // Insert into loan_entry_loan_calculation table
-        $due_method = strip_tags($data['due_method']);
-        if ($data['profit_type'] == 1) {
-            $due_method = '';
         }
+    }
+    
+    function sourceTable($pdo, $data)
+    {
+        $user_id = $_SESSION['user_id'];
 
-        $insert_vlc = "INSERT INTO loan_entry_loan_calculation (
-            cus_profile_id, cus_id, loan_id, loan_category, loan_amount, profit_type, due_method, due_type, profit_method, scheme_due_method, scheme_day, scheme_name, interest_rate, due_period, doc_charge, processing_fees,
-            loan_amnt, principal_amnt, interest_amnt, total_amnt, due_amnt, doc_charge_calculate, processing_fees_calculate, net_cash, loan_date, due_startdate, maturity_date, referred, agent_id, agent_name, insert_login_id, created_on, updated_on
-        ) VALUES (
-            '" . strip_tags($cus_profile_id) . "', '" . strip_tags($data['cus_id']) . "','" . strip_tags($data['loan_id']) . "', '" . strip_tags($data['loan_category_id']) . "','" . strip_tags($data['loan_amount']) . "', '" . strip_tags($data['profit_type']) . "', '" . $due_method . "', '" . strip_tags($data['due_type']) . "',
-            '" . strip_tags($data['profit_method']) . "','" . strip_tags($data['due_method_scheme']) . "','" . strip_tags($data['scheme_day']) . "','" . strip_tags($data['scheme_id']) . "',
-            '" . strip_tags($data['interest_rate']) . "','" . strip_tags($data['due_period']) . "','" . strip_tags($data['doc_charge']) . "','" . strip_tags($data['processing_fees']) . "','" . strip_tags($data['loan_amount']) . "','" . strip_tags($data['principal_amnt']) . "',
-            '" . strip_tags($data['interest_amnt']) . "', '" . strip_tags($data['total_amnt']) . "', '" . strip_tags($data['due_amnt']) . "', '" . strip_tags($data['doc_charge_calculate']) . "', '" . strip_tags($data['processing_fees_calculate']) . "',
-            '" . strip_tags($data['net_cash']) . "','" . strip_tags($data['loan_date']) . "','" . strip_tags($data['dueStart_date']) . "','" . strip_tags($data['maturity_date']) . "',
-            '" . strip_tags($data['referred']) . "','" . strip_tags($data['agent_id']) . "','" . strip_tags($data['agent_name']) . "','" . $user_id . "','" . strip_tags($data['loan_date']) . "','" . strip_tags($data['loan_date']) . "'
-        )";
+        // Check if the place already exists (case-insensitive and ignoring spaces)
+        $check_queryss = "SELECT cus_id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "'";
 
-        $pdo->query($insert_vlc);
-
-        // Get the last inserted Id
-        $loan_calculation_id = $pdo->lastInsertId();
+        // Execute the query
+        $result1 = $pdo->query($check_queryss);
 
 
-        $cus_sts_update_query = "UPDATE `customer_status` SET `loan_calculation_id` = :loan_calculation_id, `status` = 2, `update_login_id` = :user_id, `updated_on` = NOW() WHERE `cus_profile_id` = :cus_profile_id";
-        $stmt = $pdo->prepare($cus_sts_update_query);
-        $stmt->execute([
-            ':loan_calculation_id' => $loan_calculation_id,
-            ':user_id' => $user_id,
-            ':cus_profile_id' => $cus_profile_id
-        ]);
+        // If the place does not exist, insert it
+        if ($result1->rowCount() > 0) {
+            $insert_query3 = "INSERT INTO source (cus_id,occupation,occ_detail,income,insert_login_id,created_on) 
+                             VALUES ( '" . strip_tags($data['cus_id']) . "','" . strip_tags($data['occupation']) . "',
+            '" . strip_tags($data['occ_detail']) . "',
+            '" . strip_tags($data['income']) . "', '$user_id', NOW())";
 
-        $insert_li_query = "INSERT INTO `loan_issue` 
-        (`cus_id`, `cus_profile_id`, `loan_amnt`, `net_cash`, `payment_mode`, `issue_amnt`, `transaction_id`, `cheque_no`, `issue_date`, `issue_person`, `relationship`, `insert_login_id`, `created_on`) 
-        VALUES ('" . strip_tags($data['cus_id']) . "','" . strip_tags($cus_profile_id) . "','" . strip_tags($data['loan_amount']) . "','" . strip_tags($data['net_cash']) .  "', '" . strip_tags($data['payment_mode']) . "', 
-         '" . strip_tags($data['net_cash']) .  "', '" . strip_tags($data['transaction_id']) . "','" . strip_tags($data['cheque_no']) . "', '" . strip_tags($data['issue_date']) . "', '" . strip_tags($data['issue_person']) . "', '" . strip_tags($data['relationship']) . "', 
-         '" .  $user_id . "', '"  . strip_tags($data['loan_date']) . "')";
+            // Execute the insert query
+            $pdo->query($insert_query3);
+        }
+    }
+    function cusMappingTable($pdo, $data)
+{
+    $user_id = $_SESSION['user_id'];
 
+    // Fetch current customer count in the group
+    $stmt = $pdo->query("SELECT COUNT(*) FROM group_cus_mapping WHERE grp_creation_id = '" . $data['grp_id'] . "'");
+    $current_count = $stmt->fetchColumn();
 
-        $pdo->query($insert_li_query);
+    // Fetch total members allowed in the group
+    $smt2 = $pdo->query("SELECT total_members FROM group_creation WHERE grp_id = '" . $data['grp_id'] . "'");
+    $total_members = $smt2->fetchColumn();
 
+    // Initialize a response message variable
+    $responseMessage = '';
 
-        $cus_sts_update_query2 = "UPDATE `customer_status` 
-        SET `status` = 7, `update_login_id` = :user_id, `updated_on` = NOW() 
-        WHERE `cus_profile_id` = :cus_profile_id";
-        $stmt = $pdo->prepare($cus_sts_update_query2);
-        $stmt->execute([
-            ':user_id' => $user_id,
-            ':cus_profile_id' => $cus_profile_id
-        ]);
+    // Add the new customer to the group mapping
+    if ($current_count < $total_members) {
+        $insert_query5 = "INSERT INTO group_cus_mapping (grp_creation_id, cus_id, joining_month, insert_login_id, created_on) 
+                          VALUES ('" . strip_tags($data['grp_id']) . "', '" . strip_tags($data['cust_id']) . "', '" . strip_tags($data['joining_month']) . "', '$user_id', NOW())";
+
+        $pdo->query($insert_query5);
+
+        if ($pdo->lastInsertId()) {
+            // Check if the count now equals the total members allowed
+            $stmt = $pdo->query("SELECT COUNT(*) FROM group_cus_mapping WHERE grp_creation_id = '" . $data['grp_id'] . "'");
+            $current_count = $stmt->fetchColumn();
+
+            if ($current_count == $total_members) {
+                // Update the status in the group_creation table to indicate the group is full
+                $pdo->query("UPDATE group_creation SET status = '2',update_login_id = '$user_id', updated_on = NOW() WHERE grp_id = '" . $data['grp_id'] . "'");
+                $responseMessage = "Customer successfully added. The group is now full.";
+            } else {
+                $responseMessage = "Customer successfully added.";
+            }
+        } else {
+            $responseMessage = "Error inserting new customer to group.";
+        }
+    } else {
+        $responseMessage = "Customer Mapping Limit is Exceeded"; // Show error if the count exceeds the limit
     }
 
+    // Return response message
+    return $responseMessage;
+}
+
+    
     function handleError($data)
     {
         $errcolumns = array();
 
-        if ($data['cus_id'] == 'Invalid') {
-            $errcolumns[] = 'Customer ID';
+
+        if ($data['first_name'] == '') {
+            $errcolumns[] = 'First Name';
+        }
+        if ($data['last_name'] == '') {
+            $errcolumns[] = 'Last Name';
+        }
+        if ($data['address'] == '') {
+            $errcolumns[] = 'Address';
         }
 
-        if ($data['cus_data'] == 'Not Found') {
-            $errcolumns[] = 'Customer Data';
+        if ($data['aadhar_number'] == 'Invalid') {
+            $errcolumns[] = 'Customer Aadhar Number';
         }
-        if ($data['cus_name'] == '') {
-            $errcolumns[] = 'Customer Name';
-        }
-        if ($data['cus_status'] == 'Existing' && (!preg_match('/^[A-Za-z]+$/', $data['cus_status']) || $data['cus_status'] == '')) {
-            $errcolumns[] = 'Customer Existence Type';
-        }
-
-        if ($data['cus_name'] == '') {
-            $errcolumns[] = 'Customer Name';
-        }
-        if ($data['dob'] == 'Invalid Date') {
-            $errcolumns[] = 'Date Of Birth';
-        }
-       
-        if ($data['mobile'] == 'Invalid') {
+        if ($data['mobile1'] == 'Invalid') {
             $errcolumns[] = 'Mobile Number';
         }
 
-        if ($data['guarantor_name'] == '') {
-            $errcolumns[] = 'Guarantor Name';
+        if ($data['fam_name'] == '') {
+            $errcolumns[] = 'Family Name';
         }
 
-        if ($data['guarantor_aadhar_no'] == 'Invalid') {
+        if ($data['fam_aadhar'] == 'Invalid') {
+            $errcolumns[] = 'Family Aadhar';
+        }
+
+        if ($data['fam_mobile'] == 'Invalid') {
+            $errcolumns[] = 'Family Mobile Number';
+        }
+
+        if ($data['guarantor_aadhar'] == 'Invalid') {
             $errcolumns[] = 'Guarantor Aadhar';
         }
 
-        if (!preg_match('/^[0-9]+$/', $data['guarantor_age'])) {
-            $errcolumns[] = 'Guarantor Age';
+        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['chit_limit'])) {
+            $errcolumns[] = 'Chit Limit';
         }
-
-        if ($data['guarantor_mobile_no'] == 'Invalid') {
-            $errcolumns[] = 'Guarantor Mobile Number';
+        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['income'])) {
+            $errcolumns[] = 'Income';
         }
-
-        if (!preg_match('/^[A-Za-z0-9]+$/', $data['guarantor_occupation'])) {
-            $errcolumns[] = 'Guarantor Occupation';
+        if (!preg_match('/^[0-9]+$/', $data['joining_month'])) {
+            $errcolumns[] = 'Customer Auction Start Month';
         }
-
-        if ($data['loan_category_id'] == 'Not Found') {
-            $errcolumns[] = 'Loan Category ID';
+        if ($data['occupation'] == '') {
+            $errcolumns[] = 'Occupation';
         }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['loan_amount'])) {
-            $errcolumns[] = 'Loan Amount';
+        if ($data['occ_detail'] == '') {
+            $errcolumns[] = 'Occupation Detail';
         }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['principal_amnt'])) {
-            $errcolumns[] = 'Principal Amount Calculation';
+        if ($data['grp_name'] == 'Not Found') {
+            $errcolumns[] = 'Group Name';
         }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['interest_amnt'])) {
-            $errcolumns[] = 'Interest Amount Calculation';
+        if ($data['reference'] == 'Not Found') {
+            $errcolumns[] = 'Reference';
         }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['total_amnt'])) {
-            $errcolumns[] = 'Total Amount Calculation';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['due_amnt'])) {
-            $errcolumns[] = 'Due Amount Calculation';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['doc_charge_calculate'])) {
-            $errcolumns[] = 'Document Charge Calculation';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['processing_fees_calculate'])) {
-            $errcolumns[] = 'Processing Fee Calculation';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['net_cash'])) {
-            $errcolumns[] = 'Net Cash Calculation';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['cus_limit'])) {
-            $errcolumns[] = 'Customer Limit';
-        }
-
-        // Condition 1
-        if ($data['area_confirm'] != 'Not Found') {
-            // Subcondition 1.1
-            if ($data['area_confirm'] == '1') {
-                if (
-                    $data['residential_type'] == ''
-                    || $data['resident_detail'] == ''
-                    || $data['res_address'] == ''
-                    || $data['native_address'] == ''
-                ) {
-                    $errcolumns[] = 'Residential Type or Details or Address';
-                }
-            }
-        } else {
-            $errcolumns[] = 'Area Confirm Type';
-        }
-
-        if ($data['occupation'] == 'Not Found') {
-            $errcolumns[] = 'Occupation Type';
-        }
-
-        // Condition 6
-        if ($data['loan_date'] == 'Invalid Date') {
-            $errcolumns[] = 'Loan Date';
-        }
-
-        // Condition 7
-        if ($data['profit_type'] != 'Not Found') {
-            // Subcondition 7.1
-            if ($data['profit_type'] == '0') {
-                if (
-                    $data['due_method'] == 'Not Found'
-                    || $data['due_type'] == 'Not Found'
-                    || $data['profit_method'] == 'Not Found'
-                ) {
-                    $errcolumns[] = 'Due Method Calc or Due Type or Profit Method';
-                }
-            }
-
-            // Subcondition 7.2
-            if ($data['profit_type'] == '1') {
-                if ($data['due_method_scheme'] == '' || $data['scheme_id'] == '') {
-                    $errcolumns[] = 'Due Method Scheme or Scheme Name';
-                }
-            }
-        } else {
-            $errcolumns[] = 'Profit Type';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['interest_rate'])) {
-            $errcolumns[] = 'Interest Rate';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['due_period'])) {
-            $errcolumns[] = 'Due Period';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['doc_charge'])) {
-            $errcolumns[] = 'Document Charge';
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['processing_fees'])) {
-            $errcolumns[] = 'Processing Fee';
-        }
-
-
-        if ($data['dueStart_date'] == 'Invalid Date') {
-            $errcolumns[] = 'Due Start From';
-        }
-
-        if ($data['maturity_date'] == 'Invalid Date') {
-            $errcolumns[] = 'Maturity Date';
-        }
-
-        if ($data['issue_date'] == 'Invalid Date') {
-            $errcolumns[] = 'Issued Date';
-        }
-
-        if ($data['agent_id'] == 'Not Found') {
-            $errcolumns[] = 'Agent ID';
-        }
-
-        if ($data['issue_person'] == 'Not Found') {
-            $errcolumns[] = 'Issue Person';
-        }
-
-        if ($data['payment_mode'] == 'Not Found') {
-            $errcolumns[] = 'Payment Mode';
-        }
-        if ($data['area_id'] == 'Not Found') {
-            $errcolumns[] = 'Area ID';
+        if ($data['fam_relationship'] == 'Not Found') {
+            $errcolumns[] = 'Relationship';
         }
         return $errcolumns;
     }

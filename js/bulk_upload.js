@@ -86,6 +86,17 @@ function uploadCCExcelToDB() {
             } else if (response.includes('File is not in Excel Format')) {
                 swalError('Alert', 'The uploaded file is not in the correct format.');
             }
+            else {
+                // Handle the response message from cusMappingTable
+                if (response) {
+                    Swal.fire({
+                        title: 'Notification',
+                        text: response,
+                        icon: response.includes('Error') || response.includes('Exceeded') ? 'error' : 'success',
+                        confirmButtonColor: 'var(--primary-color)',
+                    });
+                }
+            }
         },
         complete: function () {
             $('#bk_submit').removeAttr('disabled');
@@ -98,7 +109,7 @@ function uploadAuctionExcelToDB() {
     formData.append('excelFile', excelFile);
 
     $.ajax({
-        url: 'api/bulk_upload_files/customerBulkUpload.php',
+        url: 'api/bulk_upload_files/auctionBulkUpload.php',
         data: formData,
         type: 'POST',
         cache: false,

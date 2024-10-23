@@ -1,11 +1,11 @@
 <?php
 require '../../ajaxconfig.php';
-include 'customerUploadClass.php';
+include 'auctionUploadClass.php';
 require_once('../../vendor/csvreader/php-excel-reader/excel_reader2.php');
 require_once('../../vendor/csvreader/SpreadsheetReader_XLSX.php');
 
 
-$obj = new customerUploadClass();
+$obj = new auctionUploadClass();
 
 $allowedFileType = ['application/vnd.ms-excel', 'text/xls', 'text/xlsx', 'text/csv', 'text/xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
@@ -20,37 +20,27 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
         $Reader->ChangeSheet($i);
         $rowChange = 0;
         foreach ($Reader as $Row) {
-            if ($rowChange != 0) { // omitted 0,1 to avoid headers
+            if ($rowChange != 0) { // omitted 0
 
                 $data = $obj->fetchAllRowData($Row);
-                $data['cus_id'] = isset($data['cus_id']) ? $data['cus_id'] : '';
-                if (isset($data['cus_id'])) {
-                    $data['cus_id'] = $obj->getcusId($pdo, $data['cus_id']);
-                }
                 $grp_id = $obj->groupName($pdo, $data['grp_name']);
                 $data['grp_id'] = $grp_id;
-
+                $cust_id = $obj->getcustomerId($pdo,  $data['aadhar_number']);
+                $data['cust_id'] = $cust_id;
+                $data['bank_id'] = $obj->getBankId($pdo, $data['bank_name']);
+                $gur_id = $obj->guarantorName($pdo,$data['guarantor_aadhar']);
+                $data['gur_id'] = $gur_id;
                 $err_columns = $obj->handleError($data);
                 if (empty($err_columns)) {
                     // Call FamilyTable function
-                    $obj->FamilyTable($pdo, $data);
+                    $obj->AuctionTable($pdo, $data);
                 
-                    // Retrieve guarantor ID using the guarantorName function
-                    $gur_id = $obj->guarantorName($pdo,$data['guarantor_aadhar']);
-                    $data['gur_id'] = $gur_id;
+                   
+                    $auction_id = $obj->getAuctionId($pdo,$data['date'],$data['grp_id']);
+                    $data['auction_id'] = $auction_id;
                 
-                    // Call PlaceTable function and retrieve place ID
-                    $obj->PlaceTable($pdo, $data);
-                    $pl_id = $obj->placeName($pdo, $data['place']);
-                    $data['pl_id'] = $pl_id;
-                
-                    // Call remaining functions in sequence
-                    $obj->guarantorTable($pdo, $data);
-                    $obj->customerEntryTables($pdo, $data);
-                    $cust_id = $obj->getcustomerId($pdo,$data['aadhar_number']);
-                    $data['cust_id'] = $cust_id;
-                    $obj->sourceTable($pdo, $data);
-                    $obj->cusMappingTable($pdo, $data);
+                    $obj-> auctionviewTable($pdo, $data);
+                    $obj-> settlementTable($pdo, $data);
                 }
                  else {
                     $errtxt = "Please Check the input given in Serial No: " . ($rowChange) . " on below. <br><br>";

@@ -16,7 +16,7 @@
 												<option value="">Select Uplaod Category</option>
 												<option value="1">Group Creation</option>
 												<option value="2">Customer Creation</option>
-												<option value="3">Auction And Settlement</option>
+												<option value="3">Auction and Settlement</option>
 											</select>
 										</div>
 									</div>

@@ -42,7 +42,7 @@ class groupUploadClass
 
         return $dataArray;
     }
-   
+
     function arrayItemChecker($arrayList, $arrayItem)
     {
         if (array_key_exists($arrayItem, $arrayList)) {
@@ -52,7 +52,7 @@ class groupUploadClass
         }
         return $arrayItem;
     }
-   
+
     function getGroupCode($pdo, $id)
     {
         if (!isset($id) || $id == '') {
@@ -81,28 +81,35 @@ class groupUploadClass
         return $loan_ID_final;
     }
 
-    
+
 
     function getBranchId($pdo, $branch)
-{
-    $stmt = $pdo->query("SELECT b.id
+    {
+        $stmt = $pdo->query("SELECT b.id
     FROM `group_creation` gc 
     JOIN branch_creation b ON FIND_IN_SET(b.id, gc.branch)
     WHERE LOWER(REPLACE(TRIM(b.branch_name), ' ', '')) = LOWER(REPLACE(TRIM('$branch'), ' ', ''))");
-    
-    if ($stmt->rowCount() > 0) {
-        $branch_id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
-    } else {
-        $branch_id = 'Not Found'; // Return 'Not Found' if branch does not exist
+
+        if ($stmt->rowCount() > 0) {
+            $branch_id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
+        } else {
+            $branch_id = 'Not Found'; // Return 'Not Found' if branch does not exist
+        }
+        return $branch_id;
     }
-    return $branch_id;
-}
 
     function GroupTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
+        // Check if the place already exists (case-insensitive and ignoring spaces)
+        $check_querys = "SELECT grp_name FROM group_creation 
+  WHERE LOWER(REPLACE(TRIM(grp_name), ' ', '')) = LOWER(REPLACE(TRIM('" . $data['grp_name'] . "'), ' ', ''))";
+        // Execute the query
+        $result1 = $pdo->query($check_querys);
 
-        $insert_query = "INSERT INTO `group_creation` (
+        // If the place does not exist, insert it
+        if ($result1->rowCount() == 0) {
+            $insert_query = "INSERT INTO `group_creation` (
             `grp_id`, `grp_name`, `chit_value`, `date`, `commission`, `hours`, `minutes`, `ampm`, `total_members`, 
             `total_months`, `start_month`, `end_month`, `branch`, `grace_period`, `status`, `insert_login_id`, `created_on`
         ) VALUES (
@@ -124,10 +131,9 @@ class groupUploadClass
             '" . $user_id . "', 
             NOW()
         );";
-        
-        $pdo->query($insert_query);
-        
-        
+
+            $pdo->query($insert_query);
+        }
     }
 
     function handleError($data)
@@ -137,31 +143,31 @@ class groupUploadClass
         if ($data['grp_name'] == '') {
             $errcolumns[] = 'Group Name';
         }
-      
-        if (!preg_match('/^[0-9]+$/', $data['chit_value'])) { 
-            $errcolumns[] = 'Chit Value'; 
+
+        if (!preg_match('/^[0-9]+$/', $data['chit_value'])) {
+            $errcolumns[] = 'Chit Value';
         }
-        
-        if (!preg_match('/^[0-9]+$/', $data['date'])) { 
-            $errcolumns[] = 'Date'; 
+
+        if (!preg_match('/^[0-9]+$/', $data['date'])) {
+            $errcolumns[] = 'Date';
         }
-        if (!preg_match('/^[0-9]+$/', $data['hours'])) { 
-            $errcolumns[] = 'Hours'; 
+        if (!preg_match('/^[0-9]+$/', $data['hours'])) {
+            $errcolumns[] = 'Hours';
         }
-        if (!preg_match('/^[0-9]+$/', $data['minutes'])) { 
-            $errcolumns[] = 'Minutes'; 
+        if (!preg_match('/^[0-9]+$/', $data['minutes'])) {
+            $errcolumns[] = 'Minutes';
         }
-        if (!preg_match('/^[0-9]+$/', $data['commision'])) { 
-            $errcolumns[] = 'Commision'; 
+        if (!preg_match('/^[0-9]+$/', $data['commision'])) {
+            $errcolumns[] = 'Commision';
         }
         if ($data['ampm'] == '') {
             $errcolumns[] = ' AM/PM';
         }
-        if (!preg_match('/^[0-9]+$/', $data['total_members'])) { 
-            $errcolumns[] = 'Total Members'; 
+        if (!preg_match('/^[0-9]+$/', $data['total_members'])) {
+            $errcolumns[] = 'Total Members';
         }
-        if (!preg_match('/^[0-9]+$/', $data['total_months'])) { 
-            $errcolumns[] = 'Total Month'; 
+        if (!preg_match('/^[0-9]+$/', $data['total_months'])) {
+            $errcolumns[] = 'Total Month';
         }
         if ($data['branch_id'] == 'Not Found') {
             $errcolumns[] = 'Branch ID';
@@ -172,9 +178,9 @@ class groupUploadClass
         if (!preg_match('/^\d{4}-\d{2}$/', $data['end_month'])) {
             $errcolumns[] = 'End Month';
         }
-        
-        if (!preg_match('/^[0-9]+$/', $data['grace_period'])) { 
-            $errcolumns[] = 'Grace Period'; 
+
+        if (!preg_match('/^[0-9]+$/', $data['grace_period'])) {
+            $errcolumns[] = 'Grace Period';
         }
         return $errcolumns;
     }
