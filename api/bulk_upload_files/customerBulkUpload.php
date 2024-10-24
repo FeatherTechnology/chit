@@ -33,11 +33,7 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
                 $err_columns = $obj->handleError($data);
                 if (empty($err_columns)) {
                     // Call FamilyTable function
-                    $obj->FamilyTable($pdo, $data);
-                
-                    // Retrieve guarantor ID using the guarantorName function
-                    $gur_id = $obj->guarantorName($pdo,$data['guarantor_aadhar']);
-                    $data['gur_id'] = $gur_id;
+                  
                 
                     // Call PlaceTable function and retrieve place ID
                     $obj->PlaceTable($pdo, $data);
@@ -45,10 +41,16 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
                     $data['pl_id'] = $pl_id;
                 
                     // Call remaining functions in sequence
-                    $obj->guarantorTable($pdo, $data);
+                    
                     $obj->customerEntryTables($pdo, $data);
                     $cust_id = $obj->getcustomerId($pdo,$data['aadhar_number']);
                     $data['cust_id'] = $cust_id;
+                    $obj->FamilyTable($pdo, $data);
+                
+                    // Retrieve guarantor ID using the guarantorName function
+                    $gur_id = $obj->guarantorName($pdo,$data['guarantor_aadhar']);
+                    $data['gur_id'] = $gur_id;
+                    $obj->guarantorTable($pdo, $data);
                     $obj->sourceTable($pdo, $data);
                     $obj->cusMappingTable($pdo, $data);
                 }

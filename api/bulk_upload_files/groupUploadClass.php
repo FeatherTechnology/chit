@@ -86,9 +86,9 @@ class groupUploadClass
     function getBranchId($pdo, $branch)
     {
         $stmt = $pdo->query("SELECT b.id
-    FROM `group_creation` gc 
-    JOIN branch_creation b ON FIND_IN_SET(b.id, gc.branch)
-    WHERE LOWER(REPLACE(TRIM(b.branch_name), ' ', '')) = LOWER(REPLACE(TRIM('$branch'), ' ', ''))");
+FROM `branch_creation` b
+LEFT JOIN `group_creation` gc ON FIND_IN_SET(b.id, gc.branch)
+WHERE LOWER(REPLACE(TRIM(b.branch_name), ' ', ''))  = LOWER(REPLACE(TRIM('$branch'), ' ', ''))");
 
         if ($stmt->rowCount() > 0) {
             $branch_id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];

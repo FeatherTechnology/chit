@@ -162,9 +162,15 @@ class customerUploadClass
     function FamilyTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-        $check_query = "SELECT id FROM family_info WHERE fam_aadhar = '" . $data['fam_aadhar'] . "'";
-        $result = $pdo->query($check_query);
-        if ($result->rowCount() == 0) {
+        // Check if the place already exists (case-insensitive and ignoring spaces)
+        $check_queryss = "SELECT cus_id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "'";
+
+        // Execute the query
+        $result1 = $pdo->query($check_queryss);
+
+
+        // If the place does not exist, insert it
+        if ($result1->rowCount() > 0) {
             $insert_query1 = "INSERT INTO family_info (cus_id, fam_name, fam_relationship,fam_aadhar, fam_mobile, insert_login_id, created_on) 
                 VALUES (
                     '" . $data['cus_id'] . "',
@@ -179,6 +185,7 @@ class customerUploadClass
 
             $pdo->query($insert_query1);
         }
+        
     }
     function PlaceTable($pdo, $data)
     {
@@ -202,15 +209,20 @@ class customerUploadClass
     function guarantorTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-        $check_query1 = "SELECT family_id FROM guarantor_info WHERE family_id = '" . $data['gur_id'] . "'";
-        $result2 = $pdo->query($check_query1);
+      // Check if the place already exists (case-insensitive and ignoring spaces)
+      $check_queryss = "SELECT cus_id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "'";
 
-        if ($result2->rowCount() == 0) {
+      // Execute the query
+      $result1 = $pdo->query($check_queryss);
+
+
+      // If the place does not exist, insert it
+      if ($result1->rowCount() > 0) {
             $insert_query4 = "INSERT INTO `guarantor_info` (`cus_id`, `relationship_type`, `guarantor_name`, `family_id`, `guarantor_relationship`, `insert_login_id`, `created_on`) 
             VALUES ('" . strip_tags($data['cus_id']) . "', 3, '" . $data['fam_name'] . "', '" . $data['gur_id'] . "', '" . $data['fam_relationship'] . "', '$user_id', now())";
 
             $pdo->exec($insert_query4);
-        }
+      }
     }
 
     function customerEntryTables($pdo, $data)
