@@ -157,9 +157,9 @@ class groupUploadClass
         if (!preg_match('/^[0-9]+$/', $data['minutes'])) {
             $errcolumns[] = 'Minutes';
         }
-        if (!preg_match('/^[0-9]+$/', $data['commision'])) {
+        if (!preg_match('/^[0-9]+(\.[0-9]+)?$/', $data['commision'])) {
             $errcolumns[] = 'Commision';
-        }
+        } 
         if ($data['ampm'] == '') {
             $errcolumns[] = ' AM/PM';
         }

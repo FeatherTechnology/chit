@@ -50,7 +50,7 @@ class auctionUploadClass
         $dataArray['aadhar_number'] = strlen($dataArray['aadhar_number']) == 12 ? $dataArray['aadhar_number'] : 'Invalid';
         $dataArray['date'] = $this->dateFormatChecker($dataArray['date']);
         $dataArray['settle_date'] = $this->dateFormatChecker($dataArray['settle_date']);
-        $guarantor_relationshipArray = ['Father' => 'Father', 'Mother' => 'Mother', 'Spouse' => 'Spouse', 'Sister' => 'Sister', 'Brother' => 'Brother', 'Son' => 'Son', 'Daughter' => 'Daughter'];
+        $guarantor_relationshipArray = ['Father' => 'Father', 'Mother' => 'Mother', 'Spouse' => 'Spouse', 'Sister' => 'Sister', 'Brother' => 'Brother', 'Son' => 'Son', 'Daughter' => 'Daughter','Other' =>'Other','Customer'=>'Customer'];
         $dataArray['relationship'] = $this->arrayItemChecker($guarantor_relationshipArray, $dataArray['relationship']);
         $refer_typeArray = ['Split' => '1', 'Single' => '2'];
         $dataArray['payment_type'] = $this->arrayItemChecker($refer_typeArray, $dataArray['payment_type']);
