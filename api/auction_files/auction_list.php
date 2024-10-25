@@ -40,7 +40,7 @@ $query = "SELECT * FROM (
     JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch)
     WHERE 
-        gc.status BETWEEN 2 AND 3
+        gc.status BETWEEN 2 AND 4
 ";
 
 // Add additional conditions based on the type
