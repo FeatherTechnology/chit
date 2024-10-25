@@ -36,11 +36,18 @@ if (isset($data['data']) && is_array($data['data'])) {
         }
     }
 
-    // Find the maximum value and its corresponding cus_name
+    // Find the highest value, with priority for cus_name = -1 if it exists
     $group_id = $tableData[0]['group_id']; // Assuming all entries have the same group_id
     $date = $formattedDate; // Assuming all entries have the same date
 
-    $maxQuery = "SELECT cus_name, value FROM auction_modal WHERE group_id = ? AND date = ? ORDER BY value DESC LIMIT 1";
+    // Query to find the row with cus_name = -1 or the maximum value otherwise
+    $maxQuery = "
+        SELECT cus_name, value 
+        FROM auction_modal 
+        WHERE group_id = ? AND date = ? 
+        ORDER BY (cus_name = -1) DESC, value DESC 
+        LIMIT 1";
+    
     $stmt = $pdo->prepare($maxQuery);
     $stmt->execute([$group_id, $date]);
     $maxResult = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -61,12 +68,14 @@ if (isset($data['data']) && is_array($data['data'])) {
         }
 
         // Update status to 3 in group_creation table if status is 3 
+        if ($status == 3) {
             $updateGroupQuery = "UPDATE group_creation SET status = 3, `update_login_id` = '$user_id', `updated_on` = NOW() WHERE grp_id = ?";
             $stmt = $pdo->prepare($updateGroupQuery);
             if (!$stmt->execute([$group_id])) {
                 echo json_encode(['success' => false, 'message' => 'Failed to update group_creation table.']);
                 exit;
             }
+        }
      
     } else {
         echo json_encode(['success' => false, 'message' => 'No auction details found.']);
