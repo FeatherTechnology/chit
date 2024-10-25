@@ -56,7 +56,7 @@ if ($qry) {
 
         if ($paidCustomersCount == $totalCustomersCount * $totalMonths) {
             // Update group status to 4
-            $updateQry = $pdo->query("UPDATE group_creation SET status = 4 WHERE grp_id = '$group_id'");
+            $updateQry = $pdo->query("UPDATE group_creation SET status = 5 WHERE grp_id = '$group_id'");
             $result = $updateQry ? 1 : 0;
         } else {
             $result = 1; // Collection inserted but group status not updated
