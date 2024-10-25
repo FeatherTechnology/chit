@@ -364,7 +364,9 @@ function settlementTable($pdo, $data)
         if ($data['settle_type'] == 'Not Found') {
             $errcolumns[] = 'Settlement Type';
         }
-        
+        if ($data['grp_id'] == 'Not Found') {
+            $errcolumns[] = 'Group ID';
+        }
         if ($data['relationship'] == 'Not Found') {
             $errcolumns[] = 'Relationship';
         }

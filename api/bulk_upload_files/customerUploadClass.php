@@ -367,7 +367,9 @@ class customerUploadClass
         if ($data['guarantor_aadhar'] == 'Invalid') {
             $errcolumns[] = 'Guarantor Aadhar';
         }
-
+        if ($data['grp_id'] == 'Not Found') {
+            $errcolumns[] = 'Group ID';
+        }
         if (!preg_match('/^\d+(\.\d{1,2})?$/', $data['chit_limit'])) {
             $errcolumns[] = 'Chit Limit';
         }
