@@ -18,7 +18,7 @@ $column = array(
 );
 $type = $_POST['params']['type'] ?? ''; // Get the type from POST data
 
-// Adjusted query using ROW_NUMBER() to get the last record for each group
+// Adjusted query to get the last record for each group with row numbering
 $query = "SELECT * FROM (
     SELECT 
         gc.id,
@@ -38,23 +38,22 @@ $query = "SELECT * FROM (
     JOIN 
         branch_creation bc ON gc.branch = bc.id
     JOIN 
-        users us ON FIND_IN_SET(gc.branch, us.branch)
+        users us ON FIND_IN_SET(gc.branch, us.branch) > 0
     WHERE 
-        gc.status BETWEEN 2 AND 4
+        gc.status BETWEEN 2 AND 4 
+        AND us.id = '$user_id'
 ";
 
-// Add additional conditions based on the type
+// Additional conditions based on the type
 if ($type == 'month') {
-    // Condition for Month
     $query .= " AND MONTH(ad.date) = MONTH(CURDATE()) 
                 AND YEAR(ad.date) = YEAR(CURDATE()) ";
 } else if ($type == 'today') {
-    // Condition for Today
     $query .= " AND ad.date = CURDATE() ";
 } else {
     $query .= " AND (
-        MONTH(ad.date) = MONTH(CURDATE()) AND
-        YEAR(ad.date) = YEAR(CURDATE()) 
+        MONTH(ad.date) = MONTH(CURDATE()) 
+        AND YEAR(ad.date) = YEAR(CURDATE()) 
         OR (ad.date <= DATE_ADD(CURDATE(), INTERVAL 2 DAY))
     )";
 }
@@ -62,7 +61,7 @@ if ($type == 'month') {
 // Close the subquery and filter for row_num
 $query .= ") AS subquery WHERE row_num = 1";
 
-// Add search functionality
+// Search functionality
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
     $query .= " AND (grp_id LIKE '%" . $search . "%'
@@ -95,6 +94,7 @@ $statement = $pdo->prepare($query);
 $statement->execute();
 $number_filter_row = $statement->rowCount();
 
+// Fetch paginated results
 $statement = $pdo->prepare($query . $query1);
 $statement->execute();
 $result = $statement->fetchAll();
