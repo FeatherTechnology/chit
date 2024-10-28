@@ -18,6 +18,7 @@ $query = "SELECT
     ad.auction_month,
     ad.date AS due_date,
     gcm.id AS cus_mapping_id,
+   gcm.settle_status,
     cc.cus_id,
     gc.grace_period
 FROM
@@ -30,8 +31,7 @@ LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
      gc.status = 4
-    AND cc.id = '$id'  AND YEAR(ad.date) = '" . date('Y') . "'
-    AND MONTH(ad.date) = '" . date('m') . "'";
+    AND cc.id = '$id' GROUP BY gcm.id";
 
 $result = [];
 $statement = $pdo->prepare($query); // Use query instead of prepare + execute
@@ -84,6 +84,7 @@ if ($statement->rowCount() > 0) {
         $sub_array['grp_name'] = $row['grp_name'];
         $sub_array['chit_value'] = moneyFormatIndia($row['chit_value']);
         $sub_array['grp_status'] = $group_status[$row['grp_status']];
+        $sub_array['settle_status'] = $row['settle_status'];
         $sub_array['charts'] = "<div class='dropdown'>
                                     <button class='btn btn-outline-secondary'><i class='fa'>&#xf107;</i></button>
                                     <div class='dropdown-content'>

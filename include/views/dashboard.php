@@ -136,5 +136,58 @@
             </div>
         </div>
         <!----------------------------- CARD END Settlement ------------------------------>
+        <!----------------------------- CARD START Collection Summary ------------------------------>
+        <div class="card collection-summary-card" style="display: none;">
+            <div class="card-header" id="coll_summary_title">
+                <div class="card-title dashboard-count-header">Collection Summary</div>
+            </div>
+            <div class="card-body" id="coll_summ_body" style="display: none;">
+                <div class="row card-row">
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <p class="count-head">Current Month Paid</p>
+                                    <p class="cnt-value-p" id="month_paid">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <p class="count-head">Current Month Unpaid</p>
+                                    <p class="cnt-value-p" id="month_unpaid">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <p class="count-head">Previous Pending Amount</p>
+                                    <p class="cnt-value-p" id="prev_pen_amount">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <p class="count-head">Total Outstanding</p>
+                                    <p class="cnt-value-p" id="total_outstanding">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!----------------------------- CARD END Collection Summary ------------------------------>
     </div>
 </div>

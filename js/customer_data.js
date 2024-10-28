@@ -895,8 +895,8 @@ $(document).ready(function () {
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="img/auction1.jpg" width="25" height="25" style="margin-right: 10px;">
-                                    Chit Company
+                                   <img src="img/bg_none_eng_logo.png" style="width:200px; height: 100px;">
+                                    
                                 </h2>
                                 <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
                                     ${rows}
@@ -1494,6 +1494,7 @@ function viewCustomerGroups(id) {
             "collection_status",
             "grace_period",
             "status",
+            "settle_status",
             "charts",
 
         ];
@@ -1514,6 +1515,7 @@ function viewCustomerClosedGroups(id) {
             "grp_status",
             "collection_status",
             "status",
+            "settle_status",
             "charts",
 
         ];
@@ -1560,6 +1562,7 @@ function getCommitmentChartTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
         ];
         appendDataToTable('#commitment_chart_table', response, columnMapping);

@@ -29,9 +29,21 @@ if ($trans_category == '7' && $cat_type=='2' ) {
     if ($coll_mode == 1) {
         $qry1 = $pdo->query("INSERT INTO settlement_info (auction_id, settle_date,group_id,cus_name,auction_month, settle_amount, settle_balance, payment_type, settle_type, bank_id, settle_cash, cheque_no, cheque_val, cheque_remark, transaction_id, transaction_val, transaction_remark, balance_amount, guarantor_name, guarantor_relationship, insert_login_id, created_on) 
         VALUES ('$auction_id', '$settle_date_formatted', '$group_id','$group_mem','$auction_month','$other_amnt', '$other_amnt', '1', '$coll_mode', '$bank_id', '$other_amnt', NULL, NULL, NULL, NULL, NULL, NULL, '$other_amnt', '0', 'Customer', '$user_id', NOW())");
+          $qry2 = $pdo->query("UPDATE `group_cus_mapping` 
+          SET `settle_status` = 'Yes' 
+          WHERE `grp_creation_id` = '$group_id' 
+          AND `cus_id` = '$group_mem' 
+          AND `settle_status` IS NULL 
+          LIMIT 1");
     } else {
         $qry1 = $pdo->query("INSERT INTO settlement_info (auction_id, settle_date,group_id,cus_name,auction_month, settle_amount, settle_balance, payment_type, settle_type, bank_id, settle_cash, cheque_no, cheque_val, cheque_remark, transaction_id, transaction_val, transaction_remark, balance_amount, guarantor_name, guarantor_relationship, insert_login_id, created_on) 
         VALUES ('$auction_id', '$settle_date_formatted','$group_id','$group_mem','$auction_month', '$other_amnt', '$other_amnt', '1', '$coll_mode', '$bank_id', NULL, NULL, NULL, NULL, '$other_trans_id', '$other_amnt', NULL, '$other_amnt', '0', 'Customer', '$user_id', NOW())");
+         $qry2 = $pdo->query("UPDATE `group_cus_mapping` 
+         SET `settle_status` = 'Yes' 
+         WHERE `grp_creation_id` = '$group_id' 
+         AND `cus_id` = '$group_mem' 
+         AND `settle_status` IS NULL 
+         LIMIT 1");
     }
 }
 // Check if both queries were successful

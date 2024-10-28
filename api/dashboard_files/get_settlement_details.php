@@ -12,8 +12,8 @@ $tot_paid = "SELECT COALESCE(SUM(si.settle_cash) + SUM(si.cheque_val) + SUM(si.t
 $today_paid = "SELECT COALESCE(SUM(si.settle_cash) + SUM(si.cheque_val) + SUM(si.transaction_val),0) AS today_settle FROM `settlement_info` si JOIN auction_details ad ON si.auction_id = ad.id JOIN group_creation gc ON ad.group_id = gc.grp_id WHERE DATE(si.created_on) = CURDATE()  ";
 
 if ($branchId != '' && $branchId != '0') {
-    $tot_paid .= " AND gc.branch = $branchId ";
-    $today_paid .= " AND gc.branch = $branchId ";
+    $tot_paid .= " AND gc.branch = $branchId  AND  si.insert_login_id = '$user_id'";
+    $today_paid .= " AND gc.branch = $branchId  AND  si.insert_login_id = '$user_id'";
 } else {
     $tot_paid .= " AND si.insert_login_id = '$user_id'";
     $today_paid .= " AND si.insert_login_id = '$user_id'";
