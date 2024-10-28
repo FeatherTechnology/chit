@@ -315,11 +315,12 @@ $(document).ready(function () {
                                 <td>${moneyFormatIndia(row.pending)}</td>
                             </tr>
                         `).join('');
+                        
 
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="img/bg_none_eng_logo.png"  style="width:200px; height: 100px;">
+                                    <img src="img/bg_none_eng_logo.png"  style="width:150px; height: 100px;">
                                    
                                 </h2>
                                 <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
@@ -349,9 +350,11 @@ $(document).ready(function () {
                         printWindow.document.close();
 
                         // Trigger the print dialog
-                        printWindow.focus();
-                        printWindow.print();
-                        printWindow.close();
+                        setTimeout(() => {
+                            printWindow.focus();
+                            printWindow.print(); 
+                            printWindow.close();  
+                        }, 1000);
                     },
                 });
             });

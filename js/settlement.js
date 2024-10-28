@@ -1206,6 +1206,9 @@ function printDenomination() {
     printWindow.document.write('</body></html>');
 
     // Close the document and trigger the print
+    setTimeout(() => {
+       
+    
     printWindow.document.close();
     printWindow.print();
 
@@ -1213,5 +1216,6 @@ function printDenomination() {
     printWindow.onafterprint = function () {
         printWindow.close();
     };
+}, 1000);
 }
 
