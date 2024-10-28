@@ -13,7 +13,7 @@
 :root {
   --white: #fff;
   --smoke-white: #f1f3f5;
-  --primary-color: #7E9BC7;
+  --primary-color: #e2776f;
 }
 /************************************************
 	************************************************
@@ -23,6 +23,20 @@
 html {
   height: 100%;
   font-size: 100%;
+}
+
+.logo_div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.img{
+  height: 100px;
+
+}
+
+.login_text{
+  padding-top: 15px;
 }
 
 body {
@@ -39,7 +53,8 @@ body.authentication {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-color);
+  background-image: url(../img/bg_with_colour.png);
+  
 }
 
 body.countdown {
@@ -136,7 +151,7 @@ h1 {
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 1.6rem;
   margin-bottom: .5rem;
 }
 
@@ -1485,7 +1500,7 @@ ul.header-tasks:last-child {
 }
 
 .login-screen .login-logo {
-  margin: 1rem 0 2rem 0;
+  /* margin: 1rem 0 2rem 0; */
   display: flex;
   justify-content: center;
   font-size: 2rem;
