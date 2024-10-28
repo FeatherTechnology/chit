@@ -168,7 +168,7 @@ class auctionUploadClass
 function AuctionTable($pdo, $data)
 {
     // Fetch chit_value, total_members, and commission from group_creation table
-    $smt2 = $pdo->query("SELECT chit_value, total_members, commission FROM group_creation WHERE grp_id = '" . strip_tags($data['grp_id']) . "'");
+    $smt2 = $pdo->query("SELECT chit_value, total_members, commission, end_month FROM group_creation WHERE grp_id = '" . strip_tags($data['grp_id']) . "'");
     $groupData = $smt2->fetch(PDO::FETCH_ASSOC);
 
     // Check if the query returned valid data
@@ -177,42 +177,54 @@ function AuctionTable($pdo, $data)
         $chit_value = $groupData['chit_value'];
         $total_members = $groupData['total_members'];
         $commission = $groupData['commission'];
-        
-            $auction_value = floatval(strip_tags($data['auction_value']));
-            $chit_amount = ($chit_value + ($chit_value * ($commission / 100)) - $auction_value) / $total_members;
+        $end_month = $groupData['end_month'];
 
-            // Get the user ID from the session
-            $user_id = $_SESSION['user_id'];
+        $auction_value = floatval(strip_tags($data['auction_value']));
+        $chit_amount = ($chit_value + ($chit_value * ($commission / 100)) - $auction_value) / $total_members;
 
-            // Prepare and execute the insert query
-            $insert_query1 = "INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value, status, cus_name, auction_value, chit_amount, insert_login_id, created_on) 
-                              VALUES (
-                                  '" . strip_tags($data['grp_id']) . "',
-                                  '" . strip_tags($data['date']) . "',
-                                  '" . strip_tags($data['auction_month']) . "',
-                                  '" . strip_tags($data['low_value']) . "',
-                                  '" . strip_tags($data['high_value']) . "',
-                                  2,
-                                  '" . strip_tags($data['cust_id']) . "',
-                                  '" . $auction_value . "',
-                                  '" . $chit_amount . "',
-                                  '" . $user_id . "',
-                                  NOW()
-                              )";
+        // Get the user ID from the session
+        $user_id = $_SESSION['user_id'];
 
-            // Execute the insert query
-            $pdo->query($insert_query1);
+        // Prepare and execute the insert query
+        $insert_query1 = "INSERT INTO auction_details (group_id, date, auction_month, low_value, high_value, status, cus_name, auction_value, chit_amount, insert_login_id, created_on) 
+                          VALUES (
+                              '" . strip_tags($data['grp_id']) . "',
+                              '" . strip_tags($data['date']) . "',
+                              '" . strip_tags($data['auction_month']) . "',
+                              '" . strip_tags($data['low_value']) . "',
+                              '" . strip_tags($data['high_value']) . "',
+                              2,
+                              '" . strip_tags($data['cust_id']) . "',
+                              '" . $auction_value . "',
+                              '" . $chit_amount . "',
+                              '" . $user_id . "',
+                              NOW()
+                          )";
 
-            // Check if the insert was successful by verifying the last insert ID
-            if ($pdo->lastInsertId()) {
-                // Update the status in the group_creation table to indicate the group is full
-                $pdo->query("UPDATE group_creation SET status = '3', update_login_id = '$user_id', updated_on = NOW() WHERE grp_id = '" . strip_tags($data['grp_id']) . "'");
-            } 
+        // Execute the insert query
+        $pdo->query($insert_query1);
+
+        // Check if the insert was successful by verifying the last insert ID
+        if ($pdo->lastInsertId()) {
+            // Update the status in the group_creation table to indicate the group is full
+            $pdo->query("UPDATE group_creation SET status = '3', update_login_id = '$user_id', updated_on = NOW() WHERE grp_id = '" . strip_tags($data['grp_id']) . "'");
+
+            // Extract year and month from the date provided in $data
+            $auction_date = DateTime::createFromFormat('Y-m-d', strip_tags($data['date']));
+            $auction_year_month = $auction_date->format('Y-m'); // Get yyyy-mm
+
+            // Compare auction_date (yyyy-mm) with end_month
+            if ($auction_year_month == $end_month) {
+                // Update the status in the group_creation table to indicate the group is completed
+                $pdo->query("UPDATE group_creation SET status = '4', update_login_id = '$user_id', updated_on = NOW() WHERE grp_id = '" . strip_tags($data['grp_id']) . "'");
+            }
+        }
     } else {
         // Handle case where group data is not found
         echo "Error: Group not found or invalid group ID.";
     }
 }
+
 
 function auctionviewTable($pdo, $data) {
     $user_id = $_SESSION['user_id']; // Retrieve the user ID from session
