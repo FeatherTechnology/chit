@@ -118,6 +118,17 @@ function moneyFormatIndia($num1)
                                 </div>
                             </div>
                         </div>
+                        <div class="row justify-content-end">
+                            <div class="col-auto" id="cash_denom">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="add_grup" name="add_grup"
+                                        data-toggle="modal" data-target="#denomination"
+                                        style="padding: 3px 20px; font-size: 14px;" tabindex='30'>
+                                        <span class="icon-add"></span>&nbsp;Denomination
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -280,7 +291,7 @@ function moneyFormatIndia($num1)
 
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_other_transaction_modal" id="other_trans_add" style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='31'>Add Other Transaction</button>
                 <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_balance_modal" id="balance_add" style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='30'>Balance Sheet</button> -->
-                <button type="button" name="blnc_sheet_btn" id="blnc_sheet_btn" class="btn btn-primary" data-toggle='modal' data-target='.blncModal'  style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='30' >Balance Sheet</button>
+                <button type="button" name="blnc_sheet_btn" id="blnc_sheet_btn" class="btn btn-primary" data-toggle='modal' data-target='.blncModal' style="padding: 5px 30px; float: right; margin-right: 10px;" tabindex='30'>Balance Sheet</button>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -495,7 +506,7 @@ function moneyFormatIndia($num1)
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="grp_id_cont"style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="grp_id_cont" style="display:none;">
                                 <div class="form-group">
                                     <label for="group_id">Group ID</label><span class="text-danger">*</span>
                                     <select class="form-control" name="group_id" id="group_id" tabindex="8">
@@ -516,7 +527,7 @@ function moneyFormatIndia($num1)
                                     <button type="button" class="btn btn-primary modalBtnCss" id="name_modal_btn" tabindex="7">+</button>
                                 </div>
                             </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="mem_id_cont"style="display:none;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12" id="mem_id_cont" style="display:none;">
                                 <div class="form-group">
                                     <label for="group_mem">Group Member</label><span class="text-danger">*</span>
                                     <select class="form-control" name="group_mem" id="group_mem" tabindex="8">
@@ -672,7 +683,7 @@ function moneyFormatIndia($num1)
 <!-- --------------------------------------------------------- Other Transaction Name Modal END ------------------------------------------------------------ -->
 <!-- /////////////////////////////////////////////////////////////////// Balance Sheet Modal START ////////////////////////////////////////////////////////////////////// -->
 <div class="modal fade blncModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-    
+
     <div class="modal-dialog modal-lg">
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
@@ -681,54 +692,54 @@ function moneyFormatIndia($num1)
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-			
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-md-12">
-						<div class="row">
-							<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
-								<div class="form-group">
-									<label for='IDE_type'>Balance Sheet type</label>
-									<select class="form-control" id='IDE_type' name='IDE_type' >
-										<option value=''>Select Sheet type</option>
-										<option value='1'>Deposit</option>
-										<option value='3'>EL</option>
-										<option value='4'>Exchange</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12" >
-								<div class="form-group">
-									<label for='IDE_view_type'>View</label>
-									<select class="form-control" id='IDE_view_type' name='IDE_view_type' >
-										<option value=''>Select Sheet type</option>
-										<option value='1'>Overall</option>
-										<option value='2'>Individual</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 IDE_nameDiv" style="display:none">
-								<div class="form-group">
-									<label for='IDE_name_list'>Name</label>
-									<select class="form-control" id='IDE_name_list' name='IDE_name_list' >
-										<option value=''>Select Name</option>
-									</select>
-								</div>
-							</div>
-							<!-- <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 IDE_nameDiv" style="display:none">
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                <div class="form-group">
+                                    <label for='IDE_type'>Balance Sheet type</label>
+                                    <select class="form-control" id='IDE_type' name='IDE_type'>
+                                        <option value=''>Select Sheet type</option>
+                                        <option value='1'>Deposit</option>
+                                        <option value='3'>EL</option>
+                                        <option value='4'>Exchange</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12">
+                                <div class="form-group">
+                                    <label for='IDE_view_type'>View</label>
+                                    <select class="form-control" id='IDE_view_type' name='IDE_view_type'>
+                                        <option value=''>Select Sheet type</option>
+                                        <option value='1'>Overall</option>
+                                        <option value='2'>Individual</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 IDE_nameDiv" style="display:none">
+                                <div class="form-group">
+                                    <label for='IDE_name_list'>Name</label>
+                                    <select class="form-control" id='IDE_name_list' name='IDE_name_list'>
+                                        <option value=''>Select Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 IDE_nameDiv" style="display:none">
 								<div class="form-group">
 									<label for='IDE_name_area'>Area</label>
 									<input type='text' class="form-control" id='IDE_name_area' name='IDE_name_area' readonly placeholder='Please Select Name'>
 								</div>
 							</div> -->
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-body">
-				<div id="blncSheetDiv">
-				</div>
-			</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="blncSheetDiv">
+                </div>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id='' data-dismiss="modal" onclick="resetBlncSheet()">Close</button>
             </div>
@@ -736,3 +747,88 @@ function moneyFormatIndia($num1)
     </div>
 </div>
 <!-- /////////////////////////////////////////////////////////////////// Balance Sheet Modal END ////////////////////////////////////////////////////////////////////// -->
+<div class="modal fade" id="denomination" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cash Denomination</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="resetDenominationTable()" tabindex="1">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="denominationContent">
+                    <form id="family_form">
+                        <div class="toggle-container dwnmrgn col-12">
+                            <input type="button" class="toggle-button" value='Previous Day'>
+                            <input type="button" class="toggle-button" value='Today'>
+                        </div> <br>
+                        <div class="container-fluid">
+                            <table class="table table-bordered" id="denominationTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="denominationTableBody">
+                                    <tr>
+                                        <td>500</td>
+                                        <td><input type="number" class="form-control " value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>200</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>100</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>50</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>20</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2"><b>Total</b></td>
+                                        <td><input type="text" class="form-control" id="totalAmount" value="0" readonly></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <div class="row justify-content-end">
+                                <div class="col-auto">
+                                    <button name="submit_denom_info" id="submit_denom_info" class="btn btn-primary" tabindex="19"><span class="icon-check"></span>&nbsp;Submit</button>
+                                </div>
+                            </div>
+
+                        </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="resetDenominationTable()" tabindex="1">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
