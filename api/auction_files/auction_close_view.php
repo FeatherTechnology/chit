@@ -8,25 +8,35 @@ $date = $_POST['date']; // Get date from POST request
 $response = array();
 
 try {
-    // Prepare the SQL statement
+    // Format the date into 'Y-m-d'
     $date = date('Y-m-d', strtotime($date));
-    $qry = "SELECT 
-                cc.first_name, 
-                cc.last_name, 
-                al.value
-            FROM 
-                auction_modal al 
-            JOIN 
-                customer_creation cc 
-            ON 
-                FIND_IN_SET(cc.id, al.cus_name) > 0 
-            WHERE 
-                al.group_id = :group_id
-                AND al.date = :date";
+
+    // Prepare the SQL statement with FIND_IN_SET and handling cus_name = -1 (Company)
+  
+    $qry = "
+        SELECT 
+            cc.first_name, 
+            cc.last_name, 
+            al.value,
+            CASE 
+                WHEN al.cus_name = '-1' THEN 'Company' 
+                ELSE CONCAT(cc.first_name, ' ', cc.last_name) 
+            END AS customer_name
+        FROM 
+            auction_modal al
+        LEFT JOIN 
+            customer_creation cc 
+        ON 
+            FIND_IN_SET(cc.id, al.cus_name) > 0
+        WHERE 
+            al.group_id = :group_id
+            AND al.date = :date
+        ORDER BY 
+            al.id ,al.value ASC;";
     
     $stmt = $pdo->prepare($qry);
     
-    // Execute the SQL statement
+    // Bind and execute the SQL statement
     $stmt->execute([
         ':group_id' => $group_id,
         ':date' => $date
@@ -35,6 +45,7 @@ try {
     // Fetch all results
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Check if results are found
     if ($result) {
         $response['status'] = 'success';
         $response['data'] = $result;
@@ -47,6 +58,6 @@ try {
     $response['message'] = 'Database error: ' . $e->getMessage();
 }
 
-$pdo = null; // Close Connection
+$pdo = null; // Close the database connection
 echo json_encode($response);
 ?>

@@ -110,15 +110,17 @@
                                 <div class="col-12">
                                     <table id="group_list_table" class=" table custom-table">
                                         <thead>
-                                            <th width="50">S.No.</th>
-                                            <th>Group ID</th>
-                                            <th>Group Name</th>
-                                            <th>Chit Value</th>
-                                            <th>Chit Amount</th>
-                                            <th>Status</th>
-                                            <th>Grace Period</th>
-                                            <th>Charts</th>
-                                            <th>Action</th>
+                                            <tr>
+                                                <th width="50">S.No.</th>
+                                                <th>Group ID</th>
+                                                <th>Group Name</th>
+                                                <th>Chit Value</th>
+                                                <th>Chit Amount</th>
+                                                <th>Settlement</th>
+                                                <th>Status</th>
+                                                <th>Grace Period</th>
+                                                <th>Charts</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -277,9 +279,21 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                         <div class="form-group">
+                            <label for="comm_date "> Date </label> 
+                            <input type="text" class="form-control" id="comm_date" name="comm_date" tabindex='1' readonly>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                        <div class="form-group">
                             <label for="label "> Label </label> <span class="required">&nbsp;*</span>
                             <input type="hidden" class="form-control" id="comm_label" name="comm_label">
                             <input type="text" class="form-control" id="label" name="label" tabindex='1'>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                        <div class="form-group">
+                            <label for="commitment_date"> Commitment Date</label><span class="required">&nbsp;*</span>
+                            <input type="date" class="form-control" id="commitment_date" name="commitment_date" placeholder="Enter Commitment Date" tabindex="1">
                         </div>
                     </div>
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
@@ -298,7 +312,9 @@
                         <thead>
                             <tr>
                                 <th width="15%"> S.No </th>
+                                <th>Date</th>
                                 <th> Label </th>
+                                <th>Commitment Date</th>
                                 <th> Remark </th>
                                 <th> Action</th>
                             </tr>
@@ -369,6 +385,7 @@
                             <th width="20">S.No</th>
                             <th>Date</th>
                             <th>Label</th>
+                            <th>Commitment Date</th>
                             <th>Remark</th>
                         </thead>
                         <tbody>

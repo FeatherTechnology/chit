@@ -3,7 +3,7 @@ require '../../ajaxconfig.php';
 
 $doc_need_arr = array();
 $cusProfileId = $_POST['cus_id'];
-$qry = $pdo->query("SELECT id,occupation,occ_detail,source,income FROM source where cus_id = '$cusProfileId' ");
+$qry = $pdo->query("SELECT id,occupation,occ_detail,occ_place,source,income FROM source where cus_id = '$cusProfileId' ");
 if ($qry->rowCount() > 0) {
     while ($DocNeed_info = $qry->fetch(PDO::FETCH_ASSOC)) {
         $DocNeed_info['income'] = moneyFormatIndia($DocNeed_info['income']);

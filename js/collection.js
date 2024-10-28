@@ -28,7 +28,7 @@ $(document).ready(function () {
         $('#transaction_container').hide();
         $('#bank_container').hide();
         if (coll_mode == '2') {
-          
+
             getBankName()
             $('#bank_container').show();
             $('#transaction_container').show();
@@ -37,12 +37,12 @@ $(document).ready(function () {
     /////////////////////////////////////////////////////Pay Start//////////////////////////////////////////////////////////
     $(document).on('click', '.add_pay', function (event) {
         event.preventDefault();
-    
+
         // Hide and show the appropriate sections
         $('.colls-cntnr, #back_to_coll_list').hide();
         $('.coll_details, #back_to_pay_list').show();
         collectDate();
-        
+
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
@@ -50,7 +50,7 @@ $(document).ready(function () {
         let auctionId = dataParts[2];
         let cusMappingID = dataParts[3]; // Extract cus_mapping_id from data attribute
         let cusId = dataParts[4];
-        
+
         $.ajax({
             url: 'api/collection_files/fetch_pay_details.php',
             type: 'POST',
@@ -66,7 +66,7 @@ $(document).ready(function () {
                         // Round off chit_amount and payable_amnt
                         let roundedChitAmount = Math.round(response.chit_amount || 0);
                         let roundedPayableAmnt = Math.round(response.payable_amnt || 0);
-    
+
                         // Populate the form fields with the fetched and rounded data
                         $('#group_name').val(response.group_name);
                         $('#auction_month').val(response.auction_month);
@@ -91,8 +91,6 @@ $(document).ready(function () {
                         console.error('Required data fields are missing in the response.');
                         swalError('Warning', 'Failed to retrieve the required payment details.');
                     }
-                } else {
-                    swalError('Warning', 'Failed to save the collection details');
                 }
             },
             error: function (xhr, status, error) {
@@ -103,45 +101,48 @@ $(document).ready(function () {
 
         $('#submit_collection').unbind('click').click(function (event) {
             event.preventDefault();
-        
+
             let collectionDate = $('#collection_date').val();
-            let collectionAmount = parseFloat($('#collection_amount').val()); // Parse as float for numerical comparison
+            let collectionAmount = $('#collection_amount').val(); // Parse as float for numerical comparison
             let coll_mode = $('#coll_mode').val();
             let transaction_id = $('#transaction_id').val();
             let bank_name = $('#bank_name').val();
+            let pendingAmount = Math.round(parseFloat($('#pending_amt').val().replace(/,/g, '')));
             let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Round off payable amount
             let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Round off chit amount
-        
-            let isValid = true; // Assume form is valid unless proven otherwise
-        
+
+            let isValid = true; 
             // Validate the collection amount field
-            if (!validateField(collectionAmount, 'collection_amount')) {
+            if (!collectionAmount || parseFloat(collectionAmount) <= 0) {
                 isValid = false;
+                swalError('Warning', 'Collection amount cannot be empty or zero.');
+                $('#collection_amount').css('border-color', 'red');
+            } else {
+                $('#collection_amount').css('border-color', ''); // Reset border if valid
+                collectionAmount = parseFloat(collectionAmount); // Now safely parse it as a float
             }
-        
-            // Check if collection amount is zero
-            if (collectionAmount === 0) {
-                isValid = false;
-                swalError('Warning', 'Collection amount cannot be zero.');
-            }
-        
             // Validate the collection mode field
             if (!validateField(coll_mode, 'coll_mode')) {
                 isValid = false;
             }
-        
+
             if (coll_mode === '2') {
-                if (!validateField(transaction_id, 'transaction_id') && !validateField(bank_name, 'bank_name')) {
+                // Check if transaction_id is empty
+                if (!validateField(transaction_id, 'transaction_id')) {
+                    isValid = false;
+                }
+                
+                // Check if bank_name is empty (assuming bank_name is required for coll_mode '2')
+                if (!validateField(bank_name, 'bank_name')) {
                     isValid = false;
                 }
             }
-        
             // Check if collection amount is less than or equal to payable amount
             if (collectionAmount > payableAmount) {
                 isValid = false;
                 swalError('Warning', 'Collection amount cannot be greater than payable amount.');
             }
-        
+
             if (isValid) {
                 // Send the data to the server using AJAX
                 $.ajax({
@@ -155,7 +156,7 @@ $(document).ready(function () {
                         auction_month: $('#auction_month').val(),
                         chit_value: $('#chit_value').val(),
                         chit_amount: chitAmount, // Use rounded chit amount
-                        pending_amt: $('#pending_amt').val(),
+                        pending_amt: pendingAmount,
                         payable_amnt: payableAmount, // Use rounded payable amount
                         collection_amount: collectionAmount,
                         collection_date: collectionDate,
@@ -178,7 +179,7 @@ $(document).ready(function () {
                 });
             }
         });
-    });        
+    });
 
 
     ////////////////////////////////////////////////Pay End/////////////////////////////////////////////////
@@ -188,14 +189,16 @@ $(document).ready(function () {
 
         // Show the modal
         $('#add_commitment_modal').modal('show');
-
+        $('#label').css('border', '1px solid #cecece');
+        $('#commitment_date').css('border', '1px solid #cecece');
+        $('#remark').css('border', '1px solid #cecece');
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
         let dataParts = dataValue.split('_');
         let groupId = dataParts[0];
         let cusMappingID = dataParts[1];
         getCommitmentInfoTable(cusMappingID, groupId);
-
+        commitDate();
         // Unbind any existing click event to prevent multiple submissions
         $('#add_commit').off('click').on('click', function (event) {
             event.preventDefault();
@@ -203,6 +206,7 @@ $(document).ready(function () {
             // Validation
             let label = $('#label').val();
             let remark = $('#remark').val();
+            let commitment_date = $('#commitment_date').val();
 
             var isValid = true;
 
@@ -213,6 +217,9 @@ $(document).ready(function () {
             if (!validateField(remark, 'remark')) {
                 isValid = false;
             }
+            if (!validateField(commitment_date, 'commitment_date')) {
+                isValid = false;
+            }
 
             // If all fields are valid, proceed with the AJAX call
             if (isValid) {
@@ -220,12 +227,14 @@ $(document).ready(function () {
                     group_id: groupId,
                     cus_mapping_id: cusMappingID, // Pass cus_mapping_id
                     label: label,
-                    remark: remark
+                    remark: remark,
+                    commitment_date:commitment_date
                 }, function (response) {
                     if (response == '1') {
                         swalSuccess('Success', 'Commitment Added Successfully!');
                         $('#label').val('');
                         $('#remark').val('');
+                        $('#commitment_date').val('');
                         getCommitmentInfoTable(cusMappingID, groupId);
                     } else {
                         swalError('Warning', 'Commitment Not Added!');
@@ -310,8 +319,8 @@ $(document).ready(function () {
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="img/auction1.jpg" width="25" height="25" style="margin-right: 10px;">
-                                    Chit Company
+                                    <img src="img/bg_none_eng_logo.png"  style="width:200px; height: 100px;">
+                                   
                                 </h2>
                                 <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
                                     ${rows}
@@ -372,6 +381,7 @@ function closeChartsModal() {
     $('#add_commitment_modal').modal('hide');
     $('#label').val('');
     $('#remark').val('');
+    $('#commitment_date').val('');
 }
 $(function () {
     getCollectionTable();
@@ -404,33 +414,10 @@ function editCustomerCreation(id) {
     });
 }
 function viewCustomerGroups(id) {
-    $.post('api/collection_files/collection_group_data.php', { id: id }, function (response) {
-        // Iterate through the response to round off chit_amount
-        response.forEach(function (item) {
-            item.chit_amount = Math.round(item.chit_amount);
-
-            // Format the rounded chit_amount
-            item.chit_amount = moneyFormatIndia(item.chit_amount)// Round off chit_amount
-        });
-
-        let cashList = [
-            "sno",
-            "grp_id",
-            "grp_name",
-            "chit_value",
-            "chit_amount",  // Rounded chit_amount will be used here
-            "status",
-            "grace_period",
-            "charts",
-            "action"
-        ];
-
-        appendDataToTable('#group_list_table', response, cashList);
-        setdtable('#group_list_table');
-        setDropdownScripts();
-    }, 'json');
+    let params = { 'id': id };
+    serverSideTable('#group_list_table', params, 'api/collection_files/collection_group_data.php');
+    // setDropdownScripts();
 }
-
 function collectDate() {
     var today = new Date();
     var day = String(today.getDate()).padStart(2, '0');
@@ -440,11 +427,22 @@ function collectDate() {
     var currentDate = day + '-' + month + '-' + year;
     $('#collection_date').val(currentDate);
 }
+function commitDate() {
+    var today = new Date();
+    var day = String(today.getDate()).padStart(2, '0');
+    var month = String(today.getMonth() + 1).padStart(2, '0'); // January is 0
+    var year = today.getFullYear();
+
+    var currentDate = day + '-' + month + '-' + year;
+    $('#comm_date').val(currentDate);
+}
 function getCommitmentInfoTable(cusMappingID, groupId) {
     $.post('api/collection_files/commitment_info_data.php', { cus_mapping_id: cusMappingID, group_id: groupId }, function (response) {
         var columnMapping = [
             'sno',
+            'created_on',
             'label',
+            'commitment_date',
             'remark',
             'action'
 
@@ -469,6 +467,7 @@ function getCommitmentChartTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
         ];
         appendDataToTable('#commitment_chart_table', response, columnMapping);
@@ -503,7 +502,7 @@ function getDueChart(groupId, cusMappingID, auction_month) {
                 var collectionAmount = item.collection_amount ? moneyFormatIndia(item.collection_amount) : '';
                 //  var pending = item.pending;
                 var pending = item.pending !== null && item.pending !== undefined ? moneyFormatIndia(item.pending) : '';
-
+                //  var initialPayableAmount = item.initial_payable_amount ? moneyFormatIndia(item.initial_payable_amount) : '';
                 var action = item.action ? item.action : '';
 
                 var row = '<tr>' +

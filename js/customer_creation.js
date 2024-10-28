@@ -2,9 +2,12 @@ $(document).ready(function () {
     $(document).on('click', '#add_customer, #back_btn', function () {
         $('#cus_id').val('');
         swapTableAndCreation();
-        getSourceTable()
+        setTimeout(() => {
+            getSourceTable()
         getGuarantorInfoTable()
         getFamilyInfoTable()
+        getPlaceDropdown(place_name_id);
+        }, 1000);
         $('#imgshow').attr('src', 'img/avatar.png');
         $('.toRefresh').hide();
         $('.knowData').val('');
@@ -43,8 +46,8 @@ $(document).ready(function () {
         }
     });
 
-    $('#gua_name').on('change', function () {
-        const famRelationship = $(this).find('option:selected').val(); // Get the text of the selected option
+    $('#gua_family').on('change', function () {
+        // const famRelationship = $(this).find('option:selected').val(); // Get the text of the selected option
         const guarantorId = $(this).val();
 
         if (guarantorId) {
@@ -52,7 +55,7 @@ $(document).ready(function () {
         } else {
             $('#guarantor1_name').val('');
         }
-        updateFieldsVisibility(famRelationship); // Pass the fam_relationship to the function
+       // updateFieldsVisibility(famRelationship); // Pass the fam_relationship to the function
     });
 
     $('#cus_name').on('change', function () {
@@ -91,6 +94,16 @@ $(document).ready(function () {
             $(this).val('');
             swalError('Warning', 'Kindly Enter Valid Aadhaar Number');
         }
+    });
+    $('#dob').on('change', function () {
+        var dob = new Date($(this).val());
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        $('#age').val(age);
     });
     ////////////////////////////////////////////////////////// Place Modal START ///////////////////////////////////////////////////////////////////////
     $('#submit_place').click(function (event) {
@@ -144,9 +157,10 @@ $(document).ready(function () {
         let cus_id = $('#cus_id').val()
         let occupation = $('#occupation').val();
         let occ_detail = $('#occ_detail').val();
+        let occ_place = $('#occ_place').val();
         let source = $('#source').val();
         let income = $('#income').val();
-        var data = ['occupation', 'occ_detail', 'source', 'income']
+        var data = ['occupation', 'occ_detail','occ_place', 'source', 'income']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -157,12 +171,13 @@ $(document).ready(function () {
         });
 
         if (isValid) {
-            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail, source, income }, function (response) {
+            $.post('api/customer_creation_files/submit_source_info.php', { cus_id, occupation, occ_detail,occ_place, source, income }, function (response) {
                 getSourceTable();
                 totalIncome()
             });
             $('#occupation').val('');
             $('#occ_detail').val('');
+            $('#occ_place').val('');
             $('#source').val('');
             $('#income').val('');
         }
@@ -198,7 +213,7 @@ $(document).ready(function () {
         let fam_mobile = $('#fam_mobile').val();
         let family_id = $('#family_id').val();
 
-        var data = ['fam_name', 'fam_relationship', 'fam_live', 'fam_aadhar', 'fam_mobile']
+        var data = ['fam_name', 'fam_relationship','fam_mobile']
 
         var isValid = true;
         data.forEach(function (entry) {
@@ -239,6 +254,17 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Family Details?', getFamilyDelete, id);
         return;
     });
+    $('#clear_fam_form').click(function (event) {
+        event.preventDefault()
+        $('#family_id').val('');
+        $('#family_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
+        $('#family_form textarea').val('');
+        $('#family_form input').val('');
+       
+    })
     //////////////////////////////////////////////////////////////////////Family Modal end //////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////Guarantor Modal Start/////////////////////////////////////////////////////////
     $('#submit_guarantor').click(function (event) {
@@ -246,7 +272,8 @@ $(document).ready(function () {
 
         let cus_id = $('#cus_id').val();
         let gua_name = $('#gua_name').val();
-        let gua_name_val = $('#gua_name :selected').text();
+        let gua_family = $('#gua_family').val();
+        let gua_name_val = $('#gua_family :selected').text();
         let fam_name = $("#guarantor1_name").val();
         let other_name = $("#other_name").val();
         let existing_cus = $('#existing_cus').val();
@@ -262,18 +289,18 @@ $(document).ready(function () {
         let guarantor_relationship = '';
         let guarantor_name = '';
 
-        if (gua_name === '-1') {
+        if (gua_name === '2') {
             relationship_type = 1;
             existing_cus_id = existing_cus;
             guarantor_relationship = 'Existing Customer'; // Set fixed text
             guarantor_name = existing_cus_name;
-        } else if (gua_name === '-2') {
+        } else if (gua_name === '3') {
             relationship_type = 2;
             guarantor_relationship = 'Other';
             guarantor_name = other_name;
         } else {
             relationship_type = 3;
-            family_id = gua_name;
+            family_id = gua_family;
             guarantor_relationship = fam_name;
             guarantor_name = gua_name_val;
         }
@@ -290,6 +317,7 @@ $(document).ready(function () {
         guaDetail.append('gur_pic', gur_pic);
         guaDetail.append('guarantor_id', guarantor_id);
         guaDetail.append('gua_name', gua_name);
+        guaDetail.append('gua_family', gua_family);
         guaDetail.append('guarantor1_name', guarantor1_name);
         guaDetail.append('existing_cus', existing_cus);
         guaDetail.append('other_name', other_name);
@@ -341,10 +369,10 @@ $(document).ready(function () {
                 let guarantor_name = data.guarantor_name;
 
                 // Hide all containers initially
-                $('#name1_container, #existing_cus_container, #details_container, #name2_container').hide();
+                $('#fam_name_container,#name1_container, #existing_cus_container, #details_container, #name2_container').hide();
 
                 if (relationship_type === '1') {
-                    $('#gua_name').val('-1');
+                    $('#gua_name').val('2');
                     getExistingCustomer(); // Fetch and populate existing customers
                     setTimeout(() => {
                         $('#customer_name_edit').val(existing_cus_id);
@@ -352,14 +380,20 @@ $(document).ready(function () {
                     }, 1000);
                     $('#existing_cus_container').show();
                 } else if (relationship_type === '2') {
-                    $('#gua_name').val('-2');
+                    $('#gua_name').val('3');
                     $('#other_name').val(guarantor_name);
                     $('#name2_container').show();
                     $('#details_container').show();
                 } else {
-                    $('#gua_name').val(family_id);
+                    $('#gua_name').val('1');
+                    setTimeout(()=>{
+                        $('#gua_name_edit').val(family_id);
+                        $('#gua_family').val(family_id).trigger('change');
+                    },1000);
                     $('#guarantor1_name').val(guarantor_relationship);
                     $('#name1_container').show();
+                    $('#fam_name_container').show();
+                    getGuarantorFamily()
                 }
                 let paths = "uploads/customer_creation/gu_pic/";
                 if (data.gu_pic) {
@@ -380,6 +414,18 @@ $(document).ready(function () {
         swalConfirm('Delete', 'Do you want to Delete the Guarantor Details?', getGuaDelete, id);
         return;
     });
+
+    $('#clear_gua_form').click(function (event) {
+        event.preventDefault()
+        $('#guarantor_id').val('');
+        $('#guarantor_form select').each(function () {
+            $(this).val($(this).find('option:first').val());
+    
+        });
+        $('#guarantor_form textarea').val('');
+        $('#guarantor_form input').val('');
+       
+    })
     ///////////////////////////////////////////////////////////////////////Guarantor Modal End////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////Customer creation Start/////////////////////////////////////////////////////////
 
@@ -400,6 +446,8 @@ $(document).ready(function () {
         let aadhar_number = $('#aadhar_number').val().replace(/\s/g, '');
         let first_name = $("#first_name").val();
         let last_name = $('#last_name').val();
+        let dob = $('#dob').val();
+        let age = $('#age').val();
         let place = $('#place').val();
         let mobile1 = $('#mobile1').val();
         let mobile2 = $('#mobile2').val();
@@ -424,6 +472,8 @@ $(document).ready(function () {
         cusDetail.append('aadhar_number', aadhar_number);
         cusDetail.append('first_name', first_name);
         cusDetail.append('last_name', last_name);
+        cusDetail.append('dob', dob);
+        cusDetail.append('age', age);
         cusDetail.append('place', place);
         cusDetail.append('mobile1', mobile1);
         cusDetail.append('mobile2', mobile2);
@@ -630,7 +680,7 @@ function getFamilyTable() {
         $('#family_form select').css('border', '1px solid #cecece');
         $('#fam_relationship').val('');
         $('#fam_live').val('');
-        getGuarantorRelationship()
+        getGuarantorFamily()
     }, 'json')
 }
 
@@ -651,11 +701,12 @@ function getFamilyDelete(id) {
     }, 'json');
 }
 
-function getGuarantorRelationship() {
+
+function getGuarantorFamily() {
     let cus_id = $('#cus_id').val();
     $.post('api/customer_creation_files/get_guarantor_relationship.php', { cus_id }, function (response) {
         let appendGuarantorOption = '';
-        appendGuarantorOption += "<option value=''>Select Guarantor Name</option>";
+        appendGuarantorOption += "<option value=''>Select Familiy Member</option>";
         $.each(response, function (index, val) {
             let selected = '';
             let editGId = $('#gua_name_edit').val();
@@ -664,12 +715,9 @@ function getGuarantorRelationship() {
             }
             appendGuarantorOption += "<option value='" + val.id + "' " + selected + ">" + val.fam_name + "</option>";
         });
-        appendGuarantorOption += "<option value='-1'>Existing Customer</option>";
-        appendGuarantorOption += "<option value='-2'>Other</option>";
-        $('#gua_name').empty().append(appendGuarantorOption);
+        $('#gua_family').empty().append(appendGuarantorOption);
     }, 'json');
 }
-
 function getExistingRefCustomer() {
     $.post('api/customer_creation_files/get_existing_customer.php', function (response) {
         let appendCusOption = '';
@@ -715,16 +763,16 @@ function isFormDataValid(formData) {
             return false;
         }
     }
-    else if (formData.get('gua_name') == '-1') { // Existing Customer
+    else if (formData.get('gua_name') == '2') { // Existing Customer
         if (!validateField(formData.get('existing_cus'), 'existing_cus')) {
             return false;
         }
-    } else if (formData.get('gua_name') == '-2') { // Others
+    } else if (formData.get('gua_name') == '3') { // Others
         if (!validateField(formData.get('other_name'), 'other_name') || !validateField(formData.get('details'), 'details')) {
             return false;
         }
     } else { // Default case
-        if (!validateField(formData.get('guarantor1_name'), 'guarantor1_name')) {
+        if (!validateField(formData.get('gua_family'), 'gua_family') ||!validateField(formData.get('guarantor1_name'), 'guarantor1_name')) {
             return false;
         }
     }
@@ -744,6 +792,7 @@ function getSourceTable() {
             "sno",
             "occupation",
             "occ_detail",
+            "occ_place",
             "source",
             "income",
             "action"
@@ -786,24 +835,29 @@ function getCustomerName(cusId) {
         }
     });
 }
-function updateFieldsVisibility(famRelationship) {
+$('#gua_name').on('change', function () {
+    let gua_name= $(this).val();
+    updateFieldsVisibility(gua_name);
+    console.log(gua_name);
+});
+function updateFieldsVisibility(gua_name) {
     // Hide all containers initially
-    $('#name1_container, #existing_cus_container, #details_container, #name2_container').hide();
-
-    // Check if the default option is selected
-    if (famRelationship === '' || famRelationship === 'Select Relationship') {
-        // All containers hidden (this is redundant as they are hidden initially)
-        $('#name1_container, #existing_cus_container, #details_container, #name2_container').hide();
-    } else if (famRelationship === '-1') {
+    let containers = ['#fam_name_container', '#name1_container', '#existing_cus_container', '#details_container', '#name2_container'];
+    $(containers.join(',')).hide();  // This hides all containers
+    // Show containers based on the selected value of gua_name
+    if (gua_name === '2') {
         $('#existing_cus_container').show();
-        getExistingCustomer();
-    } else if (famRelationship === '-2') {
+        getExistingCustomer();  // Call the function for existing customer
+    } else if (gua_name === '3') {
         $('#name2_container').show();
         $('#details_container').show();
-    } else {
+    } else if (gua_name === '1') {
         $('#name1_container').show();
+        $('#fam_name_container').show();
+        getGuarantorFamily(); 
     }
 }
+
 function getGuarantorTable() {
     let cus_id = $('#cus_id').val()
     $.post('api/customer_creation_files/get_guarantor_list.php', { cus_id }, function (response) {
@@ -819,10 +873,12 @@ function getGuarantorTable() {
         $('#guarantor_form input').css('border', '1px solid #cecece');
         $('#guarantor_form select').css('border', '1px solid #cecece');
         $('#gua_name').val('');
+        $('#gua_family').val('');
         $('#existing_customer').val('');
         $('#guarantor1_name').val('');
         $('#details').val('');
         $('#name1_container').hide();
+        $('#fam_name_container').hide();
         $('#existing_cus_container').hide();
         $('#details_container').hide()
         $('#name2_container').hide()
@@ -885,6 +941,8 @@ function editCustomerCreation(id) {
         $('#aadhar_number').val(response[0].aadhar_number);
         $('#first_name').val(response[0].first_name);
         $('#last_name').val(response[0].last_name);
+        $('#dob').val(response[0].dob);
+        $('#age').val(response[0].age);
         $('#mobile1').val(response[0].mobile1);
         $('#mobile2').val(response[0].mobile2);
         $('#whatsapp').val(response[0].whatsapp);

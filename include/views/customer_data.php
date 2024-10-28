@@ -1,42 +1,10 @@
-<style>
-    .selecto {
-  position: relative;
-  width: 35%;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.selector-item_labe {
-  position: relative;
-  height: 35px;
-  width: 100px;
-  text-align: center;
-  border-radius: 9999px;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  transition-duration: .5s;
-  transition-property: transform, box-shadow;
-  transform: none;
-  box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
-  cursor: pointer;
-}
-.selector-item_radio,
-.selector-item_labe {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.selector-item_radio:checked+.selector-item_labe {
-  background-color: var(--primary-color);
-  color: var(--white);
-  box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
-  transform: translateY(-2px);
-}
-</style>
+
 <div class="text-right">
 
     <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
+</div>
+<div class="col-12 text-right back_to_list" style="margin-bottom:10px">
+    <button class="btn btn-primary back_to_loan_list" id="back_to_list" style="display: none;"><span class="icon-arrow-left"></span> Back</button>
 </div>
 <br>
 <div class="card customer_table_content">
@@ -65,7 +33,7 @@
     </div>
 </div>
 <div id="customer_data_content" style="display:none;">
-    <div class="radio-container">
+    <div class="radio-container" id="main_radio">
         <div class="selector">
             <div class="selector-item">
                 <input type="radio" id="customer_profile" name="customer_data_type" class="selector-item_radio" value="cus_profile" checked>
@@ -73,7 +41,11 @@
             </div>
             <div class="selector-item">
                 <input type="radio" id="customer_sum" name="customer_data_type" class="selector-item_radio" value="cus_summary">
-                <label for="customer_sum" class="selector-item_label">Customer Summary</label>
+                <label for="customer_sum" class="selector-item_label">Chit Summary</label>
+            </div>
+            <div class="selector-item">
+                <input type="radio" id="customer_doc" name="customer_data_type" class="selector-item_radio" value="cus_doc">
+                <label for="customer_doc" class="selector-item_label">Documentation</label>
             </div>
         </div>
     </div>
@@ -81,12 +53,24 @@
     <div class="radio-container" id="curr_closed" style="display: none;">
         <div class="selecto">
             <div class="selector-item">
-                <input type="radio" id="customer_current" name="group_type" class="selector-item_radio" value="cus_current"  checked>
+                <input type="radio" id="customer_current" name="group_type" class="selector-item_radio" value="cus_current" checked>
                 <label for="customer_current" class="selector-item_labe">Current</label>
             </div>
             <div class="selector-item">
                 <input type="radio" id="customer_closed" name="group_type" class="selector-item_radio" value="cus_closed">
                 <label for="customer_closed" class="selector-item_labe">Closed</label>
+            </div>
+        </div>
+    </div>
+    <div class="radio-container" id="doc_curr_closed" style="display: none;">
+        <div class="selecto">
+            <div class="selector-item">
+                <input type="radio" id="document_current" name="docc_type" class="selector-item_radio" value="doc_cur" checked>
+                <label for="document_current" class="selector-item_labe">Current</label>
+            </div>
+            <div class="selector-item">
+                <input type="radio" id="document_closed" name="docc_type" class="selector-item_radio" value="doc_clo">
+                <label for="document_closed" class="selector-item_labe">Closed</label>
             </div>
         </div>
     </div>
@@ -186,30 +170,42 @@
                                             <input type="last_name" class="form-control" id="last_name" name="last_name" placeholder="Enter Last name" tabindex="10">
                                         </div>
                                     </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label for="dob"> DOB</label>
+                                            <input type="date" class="form-control" id="dob" name="dob" placeholder="Enter Date Of Birth" tabindex="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label for="age"> Age</label>
+                                            <input type="number" class="form-control" id="age" name="age" readonly placeholder="Age" tabindex="12">
+                                        </div>
+                                    </div>
                                     <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-12">
                                         <div class="form-group">
                                             <label for="place">Place</label><span class="text-danger">*</span>
                                             <input type="hidden" id="place_name_id">
-                                            <select class="form-control" id="place" name="place" tabindex="11">
+                                            <select class="form-control" id="place" name="place" tabindex="13">
                                                 <option value="">Select Place</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-1 col-md-1 col-lg-1 text-right" style="margin-top: 18px;">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="12" onclick="getPlaceTable()"><span class="icon-add"></span></button>
+                                            <button type="button" class="btn btn-primary modalBtnCss" data-toggle="modal" data-target="#add_place_modal" tabindex="14" onclick="getPlaceTable()"><span class="icon-add"></span></button>
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="mobile1">Mobile Number 1</label><span class="text-danger">*</span>
-                                            <input type="number" class="form-control" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="13">
+                                            <input type="number" class="form-control" id="mobile1" name="mobile1" placeholder="Enter Mobile Number 1" onKeyPress="if(this.value.length==10) return false;" tabindex="15">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="mobile2">Mobile Number 2</label>
-                                            <input type="number" class="form-control" id="mobile2" name="mobile2" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number 2" tabindex="14">
+                                            <input type="number" class="form-control" id="mobile2" name="mobile2" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Mobile Number 2" tabindex="16">
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
@@ -229,20 +225,20 @@
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="whatsapp">WhatsApp</label>
-                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter WhatsApp Number" tabindex="15">
+                                            <input type="number" class="form-control" id="whatsapp" name="whatsapp" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter WhatsApp Number" tabindex="17">
                                         </div>
                                     </div>
 
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="address"> Address </label><span class="text-danger">*</span>
-                                            <textarea class="form-control" name="address" id="address" placeholder="Enter Address" tabindex="16"></textarea>
+                                            <textarea class="form-control" name="address" id="address" placeholder="Enter Address" tabindex="18"></textarea>
                                         </div>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
                                             <label for="native_address"> Native Address </label>
-                                            <textarea class="form-control" name="native_address" id="native_address" placeholder="Enter Native Address" tabindex="17"></textarea>
+                                            <textarea class="form-control" name="native_address" id="native_address" placeholder="Enter Native Address" tabindex="19"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -253,7 +249,7 @@
                                         <div class="form-group">
                                             <label for="pic"> Photo</label><span class="text-danger">*</span><br>
                                             <img id='imgshow' class="img_show" src='img\avatar.png' />
-                                            <input type="file" class="form-control  personal_info_disble" id="pic" name="pic" tabindex="18">
+                                            <input type="file" class="form-control  personal_info_disble" id="pic" name="pic" tabindex="20">
                                             <input type="hidden" class="personal_info_disble" id="per_pic">
                                         </div>
                                     </div>
@@ -271,51 +267,55 @@
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="occupation">Occupation</label>
-                                    <input type="text" class="form-control" id="occupation" name="occupation" placeholder="Enter Occupation" tabindex="19">
+                                    <input type="text" class="form-control" id="occupation" name="occupation" placeholder="Enter Occupation" tabindex="21">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="occ_detail">Occupation Detail</label>
-                                    <input type="text" class="form-control" id="occ_detail" name="occ_detail" placeholder="Enter Occupation Detail" tabindex="20">
+                                    <input type="text" class="form-control" id="occ_detail" name="occ_detail" placeholder="Enter Occupation Detail" tabindex="22">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="occ_place">Occupation Place</label>
+                                    <input type="text" class="form-control" id="occ_place" name="occ_place" placeholder="Enter Occupation Place" tabindex="23">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="source">Source</label>
-                                    <input type="text" class="form-control" id="source" name="source" placeholder="Enter source" tabindex="21">
+                                    <input type="text" class="form-control" id="source" name="source" placeholder="Enter source" tabindex="24">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="income">Income</label>
-                                    <input type="number" class="form-control" id="income" name="income" placeholder="Enter Income" tabindex="22">
+                                    <input type="number" class="form-control" id="income" name="income" placeholder="Enter Income" tabindex="25">
                                 </div>
                             </div>
                             <div class="col-xl-1 col-lg-1 col-md-1 col-sm-1 col-12">
                                 <div class="form-group">
                                     <label for="add_src"> </label>
-                                    <input type="button" class="btn btn-primary modalBtnCss" id="add_src" name="add_src" value="Add" tabindex="23" style="margin: 16px;">
+                                    <input type="button" class="btn btn-primary modalBtnCss" id="add_src" name="add_src" value="Add" tabindex="26" style="margin: 16px;">
                                 </div>
-                            </div>
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="tot_income"> Total Income</label>
-                                    <input type="text" class="form-control" id="tot_income" name="tot_income" placeholder="Enter Total Income" disabled tabindex="24">
+                                    <input type="text" class="form-control" id="tot_income" name="tot_income" placeholder="Enter Total Income" disabled tabindex="27">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="chit_limit">Chit Limit</label><span class="text-danger">*</span>
-                                    <input type="text" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="25">
+                                    <input type="text" class="form-control" id="chit_limit" name="chit_limit" placeholder="Enter Chit limit" tabindex="28">
                                 </div>
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
                                     <label for="reference">Reference</label><span class="text-danger">*</span>
-                                    <select type="text" class="form-control" id="reference" name="reference" tabindex="26">
+                                    <select type="text" class="form-control" id="reference" name="reference" tabindex="29">
                                         <option value="">Select Reference</option>
                                         <option value="1">Yes</option>
                                         <option value="2">No</option>
@@ -329,6 +329,7 @@
                                     <th>S.NO</th>
                                     <th>Occupation</th>
                                     <th>Occupation Detail</th>
+                                    <th>Occupation Place</th>
                                     <th>Source</th>
                                     <th>Income</th>
                                     <th>Action</th>
@@ -343,7 +344,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Family Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_group" name="add_group" data-toggle="modal" data-target="#add_fam_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='27'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_group" name="add_group" data-toggle="modal" data-target="#add_fam_info_modal" onclick="getFamilyTable()" style="padding: 5px 35px; float: right;" tabindex='30'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -373,7 +374,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Guarantor Info <span class="text-danger">*</span>
-                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable();getGuarantorRelationship()" style="padding: 5px 35px; float: right;" tabindex='28'><span class="icon-add"></span></button>
+                            <button type="button" class="btn btn-primary" id="add_guarantor" name="add_guarantor" data-toggle="modal" data-target="#add_guarantor_info_modal" onclick="getGuarantorTable()" style="padding: 5px 35px; float: right;" tabindex='31'><span class="icon-add"></span></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -395,76 +396,199 @@
                         </div>
                     </div>
                 </div>
+                <!--- -------------------------------------- Document Info START ------------------------------- -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Document Info
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_doc_info_modal" onclick="getDocGuarantor();getDocCreationTable();getGroupName();" style="padding: 5px 35px; float: right;" tabindex='29'><span class="icon-add"></span></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <table id="document_info" class="table custom-table">
+                                        <thead>
+                                            <tr>
+                                                <th width="20">S.NO</th>
+                                                <th>Group Name</th>
+                                                <th>Group ID</th>
+                                                <th>Auction Month</th>
+                                                <th>Document Name</th>
+                                                <th>Document Type</th>
+                                                <th>Holder Name</th>
+                                                <th>Relationship</th>
+                                                <th>Remarks</th>
+                                                <th>Upload</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--- -------------------------------------- Document Info END ------------------------------- -->
             </div>
             <div class="col-md-12 ">
                 <div class="text-right">
 
-                    <button type="submit" name="submit_cus_creation" id="submit_cus_creation" class="btn btn-primary" value="Submit" tabindex="29"><span class="icon-check"></span>&nbsp;Submit</button>
-                    <button type="reset" class="btn btn-outline-secondary" tabindex="30">Clear</button>
+                    <button type="submit" name="submit_cus_creation" id="submit_cus_creation" class="btn btn-primary" value="Submit" tabindex="32"><span class="icon-check"></span>&nbsp;Submit</button>
+                    <button type="reset" class="btn btn-outline-secondary" tabindex="33">Clear</button>
                 </div>
             </div>
         </div>
     </form>
     <form id="customer_summary" name="customer_summary" style="display: none;">
-    <div class="col-12">
-        <div class="card group_current">
-            <div class="card-header">
-                <h5 class="card-title">Group List</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12">
-                        <table id="group_list_table" class=" table custom-table">
-                            <thead>
-                                <th width="50">S.No.</th>
-                                <th>Group ID</th>
-                                <th>Group Name</th>
-                                <th>Chit Value</th>
-                                <th>Group Status</th>
-                                <th>Collection Status</th>
-                                <th>Grace Period</th>
-                                <th>Customer Status</th>
-                                <th>Charts</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+    <input type="hidden" id="customer_id">
+        <div class="col-12">
+            <div class="card group_current">
+                <div class="card-header">
+                    <h5 class="card-title">Group List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="group_list_table" class=" table custom-table">
+                                <thead>
+                                    <th width="50">S.No.</th>
+                                    <th>Group ID</th>
+                                    <th>Group Name</th>
+                                    <th>Chit Value</th>
+                                    <th>Group Status</th>
+                                    <th>Collection Status</th>
+                                    <th>Grace Period</th>
+                                    <th>Customer Status</th>
+                                    <th>Settlement Status</th>
+                                    <th>Charts</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-12">
-        <div class="card group_close"style="display: none;" >
-            <div class="card-header">
-                <h5 class="card-title">Group List</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12">
-                        <table id="group_close_table" class=" table custom-table">
-                            <thead>
-                                <th width="50">S.No.</th>
-                                <th>Group ID</th>
-                                <th>Group Name</th>
-                                <th>Chit Value</th>
-                                <th>Group Status</th>
-                                <th>Collection Status</th>
-                                <th>Customer Status</th>
-                                <th>Charts</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+        <div class="col-12">
+            <div class="card group_close" style="display: none;">
+                <div class="card-header">
+                    <h5 class="card-title">Group List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="group_close_table" class=" table custom-table">
+                                <thead>
+                                    <th width="50">S.No.</th>
+                                    <th>Group ID</th>
+                                    <th>Group Name</th>
+                                    <th>Chit Value</th>
+                                    <th>Group Status</th>
+                                    <th>Collection Status</th>
+                                    <th>Customer Status</th>
+                                    <th>Settlement Status</th>
+                                    <th>Charts</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </form>
-
+    <form id="customer_document" name="customer_document" style="display: none;">
+        <div class="col-12">
+            <div class="card doc_current">
+                <div class="card-header">
+                    <h5 class="card-title">Document List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <table id="doc_cur_table" class=" table custom-table">
+                                <thead>
+                                    <th width="50">S.No.</th>
+                                    <th>Group ID</th>
+                                    <th>Group Name</th>
+                                    <th>Chit Value</th>
+                                    <th>Document Count</th>
+                                    <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row gutters" id="noc_summary" style="display:none">
+        <input type="hidden" id="cp_id">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Document List</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table custom-table" id="noc_document_list_table">
+                        <thead>
+                            <th>S No.</th>
+                            <th>Document Name</th>
+                            <th>Document Type</th>
+                            <th>Auction Month</th>
+                            <th>Document Holder</th>
+                            <th>Document</th>
+                            <th>Date of NOC</th>
+                            <th>Handover Person</th>
+                            <th>Relationship</th>
+                            <th>Checklist</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card" id="member_card" style="display:none;">
+                <div class="card-header">
+                    <h5 class="card-title"></h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
+                                <label for="date_of_noc">Date of NOC</label><span class="required">*</span>
+                                <input type="date" class="form-control" id="date_of_noc" name="date_of_noc" tabindex="1" readonly>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
+                                <label for="noc_member">Member</label><span class="required">*</span>
+                                <select name="noc_member" id="noc_member" class="form-control" tabindex="2">
+                                    <option value="">Select Member Name</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                            <div class="form-group">
+                                <label for="noc_relation">Relationship</label><span class="required">*</span>
+                                <input type="text" class="form-control" id="noc_relation" name="noc_relation" tabindex="3" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-3 text-right" id="sub_noc" style="display:none;">
+                <button name="submit_noc" id="submit_noc" class="btn btn-primary" tabindex="4"><span class="icon-check"></span>&nbsp;Submit</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!--------------------------------------------Customer Profile and Customer Summary End--------------------------------------------------------------------->
@@ -525,7 +649,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Family Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable();getGuarantorRelationship()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getFamilyInfoTable()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -567,7 +691,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_live">Live/Deceased</label><span class="text-danger">*</span>
+                                    <label for="fam_live">Live/Deceased</label>
                                     <select class="form-control" id="fam_live" name="fam_live" tabindex="17">
                                         <option value="">Select Live/Deceased</option>
                                         <option value="1">Live</option>
@@ -585,7 +709,7 @@
                             </div>
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
                                 <div class="form-group">
-                                    <label for="fam_aadhar">Aadhar No</label><span class="text-danger">*</span>
+                                    <label for="fam_aadhar">Aadhar No</label>
                                     <input type="text" class="form-control" name="fam_aadhar" id="fam_aadhar" tabindex="1" maxlength="14" data-type="adhaar-number" placeholder="Enter Aadhar Number">
                                     <input type="hidden" id="addaadhar_id" value='0'>
                                 </div>
@@ -602,7 +726,7 @@
                                 <div class="form-group">
                                     <label for="" style="visibility:hidden"></label><br>
                                     <button name="submit_family" id="submit_family" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_fam_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
+                                    <button id="clear_fam_form" class="btn btn-outline-secondary" tabindex="">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -630,7 +754,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorRelationship()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getFamilyInfoTable();getGuarantorFamily()">Close</button>
             </div>
         </div>
     </div>
@@ -642,7 +766,7 @@
         <div class="modal-content" style="background-color: white">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Add Guarantor Info</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();getGuarantorRelationship()" tabindex="1">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="getGuarantorInfoTable();updateFieldsVisibility()" tabindex="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -656,11 +780,21 @@
                                 <div class="form-group">
                                     <label for="gua_name">Guarantor Name</label><span class="text-danger">*</span>
                                     <select class="form-control" id="gua_name" name="gua_name" tabindex="1">
-                                        <option value>Select Relationship</option>
-                                        <option value="-1"> Existing Customer</option>
-                                        <option value="-2"> Others</option>
+                                        <option value="">Select Guarantor Name</option>
+                                        <option value="1">Family Member</option>
+                                        <option value="2">Existing Customer</option>
+                                        <option value="3">Others</option>
                                     </select>
                                     <input type="hidden" id="addgrelationship_id" value="0">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="fam_name_container" style="display:none;">
+                                <div class="form-group">
+                                    <label for="gua_family">Family Member</label><span class="text-danger">*</span>
+                                    <input type="hidden" id="gua_name_edit" value="0">
+                                    <select class="form-control" id="gua_family" name="gua_family" tabindex="1">
+                                        <option value>Select Family Member</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12" id="name1_container" style="display:none;">
@@ -696,14 +830,14 @@
                                 <div class="form-group">
                                     <label for="gu_pic">Photo</label><br>
                                     <img id='gur_imgshow' class="img_show" src='img/avatar.png' />
-                                    <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="12">
+                                    <input type="file" class="form-control" id="gu_pic" name="gu_pic" tabindex="1">
                                     <input type="hidden" id="gur_pic">
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-right">
                                 <div class="form-group">
                                     <button name="submit_guarantor" id="submit_guarantor" class="btn btn-primary" tabindex="1"><span class="icon-check"></span>&nbsp;Submit</button>
-                                    <button type="reset" id="clear_gua_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
+                                    <button id="clear_gua_form" class="btn btn-outline-secondary" tabindex="1">Clear</button>
                                 </div>
                             </div>
                         </div>
@@ -726,13 +860,134 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="getGuarantorInfoTable()">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal" tabindex="1" onclick="updateFieldsVisibility()">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <!--Guarantor Modal End-->
+<!-- ------------------------------------------------------------ Document Info Modal START --------------------------------------------------------------- -->
+<div class="modal fade" id="add_doc_info_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document">
+        <div class="modal-content" style="background-color: white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Document Info</h5>
+                <button type="button" class="close" data-dismiss="modal" tabindex="1" aria-label="Close" onclick="getDocInfoTable();">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="doc_info_form">
+                        <input type="hidden" name="doc_info_id" id='doc_info_id'>
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="group_name">Group Name</label><span class="text-danger">*</span>
+                                    <select type="text" class="form-control" id="group_name" name="group_name" tabindex="1">
+                                        <option value="">Select Group Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="grp_id">Group ID</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="grp_id" id="grp_id" tabindex="2" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="group_month">Auction Month</label><span class="text-danger">*</span>
+                                    <input type="hidden" id="group_month_edit" value="0">
+                                    <select type="text" class="form-control" id="group_month" name="group_month" tabindex="3">
+                                        <option value="">Select Auction Month</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="doc_name">Document Name</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="doc_name" id="doc_name" tabindex="4" placeholder="Enter Document Name">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="doc_type">Document Type</label><span class="text-danger">*</span>
+                                    <select class="form-control" name="doc_type" id="doc_type" tabindex="5">
+                                        <option value="">Select Document Type</option>
+                                        <option value="1">Original</option>
+                                        <option value="2">Xerox</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="doc_holder_name">Holder Name</label><span class="text-danger">*</span>
+                                    <select type="text" class="form-control" id="doc_holder_name" name="doc_holder_name" tabindex="6">
+                                        <option value="">Select Holder Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="doc_relationship">Relationship</label><span class="text-danger">*</span>
+                                    <input type="text" class="form-control" name="doc_relationship" id="doc_relationship" tabindex="7" placeholder="Relationship" readonly>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="remarks">Remark</label>
+                                    <textarea class="form-control" name="remarks" id="remarks" placeholder="Enter Remarks" tabindex="8"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <label for="doc_upload">Upload</label><span class="text-danger">*</span>
+                                    <input type="file" class="form-control" name="doc_upload" id="doc_upload" tabindex="9">
+                                    <input type="hidden" name="doc_upload_edit" id="doc_upload_edit">
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+                                <div class="form-group">
+                                    <button name="submit_doc_info" id="submit_doc_info" class="btn btn-primary" tabindex="10" style="margin-top: 18px;"><span class="icon-check"></span>&nbsp;Submit</button>
+                                    <button  id="clear_doc_form" class="btn btn-outline-secondary" style="margin-top: 18px;" tabindex="11">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 overflow-x-cls">
+                        <table id="doc_creation_table" class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th width="20">S.No.</th>
+                                    <th>Group Name</th>
+                                    <th>Group ID</th>
+                                    <th>Auction Month</th>
+                                    <th>Document Name</th>
+                                    <th>Document Type</th>
+                                    <th>Holder Name</th>
+                                    <th>Relationship</th>
+                                    <th>Remarks</th>
+                                    <th>Upload</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody> </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal" onclick="getDocInfoTable();refreshDocModal()" tabindex="8">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ------------------------------------------------------------ Document Info Modal END --------------------------------------------------------------- -->
 <!-- /////////////////////////////////////////////////////////////////// Due Chart Modal Start ////////////////////////////////////////////////////////////////////// -->
 <div class="modal fade bd-example-modal-lg" id="due_chart_model" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document" style="max-width: 70% !important">
@@ -786,6 +1041,7 @@
                             <th width="20">S.No</th>
                             <th>Date</th>
                             <th>Label</th>
+                            <th>Commitment Date</th>
                             <th>Remark</th>
                         </thead>
                         <tbody>
