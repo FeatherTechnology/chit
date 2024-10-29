@@ -1,7 +1,8 @@
 <div class="row gutters">
     <div class="col-12">
-        <input type="hidden" id="line_id">
         <div class="branch-div">
+            <button class='btn btn-primary' name='auction_reminder_smsbtn' id='auction_reminder_smsbtn' title='Reminder for today auction group customer'> Send Reminder SMS </button>
+
             <select name="branch_id" id="branch_id" class="branch-dropdown">
                 <option value="">Choose Branch</option>
             </select>
@@ -55,6 +56,7 @@
                                     <th>Chit Value</th>
                                     <th>Total Month</th>
                                     <th>Date</th>
+                                    <th>Auction Time</th>
                                     <th>Auction Month</th>
                                     <th>Branch</th>
                                     <th>Status</th>

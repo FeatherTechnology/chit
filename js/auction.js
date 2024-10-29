@@ -61,17 +61,17 @@ $(document).ready(function () {
     $('#auction_round1').on('click', function (e) {
         e.preventDefault();
         let isValid = true; // Flag to track if all fields are valid
-    
+
         // Iterate through each row of the customer mapping table
         $('#cus_mapping_table tbody tr').each(function () {
             var $row = $(this); // Current row
-            
+
             // Find all input values in the current row (including all relevant containers)
             var $valueColumn = $row.find('.value-column');
-            
+
             // Check if the last input in the row is empty
             var $lastInput = $valueColumn.find('input:last');
-            
+
             // If the last input exists and is empty
             if ($lastInput.length > 0 && $lastInput.val().trim() === '') {
                 isValid = false; // Set isValid to false if no valid values
@@ -80,12 +80,12 @@ $(document).ready(function () {
                 $lastInput.css('border', ''); // Reset border if filled
             }
         });
-    
+
         // If all values are valid, proceed to enable button 2
         if (isValid) {
             // Change the background color to green for button 1
             $(this).removeClass('btn-primary').addClass('btn-success'); // Use Bootstrap class for green color
-    
+
             // Enable auction_round2
             $('#auction_round2').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
         } else {
@@ -93,7 +93,7 @@ $(document).ready(function () {
             swalError('Warning', 'Please fill in all required fields before proceeding.');
         }
     });
-    
+
     $('#auction_round2').on('click', function (e) {
         // Change the background color to green
         e.preventDefault();
@@ -103,7 +103,7 @@ $(document).ready(function () {
         $('#auction_round3').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
     });
     let allowCusNameClick = true;
-  //  let allowDeleteClick = true;
+    //  let allowDeleteClick = true;
 
     $('#auction_round3').on('click', function (e) {
         e.preventDefault(); // Prevent default action
@@ -111,7 +111,7 @@ $(document).ready(function () {
         $(this).removeClass('btn-primary').addClass('btn-success'); // Change button color
         $('#submit_cus_map').prop('disabled', true); // Disable submit button
         $('.auction_close').prop('disabled', false).removeClass('d-none'); // Show auction close button
-    
+
         // Disable the click event for customer name column
         allowCusNameClick = false;
     });
@@ -193,7 +193,7 @@ $(document).ready(function () {
                 var moneyChitVal = moneyFormatIndia(chit_value)
                 $('#chit_val').val(moneyChitVal);
                 $('#auction_date').val(formattedDate); // Populate auction date in dd-mm-yyyy format
-                var auctionTime = `${auctionDetail.hours}:${auctionDetail.minutes} ${auctionDetail.ampm}`; // Format auction time as 7:00 PM
+                var auctionTime = `${auctionDetail.hours}:${auctionDetail.minutes < 10 ? '0' + auctionDetail.minutes : auctionDetail.minutes} ${auctionDetail.ampm}`;
                 $('#auction_time').val(auctionTime); // Populate auction time in the field 
                 $('#grp_month').val(auction_month); // Populate auction month
                 var formattedLowValue = moneyFormatIndia(low_value);
@@ -208,13 +208,13 @@ $(document).ready(function () {
 
                 // Fetch customer names based on groupId
                 getCusName(groupId, auction_month);
-               // allowDeleteClick = false;
+                // allowDeleteClick = false;
                 auctionStarted = false;
                 $('#auction_round1').prop('disabled', true)
                 $('.auction_close').prop('disabled', true)
                 $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
                 $('#auction_start').prop('disabled', false);
-            } 
+            }
         }, 'json');
 
         // Function to format date to dd-mm-yyyy
@@ -225,65 +225,72 @@ $(document).ready(function () {
         }
     });
     // Global flag to track whether the auction has started
-// Global flag to track whether the auction has started
-let auctionStarted = false;
+    // Global flag to track whether the auction has started
+    let auctionStarted = false;
 
-$(document).on('click', '#auction_start', function (event) {
-    event.preventDefault();
-    let group_id = $('#group_id').val();
-    let auction_month = $('#grp_month').val();
+    $(document).on('click', '#auction_start', function (event) {
+        event.preventDefault();
+        let group_id = $('#group_id').val();
+        let auction_month = $('#grp_month').val();
 
-    $.post('api/auction_files/validate_auction_start.php', { group_id: group_id, auction_month: auction_month }, function (response) {
-        if (response.is_valid) {
-           // allowDeleteClick = true;
-            swalSuccess('Success', "Auction Can Start Now");
+        $.post('api/auction_files/validate_auction_start.php', { group_id: group_id, auction_month: auction_month }, function (response) {
+            if (response.is_valid) {
+                // allowDeleteClick = true;
+                swalSuccess('Success', "Auction Can Start Now");
 
-            // Set the auctionStarted flag to true
-            auctionStarted = true;
-            hasCompany = true;
-            // Enable all existing input fields by removing the readonly attribute
-            // but exclude "Company" rows (company-row class)
-            $('#cus_mapping_table tbody input.form-control').each(function() {
-                // Check if this input is not part of the "Company" row
-                if (!$(this).closest('tr').hasClass('company-row')) {
-                    $(this).prop('readonly', false); // Make non-company rows editable
+                // Set the auctionStarted flag to true
+                auctionStarted = true;
+                hasCompany = true;
+                // Enable all existing input fields by removing the readonly attribute
+                // but exclude "Company" rows (company-row class)
+                $('#cus_mapping_table tbody input.form-control').each(function () {
+                    // Check if this input is not part of the "Company" row
+                    if (!$(this).closest('tr').hasClass('company-row')) {
+                        $(this).prop('readonly', false); // Make non-company rows editable
+                    }
+                });
+                $('#auction_start').prop('disabled', true);
+                // Enable auction rounds
+                $('#auction_round1').prop('disabled', false);
+                // If "Company" row exists, enable auction close button
+                if ($('.company-row').length > 0) {
+                    $('.auction_close').prop('disabled', false);
                 }
-            });
-            $('#auction_start').prop('disabled', true);
-            // Enable auction rounds
-            $('#auction_round1').prop('disabled', false);
-            // If "Company" row exists, enable auction close button
-            if ($('.company-row').length > 0) {
-                $('.auction_close').prop('disabled', false);
+            } else {
+                var auctionDate = response.auction_detail ? response.auction_detail.date : 'N/A';
+                var formattedAuctionDate = formatDate(auctionDate); // Format the auction date
+                // Assuming response.auction_detail is the data you received
+                var auctionTime = response.auction_detail
+                    ? `${String(response.auction_detail.hours).padStart(2, '0')}:${String(response.auction_detail.minutes).padStart(2, '0')} ${response.auction_detail.ampm.toUpperCase()}`
+                    : 'N/A';
+
+                // Output the auction time or use it as needed
+                console.log(auctionTime); // Will output in HH:mm AM/PM format
+
+
+                swalError('Please Wait', `The auction will open after ${auctionTime} on ${formattedAuctionDate}`);
+                // allowDeleteClick = false;
             }
-        } else {
-            var auctionDate = response.auction_detail ? response.auction_detail.date : 'N/A';
-            var formattedAuctionDate = formatDate(auctionDate); // Format the auction date
-            var auctionTime = response.auction_detail ? `${response.auction_detail.hours}:${response.auction_detail.minutes} ${response.auction_detail.ampm}` : 'N/A';
-
-            swalError('Please Wait', `The auction will open after ${auctionTime} on ${formattedAuctionDate}`);
-           // allowDeleteClick = false;
-        }
-    }, 'json');
-});
+        }, 'json');
+    });
 
 
-$('#submit_cus_map').on('click', function (e) {
-    e.preventDefault();
+    $('#submit_cus_map').on('click', function (e) {
+        e.preventDefault();
 
-    var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
-    var lowValue = $('#submit_cus_map').attr('data-low_value'); // Get the low_value
+        var selectedCustomers = $('#cus_name').val(); // Get the selected customer IDs
+        var lowValue = $('#submit_cus_map').attr('data-low_value'); // Get the low_value
 
-    // Check if "Company" already exists in the table
-    var companyExists = $('#cus_mapping_table tbody .company-row').length > 0;
+        // Check if "Company" already exists in the table
+        var companyExists = $('#cus_mapping_table tbody .company-row').length > 0;
 
-    if (selectedCustomers && selectedCustomers.length > 0) {
-        selectedCustomers.forEach(function (cusId) {
-            if (cusId == -1 && !companyExists) {
-                var uniqueIdentifier = 'company_' + new Date().getTime();
+        if (selectedCustomers && selectedCustomers.length > 0) {
+            selectedCustomers.forEach(function (cusId) {
+                if (cusId == -1 && !companyExists) {
+                    var uniqueIdentifier = 'company_' + new Date().getTime();
 
-                // Append the "Company" entry to the table with readonly input
-                $('#cus_mapping_table tbody').append(`
+                    // Append the "Company" entry to the table with readonly input
+                    $('#cus_mapping_table tbody').append(`
                     <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}" class="company-row">
                         <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
                         <td class="cus-name-column">Company</td>
@@ -294,16 +301,16 @@ $('#submit_cus_map').on('click', function (e) {
                         </td>
                     </tr>
                 `);
-                $('#submit_cus_map').prop('disabled', true); // Disable the submit button after adding company
-                if (hasCompany) {
-                    $('.auction_close').removeClass('d-none').prop('disabled', false);
-                }
-            } else if (cusId != -1) {
-                var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim();
-                var uniqueIdentifier = cusId + '_' + new Date().getTime();
+                    $('#submit_cus_map').prop('disabled', true); // Disable the submit button after adding company
+                    if (hasCompany) {
+                        $('.auction_close').removeClass('d-none').prop('disabled', false);
+                    }
+                } else if (cusId != -1) {
+                    var cusName = $('#cus_name option[value="' + cusId + '"]').text().trim();
+                    var uniqueIdentifier = cusId + '_' + new Date().getTime();
 
-                // Append the selected customer to the table with readonly input initially
-                $('#cus_mapping_table tbody').append(`
+                    // Append the selected customer to the table with readonly input initially
+                    $('#cus_mapping_table tbody').append(`
                     <tr data-cus-id="${cusId}" data-unique-id="${uniqueIdentifier}">
                         <td>${$('#cus_mapping_table tbody tr').length + 1}</td>
                         <td class="cus-name-column">${cusName}</td>
@@ -315,36 +322,36 @@ $('#submit_cus_map').on('click', function (e) {
                         </td>
                     </tr>
                 `);
-                
-                // Enable input for the customer if the auction has started
-                if (auctionStarted) {
-                    $(`#cus_mapping_table tbody tr[data-unique-id="${uniqueIdentifier}"] input.form-control`).prop('readonly', false);
+
+                    // Enable input for the customer if the auction has started
+                    if (auctionStarted) {
+                        $(`#cus_mapping_table tbody tr[data-unique-id="${uniqueIdentifier}"] input.form-control`).prop('readonly', false);
+                    }
                 }
+            });
+
+            // Reset border styles for all inputs in the table
+            $('#cus_mapping_table tbody input[name="cus_value[]"]').css('border', '');
+
+            // Clear the selection
+            cus_name.removeActiveItems();
+            let groupId = $(this).attr('data-group_id');
+            getCusName(groupId);
+
+            if ($('#cus_mapping_table tbody tr').length > 0) {
+                $('.auction_close').removeClass('d-none');
+                $('#auction_round1').removeClass('d-none');
+                $('#auction_round2').removeClass('d-none');
+                $('#auction_round3').removeClass('d-none');
             }
-        });
 
-        // Reset border styles for all inputs in the table
-        $('#cus_mapping_table tbody input[name="cus_value[]"]').css('border', '');
-        
-        // Clear the selection
-        cus_name.removeActiveItems();
-        let groupId = $(this).attr('data-group_id');
-        getCusName(groupId);
-
-        if ($('#cus_mapping_table tbody tr').length > 0) {
-            $('.auction_close').removeClass('d-none');
-            $('#auction_round1').removeClass('d-none');
-            $('#auction_round2').removeClass('d-none');
-            $('#auction_round3').removeClass('d-none');
+            updateDeleteIcon();
+            resetRoundButtons();
+        } else {
+            // Show an alert if no customers were selected
+            swalError('Warning', 'Please select at least one customer before submitting.');
         }
-
-        updateDeleteIcon();
-        resetRoundButtons();
-    } else {
-        // Show an alert if no customers were selected
-        swalError('Warning', 'Please select at least one customer before submitting.');
-    }
-});
+    });
 
 
     function updateDeleteIcon() {
@@ -396,7 +403,7 @@ $('#submit_cus_map').on('click', function (e) {
             <i class="icon-delete delete-icon" style="width:25px;"></i>
         </div>
     `);
-   $row.find('input[name="cus_value[]"]').css('border', '');
+        $row.find('input[name="cus_value[]"]').css('border', '');
         // Show the auction close button if rows exist
         if ($('#cus_mapping_table tbody tr').length > 0) {
             $('.auction_close').removeClass('d-none');
@@ -448,20 +455,20 @@ $('#submit_cus_map').on('click', function (e) {
         resetRoundButtons();
     });
 
-  
+
     let hasCompany = false;
     function resetRoundButtons() {
         let round1Value = 0;
-        let round2Value = 0; 
+        let round2Value = 0;
         // Iterate through each row to calculate the total values and check for the company
-        $('#cus_mapping_table tbody tr').each(function() {
+        $('#cus_mapping_table tbody tr').each(function () {
             const cusValue = parseFloat($(this).find('input[name="cus_value[]"]').val()) || 0;
             const cusId = $(this).data('cus-id');
-    
+
             if (cusId === -1) { // Check for Company row
                 // If there's a company, disable all buttons
                 $('#auction_round1, #auction_round2, #auction_round3').addClass('d-none');
-               // $('.auction_close').removeClass('d-none').prop('disabled', false);
+                // $('.auction_close').removeClass('d-none').prop('disabled', false);
                 return false; // Exit the loop
             }
             // Add the value to the corresponding round value
@@ -469,20 +476,20 @@ $('#submit_cus_map').on('click', function (e) {
                 round1Value += cusValue; // Assuming the first button is based on total values
             }
         });
-    
+
         // Update the round buttons based on the collected values
         if (round1Value > 0) {
-        $('#auction_round1').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-        $('#auction_round2').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-        $('#auction_round3').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-        $('#auction_round2').prop('disabled', true); // Disable and hide button 2
-        $('#auction_round3').prop('disabled', true); // Disable and hide button 2
+            $('#auction_round1').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
+            $('#auction_round2').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
+            $('#auction_round3').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
+            $('#auction_round2').prop('disabled', true); // Disable and hide button 2
+            $('#auction_round3').prop('disabled', true); // Disable and hide button 2
         } else {
             $('#auction_round1').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
             $('#auction_round3').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-        $('#auction_round2').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
-        $('#auction_round2').prop('disabled', true); // Disable and hide button 2
-        $('#auction_round3').prop('disabled', true); // Disable and hide button 2
+            $('#auction_round2').removeClass('btn-success').addClass('btn-primary'); // Reset to original color
+            $('#auction_round2').prop('disabled', true); // Disable and hide button 2
+            $('#auction_round3').prop('disabled', true); // Disable and hide button 2
         }
     }
     $(document).on('change', '#cus_mapping_table tbody input[type="number"]', function () {
@@ -585,43 +592,54 @@ $('#submit_cus_map').on('click', function (e) {
             $inputs.first().parent().remove(); // Remove the oldest input field
         }
     }
+   
+
     $(document).on('click', '.auction_close', function (e) {
         e.preventDefault();
         let group_id = $(this).attr('data-group_id');
         let date = $(this).attr('data-date');
         let id = $(this).attr('data-id');
-
+    
         // Collect table data
         let tableData = [];
         let isValid = true; // Flag to track if all fields are valid
         let overallMaxValue = -Infinity; // Initialize to the lowest possible value
         let companyValue = null; // Variable to store the Company value
-
+    
         $('#cus_mapping_table tbody tr').each(function () {
             let cusId = $(this).data('cus-id');
             let values = $(this).find('input[name="cus_value[]"]').map(function () {
                 return $(this).val(); // Collect all values for this customer
             }).get(); // Get values as an array
-
+    
             // Check if the row is for the Company
             if (cusId == -1) {
                 // If this is the Company row, store its value and prioritize it
                 companyValue = Number(values[0]); // Company row has only one value, so we take the first one
+                if (!isNaN(companyValue) && companyValue !== '') {
+                    tableData.push({
+                        cus_id: cusId,
+                        value: companyValue,
+                        group_id: group_id,
+                        date: date,
+                        id: id
+                    });
+                }
                 return; // Skip processing further for the company row
             }
-
+    
             // Check if values are valid
             let validValues = values.filter(function (value) {
                 return value !== ''; // Filter out empty values
             });
-
+    
             if (validValues.length === 0) {
                 isValid = false;
                 $(this).find('input[name="cus_value[]"]').css('border', '1px solid red'); // Highlight empty field
             } else {
                 $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
             }
-
+    
             // If there are valid values for the customer, process them
             if (validValues.length > 0) {
                 // Convert valid values to numbers and push each one as a separate entry
@@ -633,27 +651,27 @@ $('#submit_cus_map').on('click', function (e) {
                         date: date,
                         id: id
                     });
-
+    
                     // Update overall maximum value only if company is not present
                     overallMaxValue = Math.max(overallMaxValue, value);
                 });
             }
         });
-
+    
         // If the company is present, use its value as the overall max
         if (companyValue !== null) {
             overallMaxValue = companyValue; // Company value takes precedence
         }
-
+    
         // If any field is invalid, prevent the submission and show an alert
         if (!isValid) {
             swalError('Error', 'Please fill in all the values');
             return; // Stop further execution if validation fails
         }
-
+    
         // Format the max value for display
         let maxValue = moneyFormatIndia(overallMaxValue);
-
+    
         // Use the swalConfirm function to show confirmation alert
         swalConfirm(
             'Do you want to close the auction?',
@@ -662,8 +680,6 @@ $('#submit_cus_map').on('click', function (e) {
             { group_id: group_id, date: date, id: id, tableData: tableData }
         );
     });
-
-    // The closeAuction function remains the same
     function closeAuction(data) {
         $.ajax({
             url: 'api/auction_files/insert_auction_list.php',
@@ -682,6 +698,7 @@ $('#submit_cus_map').on('click', function (e) {
             },
         });
     }
+    
     //////////////////////////////////////////////////////////Auction Modal End//////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////PostPone Modal Start//////////////////////////////////////////////////////////////
     $(document).on('click', '.postponeBtn', function () {
@@ -738,14 +755,14 @@ $('#submit_cus_map').on('click', function (e) {
     });
     /////////////////////////////////////////////////////////////////////////////////PostPone Modal end//////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////View Modal Start///////////////////////////////////////
-
+    
     $(document).on('click', '.viewBtn', function (event) {
         event.preventDefault();
         $('#add_view_modal').modal('show');
-
+    
         var uniqueValue = $(this).data('value');
         var [groupId, date] = uniqueValue.split('_');
-
+    
         // Fetch data from server
         $.post('api/auction_files/auction_close_view.php', {
             group_id: groupId,
@@ -755,19 +772,28 @@ $('#submit_cus_map').on('click', function (e) {
                 var data = response.data;
                 var tableBody = $('#view_table tbody');
                 tableBody.empty(); // Clear any existing rows
-
-                // Find the maximum value
-                var maxValue = Math.max(...data.map(row => parseFloat(row.value)));
-
+    
+                // Find if there's a row with cus_name = '-1'
+                var specialRow = data.find(row => row.customer_name === 'Company'); // Assume 'Company' represents cus_name = '-1'
+                var maxValue;
+    
+                if (specialRow) {
+                    // If 'Company' is found, set maxValue to a unique identifier for it
+                    maxValue = 'Company';
+                } else {
+                    // Otherwise, find the maximum numeric value
+                    maxValue = Math.max(...data.map(row => parseFloat(row.value)));
+                }
+    
                 // Populate table with data
                 $.each(data, function (index, row) {
                     var formattedValue = moneyFormatIndia(row.value);
-                    var isMaxValue = parseFloat(row.value) === maxValue; // Check if current row has the max value
-
-                    // Add a class 'highlight-row' if it's the highest value
+                    var isMaxValue = specialRow ? (row.customer_name === 'Company') : (parseFloat(row.value) === maxValue);
+    
+                    // Add a class 'highlight-row' if it matches the special condition or highest value
                     var rowHtml = `<tr class="${isMaxValue ? 'highlight-row' : ''}">
                         <td>${index + 1}</td>
-                        <td>${row.customer_name}</td>  <!-- Use customer_name -->
+                        <td>${row.customer_name}</td>
                         <td>${formattedValue}</td>
                     </tr>`;
                     tableBody.append(rowHtml);
@@ -777,7 +803,7 @@ $('#submit_cus_map').on('click', function (e) {
             }
         }, 'json');
     });
-
+    
 
 
     ////////////////////////////////////////////////////////////////View Modal End////////////////////////////////////////////////////////////////////
