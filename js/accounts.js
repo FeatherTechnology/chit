@@ -15,34 +15,13 @@ $(document).ready(function () {
             otherTransTable('#accounts_other_trans_table');
         }
     });
-    const toggleButtons = $(".toggle-button");
-    
-    // Initially make all buttons unchecked
-    toggleButtons.removeClass('active');
-    
-    // Event listener for button clicks
-    toggleButtons.on("click", function () {
-        // Reset active class for all buttons
-        toggleButtons.removeClass("active");
-        // Add active class to the clicked button
-        $(this).addClass("active");
-
-        let chosenOpt = $(this).val();
-        
-        if (chosenOpt === 'Today') {
-            // Call function to load today's data
-            loadDataForToday();
-        } else if (chosenOpt === 'Previous Day') {
-            // Call function to load previous day's data
-            loadDataForPreviousDay();
-        }
-    });
-    window.updateTotal = function(input, amount) {
+   
+    window.updateTotal = function (input, amount) {
         const quantity = parseInt($(input).val()) || 0; // Get quantity value
         const totalValue = quantity * amount; // Calculate total value
         $(input).closest('tr').find('input[type="text"]').val(totalValue); // Update total value input
     }
-    
+
     $("input[name='coll_cash_type']").click(function () {
         let collCashType = $(this).val();
 
@@ -74,66 +53,7 @@ $(document).ready(function () {
         swalConfirm('Collect', `Do you want to collect Money from ${collectTableRowVal.username}?`, submitCollect, collectTableRowVal);
     });
 
-// Function to handle loading data and managing the toggle state
-// Function to handle loading data and managing the toggle state
-function loadData() {
-    // Clear the table body before loading data
-    $('#denominationTableBody').empty();
-
-    // Initialize flags to track if data was loaded successfully
-    let todayDataLoaded = false;
-    let previousDayDataLoaded = false;
-
-    // Function to check and update toggle buttons
-    const updateToggleButtons = () => {
-        if (todayDataLoaded) {
-            $('.toggle-button[value="Today"]').addClass("active");
-        }
-        if (previousDayDataLoaded) {
-            $('.toggle-button[value="Previous Day"]').addClass("active");
-        }
-        if (!todayDataLoaded && !previousDayDataLoaded) {
-            $('.toggle-button[value="Today"]').addClass("active");
-            appendEmptyRows(); // Append empty rows for today
-        }
-    };
-
-    // Load today's data
-    loadDataForToday().then(function() {
-        todayDataLoaded = true;
-        console.log("Today's data loaded.");
-        updateToggleButtons(); // Update buttons after loading today's data
-    });
-
-    // Load previous day's data
-    loadDataForPreviousDay().then(function() {
-        previousDayDataLoaded = true;
-        console.log("Previous day's data loaded.");
-        updateToggleButtons(); // Update buttons after loading previous day's data
-    });
-}
-
-// Function to append empty rows for Today if no data is loaded
-function appendEmptyRows() {
-    const denominations = [500, 200, 100, 50, 20, 10, 5];
-    denominations.forEach(amount => {
-        $('#denominationTableBody').append(`
-            <tr>
-                <td>${amount}</td>
-                <td><input type="number" class="form-control" value="0" min="0" onchange="updateTotal(this, ${amount})"></td>
-                <td><input type="text" class="form-control" value="0" readonly></td>
-            </tr>
-        `);
-    });
-    // Update the overall total
-    calculateOverallTotal();
-}
-
-// Event listener for button clicks
-$("#add_grup").on("click", function () {
-    loadData(); // Call the function to load both datasets
-});
-
+    
 
     $("input[name='issue_cash_type']").click(function () {
         let collCashType = $(this).val();
@@ -174,26 +94,26 @@ $("#add_grup").on("click", function () {
 
     $('#submit_denom_info').click(function (event) {
         event.preventDefault(); // Prevent the form from submitting the default way
-    
+
         // Trigger the function to calculate total value and validate
         updateTotalValue();
-    
+
         // Prepare data to submit
         let denominationData = [];
-    
+
         // Collect denomination data from the table
         $('#denominationTableBody tr').each(function () {
             const $row = $(this);
-    
+
             // Parse the denomination
             const denomination = parseFloat($row.find('td:first').text());
-    
+
             // Get the quantity input value, defaulting to 0 if not a valid number
             let quantity = parseFloat($row.find('input[type="number"]').val()) || 0;
-    
+
             // Get the total value input
             let totalValue = parseFloat($row.find('input[type="text"]').val()) || 0;
-    
+
             // Add the row data to the array
             denominationData.push({
                 denomination: denomination,
@@ -201,9 +121,9 @@ $("#add_grup").on("click", function () {
                 totalValue: totalValue
             });
         });
-    
+
         // Get closing balance and hand cash before submitting
-        getClosingBal(function(hand_cash, bank_cash,close_cash) {
+        getClosingBal(function (hand_cash, bank_cash, close_cash) {
             // Submit the data using AJAX
             $.ajax({
                 url: 'api/accounts_files/accounts/submit_denom_data.php',
@@ -216,6 +136,10 @@ $("#add_grup").on("click", function () {
                 },
                 success: function (response) {
                     swalSuccess('Success', 'Denomination data submitted successfully');
+                    $('#denominationTableBody tr').each(function () {
+                        $(this).find('input[type="number"]').attr('readonly', true);
+                        $(this).find('input[type="text"]').attr('readonly', true);
+                    });
                     $('#submit_denom_info').attr('disabled', true);
                 },
                 error: function (xhr, status, error) {
@@ -224,8 +148,8 @@ $("#add_grup").on("click", function () {
             });
         });
     });
-   
-    
+
+
     $('#submit_expenses_creation').click(function (event) {
         event.preventDefault();
 
@@ -302,82 +226,82 @@ $("#add_grup").on("click", function () {
         }
     });
     // let category = '';
-  // Handle the category change event
-// Handle the category change event
-$('#trans_category').change(function () {
-    let category = $(this).val();
+    // Handle the category change event
+    // Handle the category change event
+    $('#trans_category').change(function () {
+        let category = $(this).val();
 
-    if (category == '7') {  // If category is 7, show group-related inputs and functionalities
-        $('#grp_id_cont').show();
-        $('#name_id_cont').hide();
-        $('#name_modl_btn').hide();
+        if (category == '7') {  // If category is 7, show group-related inputs and functionalities
+            $('#grp_id_cont').show();
+            $('#name_id_cont').hide();
+            $('#name_modl_btn').hide();
 
-        getGroupID(); // Load group IDs for selection
-        getRefId(category);
-        // Bind the cat_type change event only when category == 7
-        $('#cat_type').off('change').on('change', function () {  // Off to ensure previous bindings are removed
-            let category_type = $(this).val();
-            $('.other_month_div').show();
+            getGroupID(); // Load group IDs for selection
+            getRefId(category);
+            // Bind the cat_type change event only when category == 7
+            $('#cat_type').off('change').on('change', function () {  // Off to ensure previous bindings are removed
+                let category_type = $(this).val();
+                $('.other_month_div').show();
 
-            if (category_type === '2') { // Debit
-                getAuctionMonth(group_id);
-                settleAmount(group_id);
-                $('#other_amnt').prop('readonly', true);
-                $('#auction_month').prop('readonly', true);
-            } else {  // Credit or Both
-                $('#other_amnt').val('');
-                getCreditAuctionMonth(group_id, category_type, group_mem_id);
-                $('#other_amnt').prop('readonly', false);
-                $('#auction_month').prop('readonly', true);
+                if (category_type === '2') { // Debit
+                    getAuctionMonth(group_id);
+                    settleAmount(group_id);
+                    $('#other_amnt').prop('readonly', true);
+                    $('#auction_month').prop('readonly', true);
+                } else {  // Credit or Both
+                    $('#other_amnt').val('');
+                    getCreditAuctionMonth(group_id, category_type, group_mem_id);
+                    $('#other_amnt').prop('readonly', false);
+                    $('#auction_month').prop('readonly', true);
+                }
+            });
+
+        } else { // For all other categories
+            $('#grp_id_cont').hide();
+            $('#mem_id_cont').hide();
+            $('#name_id_cont').show();
+            $('#name_modl_btn').show();
+            $('.other_month_div').hide();
+            $('#other_amnt').prop('readonly', false);
+            $('#group_id').val('');
+            $('#group_mem').val('');
+            $('#other_amnt').val('');
+            $('#auction_month').val('');
+
+            // Unbind the cat_type change event for other categories
+            $('#cat_type').off('change');
+
+            // Continue with other categories handling
+            $('#trans_cat').val($(this).find(':selected').text());
+            $('#trans_cat').attr('data-id', category);
+
+            if (category != '') {
+                $('#name_modal_btn')
+                    .attr('data-toggle', 'modal')
+                    .attr('data-target', '#add_name_modal');
+            } else {
+                $('#name_modal_btn')
+                    .removeAttr('data-toggle')
+                    .removeAttr('data-target');
             }
-        });
 
-    } else { // For all other categories
-        $('#grp_id_cont').hide();
-        $('#mem_id_cont').hide();
-        $('#name_id_cont').show();
-        $('#name_modl_btn').show();
-        $('.other_month_div').hide();
-        $('#other_amnt').prop('readonly', false);
-        $('#group_id').val('');
-        $('#group_mem').val('');
-        $('#other_amnt').val('');
-        $('#auction_month').val('');
+            nameDropDown();  // Populate names based on selected transaction category
 
-        // Unbind the cat_type change event for other categories
-        $('#cat_type').off('change');
+            // Populate cat_type options based on category value
+            let catTypeOptn = "<option value=''>Select Type</option>";
+            if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9') {
+                catTypeOptn += "<option value='1'>Credit</option><option value='2'>Debit</option>";
+            } else if (category == '5') {
+                catTypeOptn += "<option value='2'>Debit</option>";
+            } else if (category == '6' || category == '8') {
+                catTypeOptn += "<option value='1'>Credit</option>";
+            }
 
-        // Continue with other categories handling
-        $('#trans_cat').val($(this).find(':selected').text());
-        $('#trans_cat').attr('data-id', category);
+            $('#cat_type').empty().append(catTypeOptn); // Update cat_type options
 
-        if (category != '') {
-            $('#name_modal_btn')
-                .attr('data-toggle', 'modal')
-                .attr('data-target', '#add_name_modal');
-        } else {
-            $('#name_modal_btn')
-                .removeAttr('data-toggle')
-                .removeAttr('data-target');
+            getRefId(category); // Fetch reference IDs based on category
         }
-
-        nameDropDown();  // Populate names based on selected transaction category
-
-        // Populate cat_type options based on category value
-        let catTypeOptn = "<option value=''>Select Type</option>";
-        if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9') {
-            catTypeOptn += "<option value='1'>Credit</option><option value='2'>Debit</option>";
-        } else if (category == '5') {
-            catTypeOptn += "<option value='2'>Debit</option>";
-        } else if (category == '6' || category == '8') {
-            catTypeOptn += "<option value='1'>Credit</option>";
-        }
-
-        $('#cat_type').empty().append(catTypeOptn); // Update cat_type options
-
-        getRefId(category); // Fetch reference IDs based on category
-    }
-});
+    });
 
 
     let group_id = '';
@@ -444,41 +368,6 @@ $('#trans_category').change(function () {
         });
     });
 
-
-
-    // $('#trans_category').change(function () {
-    //     let category = $(this).val();
-    //     if (category != '') {
-    //         $('#trans_cat').val($(this).find(':selected').text());
-    //         $('#trans_cat').attr('data-id', $(this).val());
-    //         $('#name_modal_btn')
-    //             .attr('data-toggle', 'modal')
-    //             .attr('data-target', '#add_name_modal');
-    //     } else {
-    //         $('#name_modal_btn')
-    //             .removeAttr('data-toggle')
-    //             .removeAttr('data-target');
-    //     }
-
-    //     nameDropDown(); //To show name based on transaction category.
-
-    //     let catTypeOptn = '';
-    //     catTypeOptn += "<option value=''>Select Type</option>";
-    //     if (category == '1' || category == '2' || category == '3' || category == '4' || category == '9') { //credit / debit
-    //         catTypeOptn += "<option value='1'>Credit</option>";
-    //         catTypeOptn += "<option value='2'>Debit</option>";
-
-    //     } else if (category == '5') { //debit
-    //         catTypeOptn += "<option value='2'>Debit</option>";
-
-    //     } else if (category == '6' || category == '8') { //credit
-    //         catTypeOptn += "<option value='1'>Credit</option>";
-    //     }
-
-    //     $('#cat_type').empty().append(catTypeOptn); //To show Type based on transaction category.
-
-    //     getRefId(category);
-    // });
 
     $('#name_modal_btn').click(function () {
         if ($(this).attr('data-target')) {
@@ -762,7 +651,7 @@ function getClosingBal(callback) {
 
             // Call the callback function if defined
             if (typeof callback === "function") {
-                callback(hand, bank,close);
+                callback(hand, bank, close);
             }
         }
     }, 'json');
@@ -1115,100 +1004,59 @@ function updateTotalValue() {
         }
     });
 }
-// function loadDataForToday() {
-//     // Clear table body
-//     $('#denominationTableBody').empty();
+ 
+function loadToday() {
+    // Clear table body
+    $('#denominationTableBody').empty();
 
-//     // Fetch current day's data (modify the URL to your API)
-//     $.ajax({
-//         url: 'api/accounts_files/accounts/get_today_data.php', // Replace with your actual API endpoint
-//         method: 'GET',
-//         success: function(data) {
-//             if (data.length > 0) {
-//                 data.forEach(item => {
-//                     $('#denominationTableBody').append(`
-//                         <tr>
-//                             <td>${item.amount}</td>
-//                             <td>
-//                                 <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})">
-//                             </td>
-//                             <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
-//                         </tr>
-//                     `);
-//                 });
-//             }
-// else {
-//                 // No data found for today
-//                 $('#denominationTableBody').append(`
-//                     <tr>
-//                         <td colspan="3">No data available for today.</td>
-//                     </tr>
-//                 `);
-//             }
-//         }
-//     });
-// }
-// function loadDataForToday() {
-//     // Clear table body
-//     $('#denominationTableBody').empty();
+    // Fetch current day's data (modify the URL to your API)
+    $.ajax({
+        url: 'api/accounts_files/accounts/get_today_data.php', // Replace with your actual API endpoint
+        method: 'GET',
+        success: function(response) {
+            let data;
+            if (typeof response === "string") {
+                data = JSON.parse(response);
+            } else {
+                data = response; // It's already parsed
+            }
 
-//     // Fetch current day's data (modify the URL to your API)
-//     $.ajax({
-//         url: 'api/accounts_files/accounts/get_today_data.php', // Replace with your actual API endpoint
-//         method: 'GET',
-//         success: function(response) {
-//             let data;
-//             if (typeof response === "string") {
-//                 data = JSON.parse(response);
-//             } else {
-//                 data = response; // It's already parsed
-//             }
+            // Check if data is an array and not empty
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(item => {
+                    $('#denominationTableBody').append(`
+                        <tr>
+                            <td>${item.amount}</td>
+                            <td>
+                                <input type="number" class="form-control" value="${item.quantity}" min="" onchange="updateTotal(this, ${item.amount})" readonly>
+                            </td>
+                            <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
+                        </tr>
+                    `);
+                });
+                $('#submit_denom_info').attr('disabled', true);
+            } else {
+                // If data is empty or not an array, append empty rows
+                appendEmptyRows();
+                $('#submit_denom_info').attr('disabled', false);
+            }
 
-//             // Check if data is an array
-//             if (Array.isArray(data)) {
-//                 data.forEach(item => {
-//                     $('#denominationTableBody').append(`
-//                         <tr>
-//                             <td>${item.amount}</td>
-//                             <td>
-//                                 <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
-//                             </td>
-//                             <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
-//                         </tr>
-//                     `);
-//                     $('#submit_denom_info').attr('disabled', true);
-//                 });
-//             } else {
-//                 // Show predefined denominations when no data is available
-//                 const denominations = [500, 200, 100, 50, 20, 10, 5];
-//                 denominations.forEach(amount => {
-//                     $('#denominationTableBody').append(`
-//                         <tr>
-//                             <td>${amount}</td>
-//                             <td>
-//                                 <input type="number" class="form-control" value="" min="0" onchange="updateTotal(this, ${amount})" >
-//                             </td>
-//                             <td><input type="text" class="form-control" value="0" readonly></td>
-//                         </tr>
-//                     `);
-//                 });
-//                 $('#submit_denom_info').attr('disabled', false);
-//             }
-//             // Recalculate the overall total after loading data
-//             calculateOverallTotal();
-//         },
-//         error: function(xhr, status, error) {
-//             console.error("Error fetching previous day's data:", error);
-//             $('#denominationTableBody').append(`
-//                 <tr>
-//                     <td colspan="3">Error fetching data. Please try again later.</td>
-//                 </tr>
-//             `);
-//         }
-//     });
-// }
+            // Recalculate the overall total after loading data
+            calculateOverallTotal();
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching data:", error);
+            $('#denominationTableBody').append(`
+                <tr>
+                    <td colspan="3">Error fetching data. Please try again later.</td>
+                </tr>
+            `);
+        }
+    });
+}
 
-function updateTotal(input, amount) { 
+
+function updateTotal(input, amount) {
     const quantity = parseInt(input.value) || 0;
     const totalValue = amount * quantity;
 
@@ -1222,7 +1070,7 @@ function updateTotal(input, amount) {
 function calculateOverallTotal() {
     let totalAmount = 0;
 
-    $('#denominationTableBody input[type="text"]').each(function() {
+    $('#denominationTableBody input[type="text"]').each(function () {
         totalAmount += parseInt($(this).val()) || 0;
     });
 
@@ -1230,172 +1078,53 @@ function calculateOverallTotal() {
 }
 
 
-// function loadDataForPreviousDay() {
-//     // Clear table body
-//     $('#denominationTableBody').empty();
-
-//     // Fetch previous day's data
-//     $.ajax({
-//         url: 'api/accounts_files/accounts/get_previous_data.php', // Replace with your actual API endpoint
-//         method: 'GET',
-//         success: function(response) {
-//             let data;
-//             if (typeof response === "string") {
-//                 data = JSON.parse(response);
-//             } else {
-//                 data = response; // It's already parsed
-//             }
-
-//             // Check if data is an array
-//             if (Array.isArray(data) && data.length > 0) {
-//                 data.forEach(item => {
-//                     $('#denominationTableBody').append(`
-//                         <tr>
-//                             <td>${item.amount}</td>
-//                             <td>
-//                                 <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
-//                             </td>
-//                             <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
-//                         </tr>
-//                     `);
-//                 });
-//                 $('#submit_denom_info').attr('disabled', true);
-//             } else {
-//                 // Show predefined denominations when no data is available
-//                 const denominations = [500, 200, 100, 50, 20, 10, 5];
-//                 denominations.forEach(amount => {
-//                     $('#denominationTableBody').append(`
-//                         <tr>
-//                             <td>${amount}</td>
-//                             <td>
-//                                 <input type="number" class="form-control" value="" min="0" onchange="updateTotal(this, ${amount})" >
-//                             </td>
-//                             <td><input type="text" class="form-control" value="0" readonly></td>
-//                         </tr>
-//                     `);
-//                 });
-//                 $('#submit_denom_info').attr('disabled', false);
-//             }
-//             // Recalculate the overall total after loading data
-//             calculateOverallTotal();
-//         },
-//         error: function(xhr, status, error) {
-//             console.error("Error fetching previous day's data:", error);
-//             $('#denominationTableBody').append(`
-//                 <tr>
-//                     <td colspan="3">Error fetching data. Please try again later.</td>
-//                 </tr>
-//             `);
-//         }
-//     });
-// }
-
-let isLoading = false;
-
-function loadDataForToday() {
-    // Clear table body
-    $('#denominationTableBody').empty();
-
-    // Fetch today's data
-    return $.ajax({
-        url: 'api/accounts_files/accounts/get_today_data.php', // Your actual API endpoint
-        method: 'GET'
-    }).done(function(response) {
-        let data = (typeof response === "string") ? JSON.parse(response) : response;
-
-        if (Array.isArray(data) && data.length > 0) {
-            data.forEach(item => {
-                $('#denominationTableBody').append(`
-                    <tr>
-                        <td>${item.amount}</td>
-                        <td>
-                            <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
-                        </td>
-                        <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
-                    </tr>
-                `);
-            });
-            $('#submit_denom_info').attr('disabled', true);
-        } 
-        calculateOverallTotal();
-    }).fail(function(xhr, status, error) {
-        console.error("Error fetching today's data:", error);
-    });
-}
-
-function loadDataForPreviousDay() {
+function loadPreviousDay() {
     // Clear table body
     $('#denominationTableBody').empty();
 
     // Fetch previous day's data
-    return $.ajax({
-        url: 'api/accounts_files/accounts/get_previous_data.php', // Your actual API endpoint
-        method: 'GET'
-    }).done(function(response) {
-        let data = (typeof response === "string") ? JSON.parse(response) : response;
+    $.ajax({
+        url: 'api/accounts_files/accounts/get_previous_data.php', // Replace with your actual API endpoint
+        method: 'GET',
+        success: function(response) {
+            let data;
+            if (typeof response === "string") {
+                data = JSON.parse(response);
+            } else {
+                data = response; // It's already parsed
+            }
 
-        if (Array.isArray(data) && data.length > 0) {
-            data.forEach(item => {
-                $('#denominationTableBody').append(`
-                    <tr>
-                        <td>${item.amount}</td>
-                        <td>
-                            <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
-                        </td>
-                        <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
-                    </tr>
-                `);
-            });
-            $('#submit_denom_info').attr('disabled', true);
-        } 
-        calculateOverallTotal();
-    }).fail(function(xhr, status, error) {
-        console.error("Error fetching previous day's data:", error);
-    });
-}
-
-function loadData() {
-    // Prevent multiple loads if already loading
-    if (isLoading) {
-        console.log("Data is already loading. Please wait.");
-        return;
-    }
-    isLoading = true; // Set loading flag
-
-    // Clear the table body before loading data
-    $('#denominationTableBody').empty();
-
-    // Initialize flags to track if data was loaded successfully
-    let todayDataLoaded = false;
-    let previousDayDataLoaded = false;
-
-    // Function to check and update toggle buttons
-    const updateToggleButtons = () => {
-        if (todayDataLoaded) {
-            $('.toggle-button[value="Today"]').addClass("active");
+            // Check if data is an array and has items
+            if (Array.isArray(data) && data.length > 0) {
+                console.log("Loading previous day's data.");
+                data.forEach(item => {
+                    $('#denominationTableBody').append(`
+                        <tr>
+                            <td>${item.amount}</td>
+                            <td>
+                                <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
+                            </td>
+                            <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
+                        </tr>
+                    `);
+                });
+                $('#submit_denom_info').attr('disabled', true);
+            } else {
+                // Show predefined denominations when no previous data is available
+                appendPredefinedDenominations();
+                $('#submit_denom_info').attr('disabled', false);
+            }
+            // Recalculate the overall total after loading data
+            calculateOverallTotal();
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching previous day's data:", error);
+            $('#denominationTableBody').append(`
+                <tr>
+                    <td colspan="3">Error fetching data. Please try again later.</td>
+                </tr>
+            `);
         }
-        if (previousDayDataLoaded) {
-            $('.toggle-button[value="Previous Day"]').addClass("active");
-        }
-        if (!todayDataLoaded && !previousDayDataLoaded) {
-            $('.toggle-button[value="Today"]').addClass("active");
-            appendEmptyRows(); // Append empty rows for today
-        }
-        isLoading = false; // Reset loading flag after loading data
-    };
-
-    // Load today's data
-    loadDataForToday().done(function() {
-        todayDataLoaded = true;
-        console.log("Today's data loaded.");
-        updateToggleButtons(); // Update buttons after loading today's data
-    });
-
-    // Load previous day's data
-    loadDataForPreviousDay().done(function() {
-        previousDayDataLoaded = true;
-        console.log("Previous day's data loaded.");
-        updateToggleButtons(); // Update buttons after loading previous day's data
     });
 }
 
@@ -1406,17 +1135,174 @@ function appendEmptyRows() {
         $('#denominationTableBody').append(`
             <tr>
                 <td>${amount}</td>
-                <td><input type="number" class="form-control" value="0" min="0" onchange="updateTotal(this, ${amount})"></td>
+                <td><input type="number" class="form-control" value="" min="0" onchange="updateTotal(this, ${amount})"></td>
                 <td><input type="text" class="form-control" value="0" readonly></td>
             </tr>
         `);
     });
-    // Update the overall total
     calculateOverallTotal();
 }
 
+// Function to append predefined denominations if no previous data is available
+function appendPredefinedDenominations() {
+    const denominations = [500, 200, 100, 50, 20, 10, 5];
+    denominations.forEach(amount => {
+        $('#denominationTableBody').append(`
+            <tr>
+                <td>${amount}</td>
+                <td><input type="number" class="form-control" value="" min="0" onchange="updateTotal(this, ${amount})"></td>
+                <td><input type="text" class="form-control" value="0" readonly></td>
+            </tr>
+        `);
+    });
+    calculateOverallTotal();
+}
+
+
+function resetDenominationTable() {
+    // Reset all number inputs and total value to 0
+    $('#denominationTableBody tr').each(function () {
+        $(this).find('input[type="number"]').val(''); // Reset quantity inputs
+        $(this).find('input[type="text"]').val(0);    // Reset total value inputs
+    });
+    $('#totalAmount').val(0); // Reset total amount
+}
+const toggleButtons = $(".toggle-button");
+
+// Initially make all buttons unchecked
+toggleButtons.removeClass('active');
+
 // Event listener for button clicks
-$("#add_grup").on("click", function () {
-    loadData(); // Call the function to load both datasets
+toggleButtons.on("click", function () {
+    // Reset active class for all buttons
+    toggleButtons.removeClass("active");
+    // Add active class to the clicked button
+    $(this).addClass("active");
+
+    let chosenOpt = $(this).val();
+
+    if (chosenOpt === 'Today') {
+        // Call function to load today's data
+        loadToday();
+    } else if (chosenOpt === 'Previous Day') {
+        // Call function to load previous day's data
+        loadPreviousDay();
+    }
 });
+   // Button click for adding denominations
+$('#add_grup').on('click', function() {
+    // Clear the table body initially
+    $('#denominationTableBody').empty();
+
+    // First, load today's data
+    loadDataForToday().then(todayDataLoaded => {
+        if (todayDataLoaded) {
+            // If today's data is loaded, activate the "Today" toggle
+            toggleButtons.filter("[value='Today']").addClass("active");
+            toggleButtons.filter("[value='Previous Day']").removeClass("active");
+        } else {
+            // If no data for today, attempt to load previous day's data
+            loadDataForPreviousDay().then(previousDataLoaded => {
+                if (previousDataLoaded) {
+                    // If previous day's data is loaded, activate the "Previous Day" toggle
+                    toggleButtons.filter("[value='Previous Day']").addClass("active");
+                    toggleButtons.filter("[value='Today']").removeClass("active");
+                } else {
+                    // If neither today nor previous day's data is available, append empty rows
+                    toggleButtons.filter("[value='Today']").addClass("active");
+                    toggleButtons.filter("[value='Previous Day']").removeClass("active");
+                    appendEmptyRows(); // Append empty row indicating no data available
+                }
+            }).catch(error => {
+                console.error("Error loading previous day's data:", error);
+            });
+        }
+    }).catch(error => {
+        console.error("Error loading today's data:", error);
+    });
+});
+
+
+// Modify loadPreviousDay to return a Promise
+function loadDataForPreviousDay() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'api/accounts_files/accounts/get_previous_data.php', // Replace with your actual API endpoint
+            method: 'GET',
+            success: function(response) {
+                let data;
+                if (typeof response === "string") {
+                    data = JSON.parse(response);
+                } else {
+                    data = response;
+                }
+
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(item => {
+                        $('#denominationTableBody').append(`
+                            <tr>
+                                <td>${item.amount}</td>
+                                <td>
+                                    <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
+                                </td>
+                                <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
+                            </tr>
+                        `);
+                    });
+                    $('#submit_denom_info').attr('disabled', true);
+                    resolve(true); // Previous day's data loaded successfully
+                } else {
+                    resolve(false); // No previous day's data loaded
+                }
+                calculateOverallTotal();
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching previous day's data:", error);
+                resolve(false); // Error occurred, no data loaded
+            }
+        });
+    });
+}
+
+// Similar function for loading today's data
+function loadDataForToday() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'api/accounts_files/accounts/get_today_data.php', // Replace with your actual API endpoint for today's data
+            method: 'GET',
+            success: function(response) {
+                let data;
+                if (typeof response === "string") {
+                    data = JSON.parse(response);
+                } else {
+                    data = response;
+                }
+
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(item => {
+                        $('#denominationTableBody').append(`
+                            <tr>
+                                <td>${item.amount}</td>
+                                <td>
+                                    <input type="number" class="form-control" value="${item.quantity}" min="0" onchange="updateTotal(this, ${item.amount})" readonly>
+                                </td>
+                                <td><input type="text" class="form-control" value="${item.total_value}" readonly></td>
+                            </tr>
+                        `);
+                    });
+                    $('#submit_denom_info').attr('disabled', true);
+                    resolve(true); // Today's data loaded successfully
+                } else {
+                    resolve(false); // No today's data loaded
+                }
+                calculateOverallTotal();
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching today's data:", error);
+                resolve(false); // Error occurred, no data loaded
+            }
+        });
+    });
+}
+
 

@@ -10,14 +10,12 @@ $query = "
     SELECT dr.amount, dr.quantity, (dr.amount * dr.quantity) AS total_value 
     FROM denomination_table dl 
     LEFT JOIN denom_refer_table dr ON dl.id = dr.denom_id 
-    WHERE DATE(dl.created_on) <> :currentDate
+    WHERE DATE(dl.created_on) <> '$currentDate'
     ORDER BY dl.id DESC
 ";
 
-// Prepare and execute the query with the current date as a parameter
-$stmt = $pdo->prepare($query);
-$stmt->execute(['currentDate' => $currentDate]);
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Execute the query directly
+$result = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
 // Return the result as JSON
 echo json_encode($result);
