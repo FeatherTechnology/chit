@@ -1098,9 +1098,12 @@ function printDenomination() {
     let content = ` 
         <div id="print_content" style="text-align: center;">
             <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <img src="img/bg_none_eng_logo.png" class="img1" style="width:150px; height: 100px;">           
+            </h2>
+            <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
                 Cash Denomination
             </h2>
-            <table style="margin: 0 auto; border-collapse: collapse; width: 45%;">
+            <table style="margin: 0 auto; border-collapse: collapse; width: 55%;">
                 <tr>
                     <td style="padding-bottom: 10px;"><strong>Group Name</strong></td>
                     <td style="padding-bottom: 10px;">${$('#denon_name').val()}</td>
@@ -1138,7 +1141,7 @@ function printDenomination() {
         <br />
         <div style="text-align: center;">
             <h3>Denomination Table</h3>
-            <table style="margin: 0 auto; border-collapse: collapse; width: 45%;">
+            <table style="margin: 0 auto; border-collapse: collapse; width: 85%;">
                 <thead>
                     <tr>
                         <th style="border: 1px solid black; padding: 10px;">Amount</th>
@@ -1203,6 +1206,9 @@ function printDenomination() {
     printWindow.document.write('</body></html>');
 
     // Close the document and trigger the print
+    setTimeout(() => {
+       
+    
     printWindow.document.close();
     printWindow.print();
 
@@ -1210,5 +1216,6 @@ function printDenomination() {
     printWindow.onafterprint = function () {
         printWindow.close();
     };
+}, 1000);
 }
 
