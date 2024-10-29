@@ -96,6 +96,28 @@ if (isset($data['data']) && is_array($data['data'])) {
             echo json_encode(['success' => false, 'message' => 'No group creation details found.']);
             exit;
         }
+
+        // $qry = $pdo->query("SELECT CONCAT(cc.first_name,' ', cc.last_name) AS customer_name, cc.mobile1 FROM `group_cus_mapping` gcm JOIN customer_creation cc ON gcm.cus_id = cc.id WHERE gcm.grp_creation_id = '$group_id' GROUP BY cc.id ");
+        // $result = $qry->fetchAll(PDO::FETCH_ASSOC);
+        // foreach($result AS $row){
+        //     $customer_name = $row['customer_name'];
+        //     $cus_mobile1 = $row['mobile1'];
+
+        //     // $message = "";
+        //     // $templateid	= ''; //FROM DLT PORTAL.
+        //     // // Account details
+        //     // $apiKey = '';
+        //     // // Message details
+        //     // $sender = '';
+        //     // // Prepare data for POST request
+        //     // $data = 'access_token='.$apiKey.'&to='.$cus_mobile1.'&message='.$message.'&service=T&sender='.$sender.'&template_id='.$templateid;
+        //     // // Send the GET request with cURL
+        //     // $url = 'https://sms.messagewall.in/api/v2/sms/send?'.$data; 
+        //     // $response = file_get_contents($url);  
+        //     // // Process your response here
+        //     // return $response; 
+        // }
+
     } else {
         echo json_encode(['success' => false, 'message' => 'No auction details found.']);
         exit;
