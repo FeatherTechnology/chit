@@ -2,10 +2,12 @@ $(document).ready(function () {
     $(document).on('click', '#add_customer, #back_btn', function () {
         $('#cus_id').val('');
         swapTableAndCreation();
-        getSourceTable()
+        setTimeout(() => {
+            getSourceTable()
         getGuarantorInfoTable()
         getFamilyInfoTable()
         getPlaceDropdown(place_name_id);
+        }, 1000);
         $('#imgshow').attr('src', 'img/avatar.png');
         $('.toRefresh').hide();
         $('.knowData').val('');

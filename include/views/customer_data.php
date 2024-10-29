@@ -1,42 +1,4 @@
-<style>
-    .selecto {
-        position: relative;
-        width: 35%;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 
-    .selector-item_labe {
-        position: relative;
-        height: 35px;
-        width: 100px;
-        text-align: center;
-        border-radius: 9999px;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        transition-duration: .5s;
-        transition-property: transform, box-shadow;
-        transform: none;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
-        cursor: pointer;
-    }
-
-    .selector-item_radio,
-    .selector-item_labe {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .selector-item_radio:checked+.selector-item_labe {
-        background-color: var(--primary-color);
-        color: var(--white);
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .5);
-        transform: translateY(-2px);
-    }
-</style>
 <div class="text-right">
 
     <button type="button" class="btn btn-primary" id="back_btn" style="display:none;"><span class="icon-arrow-left"></span>&nbsp; Back </button>
@@ -498,6 +460,7 @@
                                     <th>Collection Status</th>
                                     <th>Grace Period</th>
                                     <th>Customer Status</th>
+                                    <th>Settlement Status</th>
                                     <th>Charts</th>
                                     </tr>
                                 </thead>
@@ -526,6 +489,7 @@
                                     <th>Group Status</th>
                                     <th>Collection Status</th>
                                     <th>Customer Status</th>
+                                    <th>Settlement Status</th>
                                     <th>Charts</th>
                                     </tr>
                                 </thead>
@@ -1077,6 +1041,7 @@
                             <th width="20">S.No</th>
                             <th>Date</th>
                             <th>Label</th>
+                            <th>Commitment Date</th>
                             <th>Remark</th>
                         </thead>
                         <tbody>

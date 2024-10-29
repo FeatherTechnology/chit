@@ -67,7 +67,7 @@ $query = "WITH RankedDates AS (
         AND ad.status = 1 
         AND YEAR(ad.date) = '$currentYear'
         AND MONTH(ad.date) = '$currentMonth'
-        $searchQuery
+        $searchQuery $branch_id
 ),
 UpcomingAuctions AS (
     SELECT 

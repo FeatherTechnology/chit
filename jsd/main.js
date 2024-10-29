@@ -308,45 +308,49 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 }
 /////////////////////////////////////////////////////
 
-// Function to append data to table
 function serverSideTable(tableSelector, params, apiUrl) {
-	$(tableSelector).DataTable().destroy();
-	$(tableSelector).DataTable({
-		'order': [[0, "desc"]],
-		'processing': true,
-		'serverSide': true,
-		'serverMethod': 'post',
-		'ajax': {
-			'url': apiUrl,
-			'data': function (data) {
-				var search = $(tableSelector + '_search').val();
-				data.search = search;
-				data.params = params;
-			}
-		},
-		dom: 'lBfrtip',
-		buttons: [
-			{
-				extend: 'excel',
-				title: "Branch List"
-			},
-			{
-				extend: 'colvis',
-				collectionLayout: 'fixed four-column',
-			}
-		],
-		"lengthMenu": [
-			[10, 25, 50, -1],
-			[10, 25, 50, "All"]
-		],
-		'drawCallback': function () {
-			setDropdownScripts();
-			let new_id = tableSelector.split("#").pop();
-			$(tableSelector + '_filter input').attr('id', new_id + '_search');
-		}
-	});
+    $(tableSelector).DataTable().destroy();
+    $(tableSelector).DataTable({
+        'order': [[0, "desc"]],
+        'processing': true,
+        'serverSide': true,
+        'serverMethod': 'post',
+        'ajax': {
+            'url': apiUrl,
+            'data': function (data) {
+                var search = $(tableSelector + '_search').val();
+                data.search = search;
+                data.params = params;
+            }
+        },
+        dom: 'lBfrtip',
+        buttons: [
+            {
+                extend: 'excel',
+                title: "Branch List"
+            },
+            {
+                extend: 'colvis',
+                collectionLayout: 'fixed four-column',
+            }
+        ],
+        "lengthMenu": [
+            [10, 25, 50, -1],
+            [10, 25, 50, "All"]
+        ],
+        'drawCallback': function () {
+            setDropdownScripts();
+            let new_id = tableSelector.split("#").pop();
+            $(tableSelector + '_filter input')
+                .attr('id', new_id + '_search')
+                .addClass('custo-search'); // Add your custom class here
 
+            // You can remove the JS width and padding adjustments now
+        }
+    });
 }
+
+
 
 
 
@@ -493,29 +497,37 @@ function validateMultiSelectField(fieldId, choicesInstance) {
 }
 
 function moneyFormatIndia(num) {
-	var isNegative = false;
-	if (num < 0) {
-		isNegative = true;
-		num = Math.abs(num);
-	}
+    // Check if num is undefined or not a number
+    if (num === undefined || num === null || isNaN(num)) {
+        return '0'; // Return a default value if the input is invalid
+    }
+    
+    // Convert num to a number type if it's a string
+    num = Number(num);
 
-	var explrestunits = "";
-	if (num.toString().length > 3) {
-		var lastthree = num.toString().substr(num.toString().length - 3);
-		var restunits = num.toString().substr(0, num.toString().length - 3);
-		restunits = (restunits.length % 2 == 1) ? "0" + restunits : restunits;
-		var expunit = restunits.match(/.{1,2}/g);
-		for (var i = 0; i < expunit.length; i++) {
-			if (i == 0) {
-				explrestunits += parseInt(expunit[i]) + ",";
-			} else {
-				explrestunits += expunit[i] + ",";
-			}
-		}
-		var thecash = explrestunits + lastthree;
-	} else {
-		var thecash = num;
-	}
+    var isNegative = false;
+    if (num < 0) {
+        isNegative = true;
+        num = Math.abs(num);
+    }
 
-	return isNegative ? "-" + thecash : thecash;
+    var explrestunits = "";
+    if (num.toString().length > 3) {
+        var lastthree = num.toString().substr(num.toString().length - 3);
+        var restunits = num.toString().substr(0, num.toString().length - 3);
+        restunits = (restunits.length % 2 === 1) ? "0" + restunits : restunits; // Add leading zero if necessary
+        var expunit = restunits.match(/.{1,2}/g);
+        for (var i = 0; i < expunit.length; i++) {
+            if (i === 0) {
+                explrestunits += parseInt(expunit[i]) + ",";
+            } else {
+                explrestunits += expunit[i] + ",";
+            }
+        }
+        var thecash = explrestunits + lastthree;
+    } else {
+        var thecash = num.toString(); // Ensure it's a string
+    }
+
+    return isNegative ? "-" + thecash : thecash;
 }

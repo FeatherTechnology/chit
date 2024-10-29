@@ -103,17 +103,26 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
         FROM 
             collection c1 
         WHERE 
-            c1.cus_mapping_id ='$cus_mapping_id' AND group_id = '$group_id'
+            c1.cus_mapping_id ='$cus_mapping_id' 
+            AND group_id = '$group_id'
             AND c1.collection_date BETWEEN '$start_date' AND IFNULL('$end_date', NOW())
     ");
-
+    
     $collection_data = $qry1->fetch(PDO::FETCH_ASSOC);
     $collection_amount = $collection_data['total_collection'] ?: 0; // Get total collection or default to 0 
-
+    
+    // Make sure all values are cast as float or int for correct arithmetic operations
+    $collection_amount = (float) $collection_amount; // Cast collection_amount to float
+    $chit_value = (float) $row['chit_value'];        // Cast chit_value to float
+    $commission = (float) $row['commission'];        // Cast commission percentage to float
+    
     // Calculate commission based on the chit value and commission percentage
-    $commission_value = ($row['chit_value'] * $row['commission']) / 100;
-    $total_chit = $chit_amount - $commission_value;
-    $difference = $collection_amount - $total_chit;
+    $commission_value = ($chit_value * $commission) / 100; // Commission calculation
+    $total_chit = (float) $chit_amount - $commission_value; // Cast chit_amount and calculate total chit
+    
+    // Now safely perform subtraction
+    $difference = $collection_amount - $total_chit; // Subtract after casting
+    
 
     if ($total_chit >= $collection_amount) {
         // Add current auction ID to the excluded customers list along with the group_id

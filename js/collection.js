@@ -127,11 +127,16 @@ $(document).ready(function () {
             }
 
             if (coll_mode === '2') {
-                if (!validateField(transaction_id, 'transaction_id') && !validateField(bank_name, 'bank_name')) {
+                // Check if transaction_id is empty
+                if (!validateField(transaction_id, 'transaction_id')) {
+                    isValid = false;
+                }
+                
+                // Check if bank_name is empty (assuming bank_name is required for coll_mode '2')
+                if (!validateField(bank_name, 'bank_name')) {
                     isValid = false;
                 }
             }
-
             // Check if collection amount is less than or equal to payable amount
             if (collectionAmount > payableAmount) {
                 isValid = false;
@@ -185,6 +190,7 @@ $(document).ready(function () {
         // Show the modal
         $('#add_commitment_modal').modal('show');
         $('#label').css('border', '1px solid #cecece');
+        $('#commitment_date').css('border', '1px solid #cecece');
         $('#remark').css('border', '1px solid #cecece');
         // Pre-fill the modal or attach necessary data if required
         let dataValue = $(this).data('value');
@@ -200,6 +206,7 @@ $(document).ready(function () {
             // Validation
             let label = $('#label').val();
             let remark = $('#remark').val();
+            let commitment_date = $('#commitment_date').val();
 
             var isValid = true;
 
@@ -210,6 +217,9 @@ $(document).ready(function () {
             if (!validateField(remark, 'remark')) {
                 isValid = false;
             }
+            if (!validateField(commitment_date, 'commitment_date')) {
+                isValid = false;
+            }
 
             // If all fields are valid, proceed with the AJAX call
             if (isValid) {
@@ -217,12 +227,14 @@ $(document).ready(function () {
                     group_id: groupId,
                     cus_mapping_id: cusMappingID, // Pass cus_mapping_id
                     label: label,
-                    remark: remark
+                    remark: remark,
+                    commitment_date:commitment_date
                 }, function (response) {
                     if (response == '1') {
                         swalSuccess('Success', 'Commitment Added Successfully!');
                         $('#label').val('');
                         $('#remark').val('');
+                        $('#commitment_date').val('');
                         getCommitmentInfoTable(cusMappingID, groupId);
                     } else {
                         swalError('Warning', 'Commitment Not Added!');
@@ -303,12 +315,13 @@ $(document).ready(function () {
                                 <td>${moneyFormatIndia(row.pending)}</td>
                             </tr>
                         `).join('');
+                        
 
                         const content = `
                             <div id="print_content" style="text-align: center;">
                                 <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="img/auction1.jpg" width="25" height="25" style="margin-right: 10px;">
-                                    Chit Company
+                                    <img src="img/bg_none_eng_logo.png"  style="width:150px; height: 100px;">
+                                   
                                 </h2>
                                 <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
                                     ${rows}
@@ -337,9 +350,11 @@ $(document).ready(function () {
                         printWindow.document.close();
 
                         // Trigger the print dialog
-                        printWindow.focus();
-                        printWindow.print();
-                        printWindow.close();
+                        setTimeout(() => {
+                            printWindow.focus();
+                            printWindow.print(); 
+                            printWindow.close();  
+                        }, 1000);
                     },
                 });
             });
@@ -369,6 +384,7 @@ function closeChartsModal() {
     $('#add_commitment_modal').modal('hide');
     $('#label').val('');
     $('#remark').val('');
+    $('#commitment_date').val('');
 }
 $(function () {
     getCollectionTable();
@@ -429,6 +445,7 @@ function getCommitmentInfoTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
             'action'
 
@@ -453,6 +470,7 @@ function getCommitmentChartTable(cusMappingID, groupId) {
             'sno',
             'created_on',
             'label',
+            'commitment_date',
             'remark',
         ];
         appendDataToTable('#commitment_chart_table', response, columnMapping);
