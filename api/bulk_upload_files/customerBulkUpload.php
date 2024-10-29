@@ -46,10 +46,9 @@ if (in_array($_FILES["excelFile"]["type"], $allowedFileType)) {
                     $cust_id = $obj->getcustomerId($pdo,$data['aadhar_number']);
                     $data['cust_id'] = $cust_id;
                     $obj->FamilyTable($pdo, $data);
-                
-                    // Retrieve guarantor ID using the guarantorName function
-                    $gur_id = $obj->guarantorName($pdo,$data['guarantor_aadhar']);
-                    $data['gur_id'] = $gur_id;
+                    $gur_id = $obj->guarantorName($pdo, $data['guarantor_aadhar'], $data['aadhar_number'],$data['fam_name']);
+                    $data['gur_id'] = $gur_id; // Store the returned gur_id in the data array
+                                     
                     $obj->guarantorTable($pdo, $data);
                     $obj->sourceTable($pdo, $data);
                     $obj->cusMappingTable($pdo, $data);

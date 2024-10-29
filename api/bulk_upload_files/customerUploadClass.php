@@ -134,18 +134,35 @@ class customerUploadClass
 
         return $cust_id;
     }
-    function guarantorName($pdo, $guarantor_aadhar)
-    {
-        $stmt = $pdo->query("SELECT id, fam_name FROM  family_info WHERE fam_aadhar = '$guarantor_aadhar'");
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $gur_id = $row["id"];
-        } else {
-            $gur_id = 'Not Found'; // Return null if no result is found
-        }
-        return $gur_id;
+  
+    function guarantorName($pdo, $guarantor_aadhar, $aadhar_number,$fam_name) {
+        // Check if the customer exists based on aadhar_number
+        $check_queryss = "SELECT cus_id FROM customer_creation WHERE aadhar_number = '$aadhar_number'";
+    
+        // Execute the query and fetch the cus_id
+        $result1 = $pdo->query($check_queryss);
+        $cusData = $result1->fetch(PDO::FETCH_ASSOC);
+    
+        // Initialize gur_id variable
+        $gur_id = 'Not Found'; // Default value if no record is found
+    
+        // If customer exists, proceed to check for guarantor details
+        if ($cusData) {
+            $cus_id = $cusData['cus_id']; // Get cus_id from query result
+    
+            // Check if family info exists for the given guarantor_aadhar and cus_id
+            $stmt = $pdo->query("SELECT id, fam_name FROM family_info WHERE fam_aadhar = '$guarantor_aadhar' AND cus_id = '$cus_id' AND fam_name ='$fam_name'");
+    
+            // If a family record is found, return the id (gur_id)
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $gur_id = $row["id"];
+            }
+        } 
+        return $gur_id; // Return gur_id, which will be 'Not Found' if no record exists
     }
-
+    
+    
     function placeName($pdo, $place)
     {
         $stmt = $pdo->query("SELECT id, place FROM  place WHERE LOWER(REPLACE(TRIM(place),' ' ,'')) = LOWER(REPLACE(TRIM('$place'),' ' ,''))");
@@ -162,31 +179,53 @@ class customerUploadClass
     function FamilyTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-        // Check if the place already exists (case-insensitive and ignoring spaces)
-        $check_queryss = "SELECT cus_id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "'";
-
-        // Execute the query
+    
+        // Check if the customer exists based on aadhar_number
+        $check_queryss = "SELECT cus_id FROM customer_creation WHERE aadhar_number = '" . strip_tags($data['aadhar_number']) . "'";
+    
+        // Execute the query and fetch the cus_id
         $result1 = $pdo->query($check_queryss);
-
-
-        // If the place does not exist, insert it
-        if ($result1->rowCount() > 0) {
-            $insert_query1 = "INSERT INTO family_info (cus_id, fam_name, fam_relationship,fam_aadhar, fam_mobile, insert_login_id, created_on) 
-                VALUES (
-                    '" . $data['cus_id'] . "',
-                    '" . $data['fam_name'] . "',
-                    '" . $data['fam_relationship'] . "',
-                    '" . $data['fam_aadhar'] . "',
-                    '" . $data['fam_mobile'] . "',
-                    '" . $user_id . "',
-                   NOW()
-                )
-            ";
-
-            $pdo->query($insert_query1);
+        $cusData = $result1->fetch(PDO::FETCH_ASSOC);
+    
+        // If cus_id is found, proceed with further checks
+        if ($cusData) {
+            $cus_ids = $cusData['cus_id']; // Get cus_id from query result
+            
+            // Check if family member already exists based on the provided details
+            $check_query3 = "SELECT cus_id 
+                             FROM family_info 
+                             WHERE cus_id = '" . strip_tags($cus_ids) . "' 
+                             AND fam_name = '" . strip_tags($data['fam_name']) . "' 
+                             AND fam_relationship = '" . strip_tags($data['fam_relationship']) . "' 
+                             AND fam_aadhar = '" . strip_tags($data['fam_aadhar']) . "' 
+                             AND fam_mobile = '" . strip_tags($data['fam_mobile']) . "'";
+    
+            $result2 = $pdo->query($check_query3);
+    
+            // If no family member exists, insert new family member info
+            if ($result2->rowCount() == 0) {
+                // Prepare the insert query for family_info
+                $insert_query1 = "INSERT INTO family_info (cus_id, fam_name, fam_relationship, fam_aadhar, fam_mobile, insert_login_id, created_on) 
+                                  VALUES (
+                                      '" . strip_tags($cus_ids) . "',
+                                      '" . strip_tags($data['fam_name']) . "',
+                                      '" . strip_tags($data['fam_relationship']) . "',
+                                      '" . strip_tags($data['fam_aadhar']) . "',
+                                      '" . strip_tags($data['fam_mobile']) . "',
+                                      '" . $user_id . "',
+                                      NOW()
+                                  )";
+    
+                // Execute the insert query
+                $pdo->query($insert_query1);
+            }
+        } else {
+            // Handle case where aadhar_number is not found in customer_creation
+            echo "Error: Customer with the given Aadhar number not found.";
         }
-        
     }
+    
+    
     function PlaceTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
@@ -209,21 +248,52 @@ class customerUploadClass
     function guarantorTable($pdo, $data)
     {
         $user_id = $_SESSION['user_id'];
-      // Check if the place already exists (case-insensitive and ignoring spaces)
-      $check_queryss = "SELECT cus_id FROM customer_creation WHERE cus_id = '" . $data['cus_id'] . "'";
-
-      // Execute the query
-      $result1 = $pdo->query($check_queryss);
-
-
-      // If the place does not exist, insert it
-      if ($result1->rowCount() > 0) {
-            $insert_query4 = "INSERT INTO `guarantor_info` (`cus_id`, `relationship_type`, `guarantor_name`, `family_id`, `guarantor_relationship`, `insert_login_id`, `created_on`) 
-            VALUES ('" . strip_tags($data['cus_id']) . "', 3, '" . $data['fam_name'] . "', '" . $data['gur_id'] . "', '" . $data['fam_relationship'] . "', '$user_id', now())";
-
-            $pdo->exec($insert_query4);
-      }
+    
+        // Check if the customer exists based on aadhar_number
+        $check_queryss = "SELECT cus_id FROM customer_creation WHERE aadhar_number = '" . strip_tags($data['aadhar_number']) . "'";
+        
+        // Execute the query and fetch the cus_id
+        $result1 = $pdo->query($check_queryss);
+        $cusData = $result1->fetch(PDO::FETCH_ASSOC);
+    
+        // If cus_id is found, proceed with further checks
+        if ($cusData) {
+            $cus_id = $cusData['cus_id']; // Get cus_id from query result
+    
+            // Check if guarantor already exists based on the provided details
+            $check_query4 = "SELECT cus_id 
+                             FROM guarantor_info 
+                             WHERE cus_id = '" . strip_tags($cus_id) . "' 
+                             AND guarantor_name = '" . strip_tags($data['fam_name']) . "' 
+                             AND family_id = '" . strip_tags($data['gur_id']) . "' 
+                             AND guarantor_relationship = '" . strip_tags($data['fam_relationship']) . "'";
+    
+            $result2 = $pdo->query($check_query4);
+    
+            // If no guarantor exists, insert new guarantor info
+            if ($result2->rowCount() == 0) {
+                // Prepare the insert query for guarantor_info
+                $insert_query4 = "INSERT INTO guarantor_info (cus_id, relationship_type, guarantor_name, family_id, guarantor_relationship, insert_login_id, created_on) 
+                                  VALUES (
+                                      '" . strip_tags($cus_id) . "',
+                                      '3',  
+                                      '" . strip_tags($data['fam_name']) . "',
+                                      '" . strip_tags($data['gur_id']) . "',
+                                      '" . strip_tags($data['fam_relationship']) . "',
+                                      '" . $user_id . "',
+                                      NOW()
+                                  )";
+    
+                // Execute the insert query
+                $pdo->exec($insert_query4);
+            }
+        } else {
+            // Handle case where aadhar_number is not found in customer_creation
+            echo "Error: Customer with the given Aadhar number not found.";
+        }
     }
+    
+    
 
     function customerEntryTables($pdo, $data)
     {
