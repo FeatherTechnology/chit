@@ -18,9 +18,9 @@ AND YEAR(c.collection_date) = YEAR(CURDATE())
 
 // Add conditions based on branchId
 if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
-    $month_paid .= " AND gc.branch = '$branchId' AND  c.insert_login_id = '$user_id' ";
+    $month_paid .= " AND gc.branch = '$branchId' AND  gc.insert_login_id = '$user_id' ";
 } else {
-    $month_paid .= " AND c.insert_login_id = '$user_id' ";
+    $month_paid .= " AND gc.insert_login_id = '$user_id' ";
 }
 $month_paid .= "GROUP BY gc.grp_id";
 
@@ -34,7 +34,7 @@ SELECT
     ((ad.chit_amount * gc.total_members) - COALESCE(SUM(c.collection_amount), 0)) AS unpaid_amount
 FROM 
     group_creation gc
-JOIN 
+LEFT JOIN 
     auction_details ad 
 ON 
     gc.grp_id = ad.group_id 
@@ -57,15 +57,14 @@ WHERE
 
 // Add conditions based on branchId for unpaid amount
 if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
-    $month_unpaid .= " gc.branch = '$branchId' AND  c.insert_login_id = '$user_id' ";
+    $month_unpaid .= " gc.branch = '$branchId' AND  gc.insert_login_id = '$user_id' ";
 } else {
-    $month_unpaid .= " c.insert_login_id = '$user_id' ";
+    $month_unpaid .= " gc.insert_login_id = '$user_id' ";
 }
 
 $month_unpaid .= "
 GROUP BY 
     gc.grp_id, gc.grp_name";
-
     $prev_pen_amount  = "
     SELECT 
     gc.grp_id, 
@@ -100,9 +99,9 @@ FROM
     
     // Add conditions based on branchId for unpaid amount
     if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
-        $prev_pen_amount .= " gc.branch = '$branchId' AND c.insert_login_id = '$user_id' ";
+        $prev_pen_amount .= " gc.branch = '$branchId' AND gc.insert_login_id = '$user_id' ";
     } else {
-        $prev_pen_amount .= " c.insert_login_id = '$user_id' ";
+        $prev_pen_amount .= " gc.insert_login_id = '$user_id' ";
     }
     
 try {
@@ -118,7 +117,7 @@ try {
         $total_paid_amount += $month_paid; // Sum paid amounts
 
         $response['paid_groups'][] = array(
-            'unpaid_amount' => $month_paid
+            'month_paid' => $month_paid
         );
     }
     $response['month_paid'] = $total_paid_amount;
@@ -128,7 +127,6 @@ try {
     $unpaid_results = $qry->fetchAll(PDO::FETCH_ASSOC);
     $response['unpaid_groups'] = array();
     $total_unpaid_amount = 0; // Initialize total unpaid amount
-
     foreach ($unpaid_results as $result) {
         $unpaid_amount = $result['unpaid_amount'];
         $total_unpaid_amount += $unpaid_amount; // Sum unpaid amounts

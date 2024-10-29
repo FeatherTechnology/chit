@@ -19,6 +19,7 @@ $column = array(
     'gc.chit_value',
     'gc.total_months',
     'gc.date',
+    'gc.id',
     'ad.auction_month',
     'bc.branch_name',
     'ad.status',
@@ -49,6 +50,9 @@ $query = "WITH RankedDates AS (
         gc.chit_value,
         gc.total_months,
         gc.date AS creation_date,
+        gc.hours,
+        gc.minutes,
+        gc.ampm,
         ad.date AS auction_date,
         ad.auction_month,
         bc.branch_name,
@@ -75,6 +79,9 @@ UpcomingAuctions AS (
         rd.grp_id,
         rd.grp_name,
         rd.chit_value,
+          rd.hours,
+        rd.minutes,
+        rd.ampm,
         rd.total_months,
         rd.creation_date,
         rd.auction_date,
@@ -92,6 +99,9 @@ FilteredAuctions AS (
         ua.id,
         ua.grp_id,
         ua.grp_name,
+        ua.hours,
+        ua.minutes,
+        ua.ampm,
         ua.chit_value,
         ua.total_months,
         ua.creation_date,
@@ -115,6 +125,9 @@ SELECT DISTINCT
     fa.grp_id,
     fa.grp_name,
     fa.chit_value,
+    fa.hours,
+    fa.minutes,
+    fa.ampm,
     fa.total_months,
     fa.creation_date,
     fa.auction_date,
@@ -149,15 +162,25 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
     $sub_array[] = isset($row['creation_date']) ? $row['creation_date'] : '';
+     // Format hours, minutes, and ampm
+     $formattedTime = '';
+     if (isset($row['hours']) && isset($row['minutes']) && isset($row['ampm'])) {
+         $formattedTime = sprintf("%02d:%02d %s", (int)$row['hours'], (int)$row['minutes'], strtoupper($row['ampm']));
+     }
+ 
+     $sub_array[] = $formattedTime; // Add formatted time to sub-array
     $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
     $sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
     $sub_array[] = isset($row['status']) ? $auction_status[$row['status']] : '';
+
+
     $action = "<a href='auction' class='btn btn-primary open-auction-list'  data-grpid='" . $row['grp_id']. "' data-grpname='".$row['grp_name']."' data-chitval='".$row['chit_value']."'>&nbsp;View</button>";
 
     $sub_array[] = $action;
     $data[] = $sub_array;
 }
 $stmt->closeCursor();
+
 
 function count_all_data($pdo)
 {

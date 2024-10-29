@@ -67,10 +67,25 @@ $(document).ready(function () {
         setlocalvariable(this);
     });
 
+    $('#auction_reminder_smsbtn').click(function(event){
+        event.preventDefault();
+
+        $.post('api/dashboard_files/today_auction_reminder_sms.php',{},function(response){
+            if(response == 1){
+                swalSuccess('Success', 'Reminder SMS Sent Successfully');
+            }else if(response == 2){
+                swalError('Warning', 'SMS Failed');
+            }else{
+                swalError('Alert', 'SMS Failed');
+            }
+            checkSMSReminder();
+        },'json');
+    })
 });
 
 $(function () {
     checkUserScreenAccess();
+    checkSMSReminder();
 });
 
 function checkUserScreenAccess() {
@@ -96,6 +111,16 @@ function checkUserScreenAccess() {
     }, 'json').then(function () {
         getBranchList();
     });
+}
+
+function checkSMSReminder(){
+    $.post('api/dashboard_files/check_sms_reminder_history.php',{},function(response){
+        if(response == 1){
+            $('#auction_reminder_smsbtn').prop('disabled',true);
+        }else{
+            $('#auction_reminder_smsbtn').prop('disabled',false);
+        }
+    },'json');
 }
 
 function getBranchList() {
