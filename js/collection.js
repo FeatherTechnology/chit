@@ -165,22 +165,146 @@ $(document).ready(function () {
                         bank_name: bank_name,
                     },
                     success: function (response) {
-                        if (response == '1') {
+                        response = JSON.parse(response);
+                        if (response.result == 1) {
                             swalSuccess('Success', "Collected Successfully");
                             // Optionally clear the form fields
                             $('#collection_amount').val('');
                             viewCustomerGroups(cusId);
                             $('.colls-cntnr,#back_to_coll_list').show();
                             $('.coll_details, #back_to_pay_list').hide();
+            
+                            // Use the coll_id from the response to print the collection
+                            setTimeout(function () {
+                                printCollection(response.coll_id); // Pass the collection ID here
+                            }, 1000);
                         } else {
                             swalError('Warning', 'Failed to save the collection details');
                         }
                     },
                 });
             }
+            
         });
     });
-
+    function printCollection(coll_id) { 
+        Swal.fire({
+            title: 'Print',
+            text: 'Do you want to print this collection?',
+            imageUrl: 'img/printer.png',
+            imageWidth: 300,
+            imageHeight: 210,
+            imageAlt: 'Custom image',
+            showCancelButton: true,
+            confirmButtonColor: '#009688',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: 'api/collection_files/print_collection.php',
+                    data: { 'coll_id': coll_id },
+                    type: 'POST',
+                    dataType: 'json', // Ensure the response is treated as JSON
+                    cache: false,
+                    success: function (response) {
+                        if (Array.isArray(response) && response.length > 0) {
+                            let rows = response.map(row => `
+                                <tr>
+                                    <td><strong>Group ID</strong></td>
+                                    <td>${row.group_id || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Group Name</strong></td>
+                                    <td>${row.group_name || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Customer Name</strong></td>
+                                    <td>${row.cus_name || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Auction Month</strong></td>
+                                    <td>${row.auction_month || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Chit Amount</strong></td>
+                                    <td>${moneyFormatIndia(row.chit_amount) || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payable</strong></td>
+                                    <td>${moneyFormatIndia(row.payable) || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Collection Date</strong></td>
+                                    <td>${row.collection_date || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Collection Amount</strong></td>
+                                    <td>${moneyFormatIndia(row.collection_amount) || 'N/A'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pending</strong></td>
+                                    <td>${moneyFormatIndia(row.pending) || 'N/A'}</td>
+                                </tr>
+                            `).join('');
+                            
+                            const content = `
+                                <div id="print_content" style="text-align: center;">
+                                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                                        <img src="img/bg_none_eng_logo.png" style="width:150px; height: 100px;">
+                                    </h2>
+                                    <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
+                                        ${rows}
+                                    </table>
+                                </div>
+                            `;
+    
+                            // Create a new window for printing
+                            const printWindow = window.open('', '_blank');
+                            printWindow.document.write(`
+                                <html>
+                                <head>
+                                    <title>Print Collection Details</title>
+                                    <style>
+                                        body { font-family: Arial, sans-serif; text-align: center; }
+                                        table { margin: 0 auto; border-collapse: collapse; width: 50%; border: none; }
+                                        td { padding: 8px; }
+                                        strong { font-weight: bold; }
+                                    </style>
+                                </head>
+                                <body>
+                                    ${content}
+                                </body>
+                                </html>
+                            `);
+                            printWindow.document.close();
+    
+                            // Trigger the print dialog
+                            setTimeout(() => {
+                                printWindow.focus();
+                                printWindow.print(); 
+                                printWindow.close();
+                            }, 1000);
+                        } else {
+                            console.error('No valid data found:', response);
+                            swalError('Error', 'No data found for printing.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', error);
+                        swalError('Error', 'Failed to load collection data.');
+                    }
+                });
+            } else {
+                // Show collection container and return to collection list if canceled
+                $('.colls-cntnr, #back_to_coll_list').show(); 
+            }
+        });
+    }
+    
+    
+    
 
     ////////////////////////////////////////////////Pay End/////////////////////////////////////////////////
     ////////////////////////////////////////////////////////Commitement  Start////////////////////////////////////////////

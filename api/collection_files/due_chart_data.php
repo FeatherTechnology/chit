@@ -30,7 +30,6 @@ $currentYear = date('Y');
 $currentMonth = date('m');
 $auction_month_current = ($currentYear * 12 + $currentMonth) - (substr($start_month, 0, 4) * 12 + substr($start_month, 5, 2)) + 1;
 
-
 $previous_auction_query = "SELECT
     ad.auction_month,
     ad.chit_amount,
@@ -62,6 +61,7 @@ while ($previous_row = $previous_statement->fetch(PDO::FETCH_ASSOC)) {
 }
 $lastAuctionMonth = null;
 $lastAuctionDate = null;
+
 foreach ($auctionData as $auction) {
     $auction_date = $auction['auction_date'];
     if ($auction_date) {
@@ -91,11 +91,7 @@ foreach ($auctionData as $auctionDetails) {
     }
 
     // Calculate payable amount only if chit_amount is greater than 0
-    if ($chit_amount > 0) {
-        $initial_payable_amount = $chit_amount + $pending_amount;
-    } else {
-        $initial_payable_amount = 0;
-    }
+    $initial_payable_amount = $chit_amount > 0 ? $chit_amount + $pending_amount : 0;
 
     // Fetch collection details for the auction month
     $qry2 = $pdo->query("SELECT 
@@ -126,7 +122,7 @@ foreach ($auctionData as $auctionDetails) {
             $pending = $payable - $collection_amount;
 
             // Ensure pending is not negative
-            $pending = $pending > 0 ? $pending : 0;
+            $pending = max($pending, 0);
             // Add auction_month and auction_date to the row
             $row['auction_month'] = !in_array($auction_month, $auctionMonthUsed) ? $auction_month : '';
             $row['auction_date'] = $auction_date;
@@ -157,21 +153,20 @@ foreach ($auctionData as $auctionDetails) {
     }
 }
 
-// Handle future collection dates by adding default entries with last known auction month and date
-if ($lastAuctionDate) {
-    $currentDate = new DateTime();
-    $interval = new DateInterval('P1M'); // Monthly interval
+$collectionDatesQuery = "SELECT collection_date FROM collection WHERE collection_date > '" . $lastAuctionDate->format('Y-m-d') . "' AND group_id ='$groupId' AND cus_mapping_id= '$cusMappingID'";
+$collectionDatesStmt = $pdo->query($collectionDatesQuery);
+$collectionDates = $collectionDatesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Generate future auction months and dates
-    while ($lastAuctionDate <= $currentDate) {
-        $lastAuctionDate->add($interval);
-        $futureMonth = $lastAuctionDate->format('m');
-        $futureYear = $lastAuctionDate->format('Y');
-        $futureMonthFormatted = "22-" . $lastAuctionDate->format('m-Y');
+// Add future collection dates to $due_list_arr
+foreach ($collectionDates as $collectionDate) {
+    $collectionDateFormatted = date('d-m-Y', strtotime($collectionDate['collection_date']));
+    $auction_month_future = date('m', strtotime($collectionDate['collection_date']));
 
+    // Only add if the auction month is not already used
+    if (!in_array($auction_month_future, $auctionMonthUsed)) {
         $due_list_arr[] = array(
-            'auction_month' => $futureMonth,
-            'auction_date' => $futureMonthFormatted,
+            'auction_month' => $auction_month_future,
+            'auction_date' => $collectionDateFormatted,
             'chit_amount' => '',
             'collection_date' => '',
             'payable' => '',
@@ -179,9 +174,10 @@ if ($lastAuctionDate) {
             'id' => '',
             'action' => ''
         );
+        $auctionMonthUsed[] = $auction_month_future; // Mark this future auction month as used
     }
 }
 
 echo json_encode($due_list_arr);
 $pdo = null; // Close Connection
-?> 
+?>

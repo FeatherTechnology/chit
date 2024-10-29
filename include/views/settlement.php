@@ -343,9 +343,10 @@
                                     <input type="text" class="form-control" id="gua_relationship" name="gua_relationship" tabindex="29" readonly>
                                 </div>
                             </div>
-                            <div class="col-4 col-sm-4 col-md-4	col-lg-4 col-xl-4" id="deno_upload_cont" style="display:none">
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" id="deno_upload_cont" style="display:none">
                                 <div class="form-group">
-                                    <label for="den_upload"> Denomination Upload</label>
+                                    <label for="den_upload">Denomination Upload</label><span class="text-danger">*</span>
+                                    <span id="denom_data"></span> <!-- This will contain the links -->
                                     <input type="file" class="form-control" name="den_upload" id="den_upload" tabindex='9'>
                                     <input type="hidden" name="den_upload_edit" id="den_upload_edit">
                                 </div>

@@ -4,7 +4,7 @@ require '../../ajaxconfig.php';
 $user_id = $_SESSION['user_id'];
 
 // Define status mapping array
-$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current',4=>'Closed'];
+$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current',4=>'Closed',5 => 'Closed'];
 $currentMonth = date('m'); // Get the current month
 $currentYear = date('Y'); // Get the current year
 // Define column names for sorting
@@ -23,8 +23,10 @@ $query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branc
           FROM group_creation gc 
           JOIN branch_creation bc ON gc.branch = bc.id 
           LEFT JOIN auction_details ad ON gc.grp_id = ad.group_id
-          WHERE gc.status = 4 AND
-          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth)";
+           JOIN 
+        users us ON FIND_IN_SET(gc.branch, us.branch) > 0
+          WHERE gc.status BETWEEN 4 AND 5 AND
+          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth) AND us.id = '$user_id'";
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {

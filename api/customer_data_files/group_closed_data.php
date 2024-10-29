@@ -5,7 +5,7 @@ require '../../ajaxconfig.php';
 $id = $_POST['id'];
 include '../collection_files/collectionStatus.php';
 $collectionSts = new CollectionStsClass($pdo);
-$group_status = [4 => 'Closed'];
+$group_status = [4 => 'Closed',5=> 'Closed'];
 
 $query = "SELECT
     ad.id AS auction_id,
@@ -30,7 +30,7 @@ LEFT JOIN group_cus_mapping gcm ON
 LEFT JOIN customer_creation cc ON
     gcm.cus_id = cc.id
 WHERE
-     gc.status = 4
+     gc.status BETWEEN 4 AND 5
     AND cc.id = '$id' GROUP BY gcm.id";
 
 $result = [];

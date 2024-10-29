@@ -50,11 +50,14 @@ LEFT JOIN group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
 LEFT JOIN customer_creation cc ON gcm.cus_id = cc.id
 LEFT JOIN place pl ON cc.place = pl.id
 LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
-JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
+    JOIN 
+        branch_creation bc ON gc.branch = bc.id
+    JOIN 
+        users us ON FIND_IN_SET(gc.branch, us.branch) > 0
 WHERE
-    gc.status = 3
+    gc.status BETWEEN 3 AND 4
     AND YEAR(ad.date) = '$currentYear'
-    AND MONTH(ad.date) = '$currentMonth'";
+    AND MONTH(ad.date) = '$currentMonth'  AND us.id = '$user_id'";
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
     $query .= " AND (cc.cus_id LIKE '%" . $search . "%'

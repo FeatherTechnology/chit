@@ -33,9 +33,12 @@ $query = "SELECT
             group_creation gc ON ad.group_id = gc.grp_id
         JOIN 
             customer_creation cc ON ad.cus_name = cc.id
-        JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
+           JOIN 
+        branch_creation bc ON gc.branch = bc.id
+    JOIN 
+        users us ON FIND_IN_SET(gc.branch, us.branch) > 0
         WHERE 
-            ad.status = 2 ";
+            ad.status = 2  AND us.id = '$user_id'";
 
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
