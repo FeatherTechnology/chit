@@ -634,7 +634,7 @@ $(document).ready(function () {
         let id = $(this).attr('value');
         
         $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
-            if (response[0].status == 4) {
+            if (response[0].status == 4 || response[0].status == 5) {
                 // Show a SweetAlert warning and prevent editing
                 swalError('Access Denied', 'Group is closed.');
                 return; // Stop further execution
@@ -663,7 +663,7 @@ $(document).ready(function () {
     
     // Check the group status first before allowing delete
     $.post('api/settlement_files/doc_info_data.php', { id }, function (response) {
-        if (response[0].status == 4) {
+        if (response[0].status == 4 || response[0].status == 5) {
             // If the group status is 4, show a warning and prevent deletion
             swalError('Access Denied', 'Group is closed.');
         } else {

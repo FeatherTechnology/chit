@@ -21,8 +21,11 @@ $qry = $pdo->query("
         ad.group_id = gcm.grp_creation_id
     LEFT JOIN customer_creation cc ON
         gcm.cus_id = cc.id
-    WHERE
-        cc.cus_id = '$cus_id' AND ad.cus_name = cc.id  AND gc.status !=4 GROUP BY ad.id
+  WHERE
+    cc.cus_id = '$cus_id' 
+    AND ad.cus_name = cc.id  
+    AND gc.status NOT IN (4, 5)
+GROUP BY ad.id
 ");
 
 // Initialize an array to hold the results

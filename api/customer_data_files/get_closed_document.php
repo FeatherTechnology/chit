@@ -21,7 +21,7 @@ LEFT JOIN
     customer_creation cc ON di.cus_id = cc.cus_id 
 
 WHERE 
-    gc.status = 4
+    gc.status BETWEEN 4 AND 5
     AND cc.id = '$id'
 GROUP BY 
     gc.grp_id, gc.grp_name, gc.chit_value, cc.cus_id
