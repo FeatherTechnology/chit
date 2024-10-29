@@ -32,7 +32,7 @@ $statement = $pdo->query("SELECT
 $result = $statement->fetch(PDO::FETCH_ASSOC);
 
 if ($result) {
-    $result['reference_type'] = isset($reference_type[$result['reference_type']]) ? $reference_type[$result['reference_type']] : 'Unknown';
+    $result['reference_type'] = isset($reference_type[$result['reference_type']]) ? $reference_type[$result['reference_type']] : '';
     echo json_encode([$result]); // Wrap result in an array
 } else {
     echo json_encode([]); // Return an empty array if no result
