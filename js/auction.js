@@ -585,43 +585,54 @@ $('#submit_cus_map').on('click', function (e) {
             $inputs.first().parent().remove(); // Remove the oldest input field
         }
     }
+   
+
     $(document).on('click', '.auction_close', function (e) {
         e.preventDefault();
         let group_id = $(this).attr('data-group_id');
         let date = $(this).attr('data-date');
         let id = $(this).attr('data-id');
-
+    
         // Collect table data
         let tableData = [];
         let isValid = true; // Flag to track if all fields are valid
         let overallMaxValue = -Infinity; // Initialize to the lowest possible value
         let companyValue = null; // Variable to store the Company value
-
+    
         $('#cus_mapping_table tbody tr').each(function () {
             let cusId = $(this).data('cus-id');
             let values = $(this).find('input[name="cus_value[]"]').map(function () {
                 return $(this).val(); // Collect all values for this customer
             }).get(); // Get values as an array
-
+    
             // Check if the row is for the Company
             if (cusId == -1) {
                 // If this is the Company row, store its value and prioritize it
                 companyValue = Number(values[0]); // Company row has only one value, so we take the first one
+                if (!isNaN(companyValue) && companyValue !== '') {
+                    tableData.push({
+                        cus_id: cusId,
+                        value: companyValue,
+                        group_id: group_id,
+                        date: date,
+                        id: id
+                    });
+                }
                 return; // Skip processing further for the company row
             }
-
+    
             // Check if values are valid
             let validValues = values.filter(function (value) {
                 return value !== ''; // Filter out empty values
             });
-
+    
             if (validValues.length === 0) {
                 isValid = false;
                 $(this).find('input[name="cus_value[]"]').css('border', '1px solid red'); // Highlight empty field
             } else {
                 $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
             }
-
+    
             // If there are valid values for the customer, process them
             if (validValues.length > 0) {
                 // Convert valid values to numbers and push each one as a separate entry
@@ -633,27 +644,27 @@ $('#submit_cus_map').on('click', function (e) {
                         date: date,
                         id: id
                     });
-
+    
                     // Update overall maximum value only if company is not present
                     overallMaxValue = Math.max(overallMaxValue, value);
                 });
             }
         });
-
+    
         // If the company is present, use its value as the overall max
         if (companyValue !== null) {
             overallMaxValue = companyValue; // Company value takes precedence
         }
-
+    
         // If any field is invalid, prevent the submission and show an alert
         if (!isValid) {
             swalError('Error', 'Please fill in all the values');
             return; // Stop further execution if validation fails
         }
-
+    
         // Format the max value for display
         let maxValue = moneyFormatIndia(overallMaxValue);
-
+    
         // Use the swalConfirm function to show confirmation alert
         swalConfirm(
             'Do you want to close the auction?',
@@ -662,8 +673,6 @@ $('#submit_cus_map').on('click', function (e) {
             { group_id: group_id, date: date, id: id, tableData: tableData }
         );
     });
-
-    // The closeAuction function remains the same
     function closeAuction(data) {
         $.ajax({
             url: 'api/auction_files/insert_auction_list.php',
@@ -682,6 +691,7 @@ $('#submit_cus_map').on('click', function (e) {
             },
         });
     }
+    
     //////////////////////////////////////////////////////////Auction Modal End//////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////PostPone Modal Start//////////////////////////////////////////////////////////////
     $(document).on('click', '.postponeBtn', function () {
@@ -738,14 +748,14 @@ $('#submit_cus_map').on('click', function (e) {
     });
     /////////////////////////////////////////////////////////////////////////////////PostPone Modal end//////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////View Modal Start///////////////////////////////////////
-
+    
     $(document).on('click', '.viewBtn', function (event) {
         event.preventDefault();
         $('#add_view_modal').modal('show');
-
+    
         var uniqueValue = $(this).data('value');
         var [groupId, date] = uniqueValue.split('_');
-
+    
         // Fetch data from server
         $.post('api/auction_files/auction_close_view.php', {
             group_id: groupId,
@@ -755,19 +765,28 @@ $('#submit_cus_map').on('click', function (e) {
                 var data = response.data;
                 var tableBody = $('#view_table tbody');
                 tableBody.empty(); // Clear any existing rows
-
-                // Find the maximum value
-                var maxValue = Math.max(...data.map(row => parseFloat(row.value)));
-
+    
+                // Find if there's a row with cus_name = '-1'
+                var specialRow = data.find(row => row.customer_name === 'Company'); // Assume 'Company' represents cus_name = '-1'
+                var maxValue;
+    
+                if (specialRow) {
+                    // If 'Company' is found, set maxValue to a unique identifier for it
+                    maxValue = 'Company';
+                } else {
+                    // Otherwise, find the maximum numeric value
+                    maxValue = Math.max(...data.map(row => parseFloat(row.value)));
+                }
+    
                 // Populate table with data
                 $.each(data, function (index, row) {
                     var formattedValue = moneyFormatIndia(row.value);
-                    var isMaxValue = parseFloat(row.value) === maxValue; // Check if current row has the max value
-
-                    // Add a class 'highlight-row' if it's the highest value
+                    var isMaxValue = specialRow ? (row.customer_name === 'Company') : (parseFloat(row.value) === maxValue);
+    
+                    // Add a class 'highlight-row' if it matches the special condition or highest value
                     var rowHtml = `<tr class="${isMaxValue ? 'highlight-row' : ''}">
                         <td>${index + 1}</td>
-                        <td>${row.customer_name}</td>  <!-- Use customer_name -->
+                        <td>${row.customer_name}</td>
                         <td>${formattedValue}</td>
                     </tr>`;
                     tableBody.append(rowHtml);
@@ -777,7 +796,7 @@ $('#submit_cus_map').on('click', function (e) {
             }
         }, 'json');
     });
-
+    
 
 
     ////////////////////////////////////////////////////////////////View Modal End////////////////////////////////////////////////////////////////////
