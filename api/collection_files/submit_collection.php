@@ -23,31 +23,33 @@ if ($collection_amount >= $payable) {
     $status = 'Payable';
 }
 
-// Insert the collection record
+/// Insert the collection record
 $qry = $pdo->query("INSERT INTO collection (cus_mapping_id, auction_id, group_id, cus_id, auction_month, chit_value, chit_amount, pending, payable, coll_status, collection_date, coll_mode, transaction_id, bank_id, collection_amount, insert_login_id, created_on) 
 VALUES ('$cus_mapping_id', '$auction_id', '$group_id', '$cus_id', '$auction_month', '$chit_value', '$chit_amount', '$pending', '$payable', '$status', '$collection_date " . date(' H:i:s') . "', '$coll_mode', '$transaction_id', '$bank_name', '$collection_amount', '$user_id', CURRENT_TIMESTAMP())");
 
 if ($qry) {
+    // Fetch the last inserted collection ID
+    $coll_id = $pdo->lastInsertId();
+
     // Fetch the group information
     $groupInfo = $pdo->query("SELECT start_month, end_month FROM group_creation WHERE grp_id = '$group_id' AND end_month <= DATE_FORMAT(CURDATE(), '%Y-%m')")->fetch(PDO::FETCH_ASSOC);
 
     if ($groupInfo) {
-        $start_month = $groupInfo['start_month']; // Start month in format YYYY-MM (e.g., 2024-08)
-        $end_month = $groupInfo['end_month'];     // End month in format YYYY-MM (e.g., 2025-01)
+        $start_month = $groupInfo['start_month']; 
+        $end_month = $groupInfo['end_month'];
 
         // Calculate the month difference
         $startDate = new DateTime($start_month . '-01');
         $endDate = new DateTime($end_month . '-01');
         $interval = $startDate->diff($endDate);
-        $totalMonths = $interval->y * 12 + $interval->m + 1; // Total months in the group period
+        $totalMonths = $interval->y * 12 + $interval->m + 1;
 
         // Count paid customers for all months in the group
         $paidCustomersCount = $pdo->query("SELECT COUNT(DISTINCT cus_id) as paid_count 
                                            FROM collection 
                                            WHERE group_id = '$group_id' 
                                            AND coll_status = 'Paid' 
-                                           AND auction_month BETWEEN 1 AND $totalMonths ORDER BY c.created_on DESC
-                     LIMIT 1")->fetch(PDO::FETCH_ASSOC)['paid_count'];
+                                           AND auction_month BETWEEN 1 AND $totalMonths")->fetch(PDO::FETCH_ASSOC)['paid_count'];
 
         // Get the total number of customers in the group
         $totalCustomersCount = $pdo->query("SELECT COUNT(DISTINCT cus_id) as total_count 
@@ -55,8 +57,8 @@ if ($qry) {
                                             WHERE grp_creation_id = '$group_id'")->fetch(PDO::FETCH_ASSOC)['total_count'];
 
         if ($paidCustomersCount == $totalCustomersCount * $totalMonths) {
-            // Update group status to 4
-            $updateQry = $pdo->query("UPDATE group_creation SET status = 4 WHERE grp_id = '$group_id'");
+            // Update group status to 5
+            $updateQry = $pdo->query("UPDATE group_creation SET status = 5 WHERE grp_id = '$group_id'");
             $result = $updateQry ? 1 : 0;
         } else {
             $result = 1; // Collection inserted but group status not updated
@@ -64,6 +66,11 @@ if ($qry) {
     } else {
         $result = 1; // Collection inserted but group info not matching
     }
+
+    echo json_encode(['result' => $result, 'coll_id' => $coll_id]); // Return collection ID in response
+} else {
+    echo json_encode(['result' => 0]);
+}
 
 // $qry = $pdo->query("SELECT CONCAT( `first_name`,' ', `last_name`) AS customer_name, `mobile1` FROM `customer_creation` WHERE cus_id = '$cus_id' ");
 // $row = $qry->fetch();
@@ -84,10 +91,4 @@ if ($qry) {
 // // Process your response here
 // return $response; 
 
-
-} else {
-    $result = 0; // Collection insertion failed
-}
-
-echo json_encode($result);
 ?>
