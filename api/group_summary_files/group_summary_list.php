@@ -24,8 +24,10 @@ $query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branc
           FROM group_creation gc 
           JOIN branch_creation bc ON gc.branch = bc.id 
           LEFT JOIN auction_details ad ON gc.grp_id = ad.group_id
+          JOIN 
+        users us ON FIND_IN_SET(gc.branch, us.branch) > 0
           WHERE gc.status = 3 AND
-          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth)";
+          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth) AND us.id = '$user_id'";
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {

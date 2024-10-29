@@ -3,7 +3,7 @@ require '../../ajaxconfig.php';
 
 $response = array();
 $auction_status = [1 => 'In Auction', 2 => 'Finished', 3 => 'Finished'];
-$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current', 4 => 'Closed'];
+$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current', 4 => 'Closed',5 => 'Closed'];
 
 if (isset($_POST['group_id'])) {
     $group_id = $_POST['group_id'];
