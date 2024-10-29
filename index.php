@@ -19,12 +19,15 @@ include "include/common/dashboardhead.php";
 	<form id="loginform" name="loginform" action="" method="post">
 		<div class="login-screen">
 			<div class="login-box">
-				<a href="#" class="login-logo">
-					<h3 style="color: var(--primary-color); font-weight: bolder;">CHIT SOFTWARE</h3>
-				</a>
+				<div class=" logo_div">
+					<img src="./img/bg_none_eng_logo.png" alt="" class="img"><br>
+				</div>
+				<div>
+				
+				</div>
 				<span class="text-danger" id="cinnocheck">
 				</span>
-				<h5>Welcome back,<br />Please Login to your Account.</h5>
+				<h5 class="login_text">Welcome back,<br />Please Login to your Account.</h5>
 				<div class="form-group mt-4">
 					<label for="lusername">User Name</label>
 					<input type="text" name="lusername" id="lusername" tabindex="1" class="form-control" value="" placeholder="Enter Email" style="padding: 10px;border-radius:6px;" />

@@ -64,6 +64,27 @@ if ($qry) {
     } else {
         $result = 1; // Collection inserted but group info not matching
     }
+
+// $qry = $pdo->query("SELECT CONCAT( `first_name`,' ', `last_name`) AS customer_name, `mobile1` FROM `customer_creation` WHERE cus_id = '$cus_id' ");
+// $row = $qry->fetch();
+// $customer_name = $row['customer_name'];
+// $cus_mobile1 = $row['mobile1'];
+
+// $message = "";
+// $templateid	= ''; //FROM DLT PORTAL.
+// // Account details
+// $apiKey = '';
+// // Message details
+// $sender = '';
+// // Prepare data for POST request
+// $data = 'access_token='.$apiKey.'&to='.$cus_mobile1.'&message='.$message.'&service=T&sender='.$sender.'&template_id='.$templateid;
+// // Send the GET request with cURL
+// $url = 'https://sms.messagewall.in/api/v2/sms/send?'.$data; 
+// $response = file_get_contents($url);  
+// // Process your response here
+// return $response; 
+
+
 } else {
     $result = 0; // Collection insertion failed
 }
