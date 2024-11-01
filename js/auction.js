@@ -815,8 +815,8 @@ $(document).ready(function () {
         const content = `
         <div id="print_content" style="text-align: center;">
             <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                <img src="img/auction.png" width="25" height="25" style="margin-right: 10px;">
-                Chit Company
+                <img src="img/bg_none_eng_logo.png" style="margin-right: 10px;" class="img">
+               
             </h2>
             <table style="margin: 0 auto; border-collapse: collapse; width: 25%;">
                 <tr>
