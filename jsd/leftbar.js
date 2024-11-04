@@ -15,7 +15,10 @@ $(document).ready(function () {
         'balance_sheet':'accounts',
         'customer_data':'customer_data',
         'group_summary':'group_summary',
-        'enquiry_creation':'enquiry'
+        'enquiry_creation':'enquiry',
+        'expenses_report':'reports',
+        'other_transaction_report':'reports',
+        'bulk_upload':'bulk_upload'
     };
 
     const current_page = localStorage.getItem('currentPage');
