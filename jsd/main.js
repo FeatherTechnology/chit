@@ -309,21 +309,20 @@ function appendDataToTable(tableSelector, response, columnMapping) {
 /////////////////////////////////////////////////////
 
 function serverSideTable(tableSelector, params, apiUrl) {
-    $(tableSelector).DataTable().destroy();
+    $(tableSelector).DataTable().destroy(); // Destroy the previous table instance
     $(tableSelector).DataTable({
-        'order': [[0, "desc"]],
-        'processing': true,
-        'serverSide': true,
-        'serverMethod': 'post',
+        'processing': true,          // Enable processing indicator
+        'serverSide': true,          // Enable server-side processing
+        'serverMethod': 'post',      // Use POST method for the request
         'ajax': {
-            'url': apiUrl,
-            'data': function (data) {
-                var search = $(tableSelector + '_search').val();
+            'url': apiUrl,           // URL for the AJAX request
+            'data': function (data) { // Custom data sent to the server
+                var search = $(tableSelector + '_search').val(); // Custom search input
                 data.search = search;
-                data.params = params;
+                data.params = params;  // Additional params
             }
         },
-        dom: 'lBfrtip',
+        dom: 'lBfrtip',               // DOM layout for buttons and table controls
         buttons: [
             {
                 extend: 'excel',
@@ -338,17 +337,19 @@ function serverSideTable(tableSelector, params, apiUrl) {
             [10, 25, 50, -1],
             [10, 25, 50, "All"]
         ],
+        'order': [], // Allow default sorting (clicking on column header toggles between asc/desc)
+        
         'drawCallback': function () {
-            setDropdownScripts();
+            setDropdownScripts(); // Custom function for dropdowns (assuming you have one)
+
             let new_id = tableSelector.split("#").pop();
             $(tableSelector + '_filter input')
-                .attr('id', new_id + '_search')
-                .addClass('custo-search'); // Add your custom class here
-
-            // You can remove the JS width and padding adjustments now
+                .attr('id', new_id + '_search') // Add ID to the search input
+                .addClass('custo-search'); // Add a custom class to search input
         }
     });
 }
+
 
 
 

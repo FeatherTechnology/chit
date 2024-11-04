@@ -17,16 +17,16 @@ $column = array(
     'cc.mobile1',
     'pl.place',
     'occupations',
-    'status',
+    'cc.id',
     'gc.grace_period',
     'cc.id'
 );
 
 $query = "SELECT
-    cc.id,
+    cc.id, 
+    cc.cus_id,
     ad.id AS auction_id,
     ad.group_id,
-    cc.cus_id,
     CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
     cc.mobile1,
     pl.place,
@@ -58,6 +58,7 @@ WHERE
     gc.status BETWEEN 3 AND 4
     AND YEAR(ad.date) = '$currentYear'
     AND MONTH(ad.date) = '$currentMonth'  AND us.id = '$user_id'";
+// Add search condition
 if (isset($_POST['search']) && $_POST['search'] != "") {
     $search = $_POST['search'];
     $query .= " AND (cc.cus_id LIKE '%" . $search . "%'
@@ -72,22 +73,35 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 
 $query .= "
    GROUP BY
-    cc.cus_id
-ORDER BY 
-   cc.cus_id";
+    cc.cus_id";
+// Add sorting condition
+if (isset($_POST['order'])) {
+    $query .= " ORDER BY " . $column[$_POST['order'][0]['column']] . ' ' . $_POST['order'][0]['dir'];
+} else {
+    // Default sorting if no order specified
+    $query .= " ORDER BY cc.cus_id"; // Default sorting
+}
 
+// Handle pagination
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
 }
 
+// Prepare and execute the statement
+$statement = $pdo->prepare($query . $query1);
+$statement->execute();
+$result = $statement->fetchAll();
+
+// Get the number of filtered rows
+$number_filter_row = $statement->rowCount();
+
+
 $statement = $pdo->prepare($query);
 $statement->execute();
 $number_filter_row = $statement->rowCount();
 
-$statement = $pdo->prepare($query . $query1);
-$statement->execute();
-$result = $statement->fetchAll();
+
 
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];

@@ -571,9 +571,9 @@ $(function () {
 function getOpeningBal() {
     $.post('api/accounts_files/accounts/opening_balance.php', function (response) {
         if (response.length > 0) {
-            $('.opening_val').text(response[0]['opening_balance']);
-            $('.op_hand_cash_val').text(response[0]['hand_cash']);
-            $('.op_bank_cash_val').text(response[0]['bank_cash']);
+            $('.opening_val').text(moneyFormatIndia(response[0]['opening_balance']));
+            $('.op_hand_cash_val').text(moneyFormatIndia(response[0]['hand_cash']));
+            $('.op_bank_cash_val').text(moneyFormatIndia(response[0]['bank_cash']));
         }
     }, 'json').then(function () {
         getClosingBal();
@@ -641,13 +641,13 @@ function settleAmount(group_id) {
 function getClosingBal(callback) {
     $.post('api/accounts_files/accounts/closing_balance.php', function (response) {
         if (response.length > 0) {
-            let close = parseInt($('.opening_val').text()) + parseInt(response[0]['closing_balance']);
-            let hand = parseInt($('.op_hand_cash_val').text()) + parseInt(response[0]['hand_cash']);
-            let bank = parseInt($('.op_bank_cash_val').text()) + parseInt(response[0]['bank_cash']);
+            let close = parseInt($('.opening_val').text().replace(/,/g, '')) + parseInt(response[0]['closing_balance']);
+            let hand = parseInt($('.op_hand_cash_val').text().replace(/,/g, '')) + parseInt(response[0]['hand_cash']);
+            let bank = parseInt($('.op_bank_cash_val').text().replace(/,/g, '')) + parseInt(response[0]['bank_cash']);
 
-            $('.closing_val').text(close);
-            $('.clse_hand_cash_val').text(hand);
-            $('.clse_bank_cash_val').text(bank);
+            $('.closing_val').text(moneyFormatIndia(close));
+            $('.clse_hand_cash_val').text(moneyFormatIndia(hand));
+            $('.clse_bank_cash_val').text(moneyFormatIndia(bank));
 
             // Call the callback function if defined
             if (typeof callback === "function") {
@@ -1074,7 +1074,7 @@ function calculateOverallTotal() {
         totalAmount += parseInt($(this).val()) || 0;
     });
 
-    $('#totalAmount').val(totalAmount);
+    $('#totalAmount').val(moneyFormatIndia(totalAmount));
 }
 
 
@@ -1130,7 +1130,7 @@ function loadPreviousDay() {
 
 // Function to append empty rows for Today if no data is loaded
 function appendEmptyRows() {
-    const denominations = [500, 200, 100, 50, 20, 10, 5];
+    const denominations = [500, 200, 100, 50, 20, 10, 5, 2, 1];
     denominations.forEach(amount => {
         $('#denominationTableBody').append(`
             <tr>
@@ -1145,7 +1145,7 @@ function appendEmptyRows() {
 
 // Function to append predefined denominations if no previous data is available
 function appendPredefinedDenominations() {
-    const denominations = [500, 200, 100, 50, 20, 10, 5];
+    const denominations = [500, 200, 100, 50, 20, 10, 5, 2, 1];
     denominations.forEach(amount => {
         $('#denominationTableBody').append(`
             <tr>
