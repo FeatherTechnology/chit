@@ -360,6 +360,7 @@
                                             <th>Settlement Amount</th>
                                             <th>Name</th>
                                             <th>Relationship</th>
+                                            <th>Upload</th>
                                         </tr>
                                     </thead>
                                     <tbody> </tbody>
@@ -615,6 +616,16 @@
                                     </tr>
                                     <tr>
                                         <td>5</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td><input type="number" class="form-control" value="" min="0"></td>
+                                        <td><input type="text" class="form-control" value="0" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
                                         <td><input type="number" class="form-control" value="" min="0"></td>
                                         <td><input type="text" class="form-control" value="0" readonly></td>
                                     </tr>
