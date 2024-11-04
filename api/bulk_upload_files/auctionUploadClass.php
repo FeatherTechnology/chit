@@ -306,7 +306,7 @@ class auctionUploadClass
 
             // Get user ID from session
             $user_id = $_SESSION['user_id'];
-
+            if (!empty($auction_value) && $auction_value > 0) {
             // Prepare the insert query for settlement_info table
             $insert_query2 = "INSERT INTO settlement_info 
             (auction_id, settle_date, group_id, cus_name, settle_amount, settle_balance, payment_type, settle_type, bank_id, settle_cash, cheque_no, cheque_val, transaction_id, transaction_val, guarantor_name, guarantor_relationship, insert_login_id, created_on) 
@@ -333,7 +333,7 @@ class auctionUploadClass
 
             // Execute the insert query for settlement_info
             $pdo->query($insert_query2);
-
+            }
             $auction_value = floatval(strip_tags($data['auction_value']));
 
             if (!empty($auction_value) && $auction_value > 0) {
