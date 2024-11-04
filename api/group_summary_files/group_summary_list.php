@@ -41,8 +41,19 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 }
 
 // Add ordering condition
-$query .= " ORDER BY gc.grp_id"; // Order by group ID
 
+if (isset($_POST['order'])) {
+    $columnIndex = $_POST['order'][0]['column'];  // Index of the column to be sorted
+    $sortDirection = $_POST['order'][0]['dir'];  // Sort direction (asc/desc)
+    
+    if (isset($column[$columnIndex])) {
+        // Apply sorting using the column and direction provided
+        $query .= " ORDER BY " . $column[$columnIndex] . " " . $sortDirection;
+    }
+} else {
+    // Default sorting (if no sorting is applied from frontend)
+    $query .= " ORDER BY gc.grp_id"; // Order by group ID
+}
 // Add pagination
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
