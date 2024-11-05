@@ -76,7 +76,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 
 // Order by status and id
 if (isset($_POST['order'])) {
-    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'date', 'auction_month', 'branch_name', 'status'];
+    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'date', 'auction_month', 'branch_name', 'status','id'];
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
 } else {
     // Default ordering by status and id
