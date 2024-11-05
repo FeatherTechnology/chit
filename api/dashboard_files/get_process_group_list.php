@@ -47,7 +47,11 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 
 // Add ordering condition
 if (isset($_POST['order'])) {
+    // Order by column from DataTables request
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+} else {
+    // Default ordering by gc.grp_id in descending order
+    $query .= " ORDER BY gc.grp_id DESC";
 }
 
 // Add pagination
