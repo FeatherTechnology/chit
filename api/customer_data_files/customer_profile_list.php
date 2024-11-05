@@ -6,7 +6,6 @@ $reference = [1=>'Promotion',2=>'Customer',3=>'Well Known person'];
 $column = array(
     'cc.id',
     'cc.cus_id',
-    'cp.cus_name',
     'cc.first_name',
     'cc.last_name',
     'cc.mobile1',
@@ -35,6 +34,21 @@ if (isset($_POST['search'])) {
 }
 
 
+// Ordering functionality
+if (isset($_POST['order'])) {
+    $columnIndex = $_POST['order'][0]['column'];  // Index of the column to be sorted
+    $sortDirection = $_POST['order'][0]['dir'];  // Sort direction (asc/desc)
+    
+    if (isset($column[$columnIndex])) {
+        // Apply sorting using the column and direction provided
+        $query .= " ORDER BY " . $column[$columnIndex] . " " . $sortDirection;
+    }
+} else {
+    // Default sorting (if no sorting is applied from frontend)
+    $query .= ' ORDER BY cc.id DESC';
+}
+
+// Pagination (length and start from DataTables)
 $query1 = '';
 if (isset($_POST['length']) && $_POST['length'] != -1) {
     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
