@@ -75,13 +75,18 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 }
 
 // Order by status and id
-$query .= " ORDER BY 
-CASE 
-    WHEN status = 1 THEN 0
-    WHEN status = 2 THEN 1
-    ELSE 2
-END, 
-id " . ($_POST['order']['0']['dir'] ?? 'ASC'); // Default to ASC if not set
+if (isset($_POST['order'])) {
+    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'date', 'auction_month', 'branch_name', 'status','id'];
+    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+} else {
+    // Default ordering by status and id
+    $query .= " ORDER BY 
+    CASE 
+        WHEN status = 1 THEN 0
+        WHEN status = 2 THEN 1
+        ELSE 2
+    END, id ASC";
+}
 
 // Pagination
 $query1 = '';
