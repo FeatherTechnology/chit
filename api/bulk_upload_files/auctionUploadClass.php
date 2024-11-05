@@ -225,7 +225,7 @@ class auctionUploadClass
                               '" . strip_tags($data['auction_month']) . "',
                               '" . strip_tags($data['low_value']) . "',
                               '" . strip_tags($data['high_value']) . "',
-                              2,
+                              1,
                               '" . strip_tags($data['cust_id']) . "',
                               '" . $auction_value . "',
                               '" . $chit_amount . "',
@@ -244,6 +244,12 @@ class auctionUploadClass
                 // Check if auction_value is not empty before proceeding
                 if (!empty($data['auction_value'])) {
                     // Extract year and month from the date provided in $data
+                    $auction_updated = $pdo->query("
+                    UPDATE auction_details 
+                    SET status = '2', update_login_id = '$user_id', updated_on = NOW() 
+                    WHERE group_id = '" . strip_tags($data['grp_id']) . "' 
+                    AND date = '" . strip_tags($data['date']) . "'
+                ");
                     $auction_date = DateTime::createFromFormat('Y-m-d', strip_tags($data['date']));
                     $auction_year_month = $auction_date->format('Y-m'); // Get yyyy-mm
 
@@ -266,6 +272,8 @@ class auctionUploadClass
         $user_id = $_SESSION['user_id']; // Retrieve the user ID from session
 
         // Corrected insert query with proper syntax and variable names
+        $auction_value = floatval(strip_tags($data['auction_value']));
+        if (!empty($auction_value) && $auction_value > 0) {
         $insert_query2 = "INSERT INTO auction_modal 
                       (auction_id, group_id, date, cus_name, value, inserted_login_id, created_on) 
                       VALUES (
@@ -280,6 +288,7 @@ class auctionUploadClass
 
         // Execute the query
         $pdo->query($insert_query2);
+        }
     }
 
 
