@@ -25,6 +25,8 @@
                                     <th>Chit Value</th>
                                     <th>Total Month</th>
                                     <th>Date</th>
+                                    <th>Start Month</th>
+                                    <th>End Month</th>
                                     <th>Commission(%)</th>
                                     <th>Branch</th>
                                     <th>Status</th>
