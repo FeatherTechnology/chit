@@ -136,9 +136,16 @@ SELECT DISTINCT
     fa.status
 FROM 
     FilteredAuctions fa
-ORDER BY 
-    fa.grp_id, fa.auction_date ASC;";
-
+";
+// Add ordering condition
+if (isset($_POST['order'])) {
+    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'creation_date', 'auction_date', 'auction_month', 'branch_name', 'status','id'];
+    // Order by column from DataTables request
+    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+} else {
+    // Default ordering by fa.grp_id and fa.auction_date in ascending order
+    $query .= " ORDER BY fa.grp_id ASC, fa.auction_date ASC;";
+}
 $query1 = '';
 // if (isset($_POST['length']) && $_POST['length'] != -1) {
 //     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);

@@ -4,7 +4,7 @@ require '../../ajaxconfig.php';
 $user_id = $_SESSION['user_id'];
 
 // Define status mapping array
-$status_arr = [1 => 'Process', 2 => 'Created',3=>'Current',4=>'Closed'];
+$status_arr = [1 => 'Process', 2 => 'Created', 3 => 'Current', 4 => 'Closed'];
 
 // Define column names for sorting
 $column = array(
@@ -14,15 +14,17 @@ $column = array(
     'gc.chit_value',
     'gc.total_months',
     'gc.date',
+    'gc.start_month',
+    'gc.end_month',
     'gc.commission',
     'bc.branch_name',
     'gc.id',
     'gc.id'
-    
+
 );
 
 // Base query with JOIN
-$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.total_months, gc.date, gc.commission, bc.branch_name,gc.status
+$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.total_months, gc.date,gc.start_month,gc.end_month, gc.commission, bc.branch_name,gc.status
           FROM group_creation gc 
           JOIN branch_creation bc ON gc.branch = bc.id 
           WHERE 1";
@@ -35,6 +37,8 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
                     OR gc.chit_value LIKE :search
                     OR gc.total_months LIKE :search
                     OR gc.date LIKE :search
+                    OR gc.start_month LIKE :search
+                    OR gc.end_month LIKE :search
                     OR gc.commission LIKE :search
                     OR bc.branch_name LIKE :search
                     OR gc.status LIKE :search)";
@@ -42,7 +46,11 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 
 // Add ordering condition
 if (isset($_POST['order'])) {
+    // Order by column from DataTables request
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+} else {
+    // Default ordering by gc.grp_id in descending order
+    $query .= " ORDER BY gc.grp_id DESC";
 }
 
 // Add pagination
@@ -75,9 +83,15 @@ foreach ($result as $row) {
         $sno++,
         isset($row['grp_id']) ? $row['grp_id'] : '',
         isset($row['grp_name']) ? $row['grp_name'] : '',
-        isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']): '',
+        isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : '',
         isset($row['total_months']) ? $row['total_months'] : '',
         isset($row['date']) ? $row['date'] : '',
+        // Convert start_month
+        $start_month = isset($row['start_month']) ? DateTime::createFromFormat('Y-m', $row['start_month'])->format('F Y') : '',
+
+        // Convert end_month
+        $end_month = isset($row['end_month']) ? DateTime::createFromFormat('Y-m', $row['end_month'])->format('F Y') : '',
+
         isset($row['commission']) ? $row['commission'] : '',
         isset($row['branch_name']) ? $row['branch_name'] : '',
         isset($row['status']) ? $status_arr[$row['status']] : '', // Fix for status mapping
