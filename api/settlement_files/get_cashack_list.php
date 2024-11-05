@@ -15,7 +15,11 @@ if ($auction_id !== null) {
             si.transaction_val, 
             gi.guarantor_name, 
             si.guarantor_relationship, 
-            CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name
+            CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
+             CASE 
+            WHEN si.settle_type = 1 THEN si.den_upload 
+            ELSE NULL 
+        END AS den_upload
         FROM 
             settlement_info si
         LEFT JOIN 
@@ -47,6 +51,15 @@ if ($auction_id !== null) {
             // Check if guarantor_name is null or -1
             if ($row['guarantor_name'] === null || $row['guarantor_name'] == -1) {
                 $row['guarantor_name'] = $row['cus_name'];
+            }
+            if (!empty($row['den_upload'])) {
+                $row['upload'] = "<a href='uploads/denomination_upload/{$row['den_upload']}' target='_blank'>
+                                    <button type='button' class='btn btn-primary'>
+                                        View
+                                    </button>
+                                  </a>";
+            } else {
+                $row['upload'] = ''; // No button if den_upload is empty or null
             }
 
             $result[] = $row;

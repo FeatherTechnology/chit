@@ -201,7 +201,7 @@ $(document).ready(function () {
         setTimeout(function () {
             getDocInfoTable();
             getCashAck();
-            getDenomImage();
+          //  getDenomImage();
         }, 1000);
         $('#add_grup')
             .removeAttr('data-toggle')
@@ -944,6 +944,7 @@ function getCashAck() {
                         <td>${row.balance_amount}</td>
                         <td>${row.guarantor_name}</td>
                         <td>${row.guarantor_relationship}</td>
+                        <td>${row.upload}</td>
                     </tr>
                 `);
             });
@@ -1123,10 +1124,6 @@ function printDenomination() {
     // Create the HTML content for printing
     let content = ` 
         <div id="print_content" style="text-align: center;">
-         <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                <img src="img/auction.png" width="25" height="25" style="margin-right: 10px;">
-                Chit Company
-            </h2>
             <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
                 <img src="img/bg_none_eng_logo.png" class="img1" style="width:150px; height: 100px;">           
             </h2>
@@ -1248,17 +1245,17 @@ function printDenomination() {
     };
 }, 1000);
 }
-function getDenomImage() {
-    let auction_id = $('#groupid').val();
-    let cus_id = $('#cus_id').val();
-    $.post('api/settlement_files/get_denomination_list.php', { auction_id, cus_id }, function (response) {
-        // Show the container if there's a response
-        if (response) {
-            $('#deno_upload_cont').show();
-            $('#denom_data').html(response); // Insert the response links into the span
-        } else {
-            $('#deno_upload_cont').hide(); // Hide if there's no response
-        }
-    });
-}
+// function getDenomImage() {
+//     let auction_id = $('#groupid').val();
+//     let cus_id = $('#cus_id').val();
+//     $.post('api/settlement_files/get_denomination_list.php', { auction_id, cus_id }, function (response) {
+//         // Show the container if there's a response
+//         if (response) {
+//             $('#deno_upload_cont').show();
+//             $('#denom_data').html(response); // Insert the response links into the span
+//         } else {
+//             $('#deno_upload_cont').hide(); // Hide if there's no response
+//         }
+//     });
+// }
 
