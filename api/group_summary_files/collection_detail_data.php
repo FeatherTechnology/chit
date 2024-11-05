@@ -23,7 +23,11 @@ if (isset($_POST['group_id'])) {
                 WHERE sc.cus_id = cc.cus_id
             ) AS occupations,
             gcm.id AS cus_mapping_id,
-            gcm.settle_status,
+               CASE 
+        WHEN ad.cus_name = gcm.cus_id AND gcm.settle_status = 'Yes' 
+        THEN 'Yes' 
+        ELSE '' 
+    END AS settle_status, 
             ad.auction_month
         FROM
             auction_details ad
@@ -33,7 +37,7 @@ if (isset($_POST['group_id'])) {
         LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
         JOIN users us ON FIND_IN_SET(gc.branch, us.branch)
         WHERE
-            gc.grp_id = '$group_id' AND ad.auction_month='$auction_month'
+            gc.grp_id = '$group_id' AND ad.auction_month='$auction_month' 
         GROUP BY gcm.id
         ORDER BY cc.cus_id;";
 

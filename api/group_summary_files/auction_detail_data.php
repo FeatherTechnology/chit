@@ -31,7 +31,7 @@ if (isset($_POST['group_id'])) {
                     YEAR(ad.date) < $currentYear
                     OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <= $currentMonth)
                 )
-                ORDER BY ad.auction_month ASC";
+                ORDER BY ad.auction_month DESC";
 
         // Execute the query
         $stmt = $pdo->query($qry);
