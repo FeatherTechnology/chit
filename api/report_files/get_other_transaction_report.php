@@ -13,7 +13,7 @@ $crdr = ["1" => 'Credit', "2" => 'Debit'];
 $column = array(
     'a.id',
     'a.trans_cat',
-    'gc.group_id',
+    'gc.grp_id',
     ' b.name',
     'cc.cus_name',
     ' e.bank_name',
