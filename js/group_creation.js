@@ -370,7 +370,7 @@ function getCustomerList() {
         let cusOptn = '';
         cusOptn = '<option value="">Select Customer Name</option>';
         response.forEach(val => {
-            cusOptn += '<option value="' + val.id + '">' + val.first_name + ' ' + val.last_name + '</option>';
+            cusOptn += '<option value="' + val.id + '">' + val.first_name + ' ' + val.last_name + ' ' + val.cus_id + '</option>';
         });
         $('#cus_name').empty().append(cusOptn);
     }, 'json');
