@@ -34,29 +34,29 @@ WHERE
 GROUP BY 
     gc.grp_id;
 ";
-$prev_pen_amount  = "
+ $prev_pen_amount  = "
     SELECT  
     (SELECT SUM(COALESCE(ad.chit_amount, 0) * gc.total_members)
      FROM auction_details ad
-     WHERE ad.group_id = gc.grp_id
-       AND ad.date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+     WHERE ad.group_id = '$group_id' 
+        AND ad.auction_month < $auction_month
        AND ad.status IN (2, 3)
     ) AS total_chit_amount, 
     (SELECT COALESCE(SUM(c.collection_amount), 0)
      FROM collection c
      WHERE c.group_id = gc.grp_id
-       AND c.collection_date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+       AND c.auction_month < $auction_month
     ) AS total_paid_amount,
     ( (SELECT SUM(COALESCE(ad.chit_amount, 0) * gc.total_members)
        FROM auction_details ad
        WHERE ad.group_id = gc.grp_id
-         AND ad.date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+         AND ad.auction_month < $auction_month
          AND ad.status IN (2, 3)
       ) - 
       (SELECT COALESCE(SUM(c.collection_amount), 0)
        FROM collection c
        WHERE c.group_id = gc.grp_id
-         AND c.collection_date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+          AND c.auction_month < $auction_month
       )
     ) AS month_pending
 FROM 
