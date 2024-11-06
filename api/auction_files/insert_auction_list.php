@@ -61,14 +61,14 @@ if (isset($data['data']) && is_array($data['data'])) {
         }
 
         // Update status to 3 in group_creation table if status is 3 
-        if ($status == 3) {
+       
             $updateGroupQuery = "UPDATE group_creation SET status = 3, update_login_id = '$user_id', updated_on = NOW() 
                                  WHERE grp_id = '$group_id'";
             if (!$pdo->query($updateGroupQuery)) {
                 echo json_encode(['success' => false, 'message' => 'Failed to update group_creation table.']);
                 exit;
             }
-        }
+        
 
         // Fetch date and end_month from group_creation table
         $groupCreationQuery = "SELECT date, end_month FROM group_creation WHERE grp_id = '$group_id'";
