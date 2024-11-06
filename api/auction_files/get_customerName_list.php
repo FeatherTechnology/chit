@@ -31,6 +31,7 @@ if (isset($group_id) && !empty($group_id) && isset($auction_month) && !empty($au
     
     $qry = "
         SELECT 
+        cc.cus_id,
             cc.first_name, 
             cc.last_name, 
             cc.id, 
