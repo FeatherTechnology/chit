@@ -62,36 +62,39 @@ $(document).ready(function () {
         e.preventDefault();
         let isValid = true; // Flag to track if all fields are valid
 
-        // Iterate through each row of the customer mapping table
-        $('#cus_mapping_table tbody tr').each(function () {
-            var $row = $(this); // Current row
-
-            // Find all input values in the current row (including all relevant containers)
-            var $valueColumn = $row.find('.value-column');
-
-            // Check if the last input in the row is empty
-            var $lastInput = $valueColumn.find('input:last');
-
-            // If the last input exists and is empty
-            if ($lastInput.length > 0 && $lastInput.val().trim() === '') {
-                isValid = false; // Set isValid to false if no valid values
-                $lastInput.css('border', '1px solid red'); // Highlight empty fields
-            } else {
-                $lastInput.css('border', ''); // Reset border if filled
-            }
-        });
-
-        // If all values are valid, proceed to enable button 2
-        if (isValid) {
-            // Change the background color to green for button 1
+       
             $(this).removeClass('btn-primary').addClass('btn-success'); // Use Bootstrap class for green color
 
             // Enable auction_round2
             $('#auction_round2').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
-        } else {
-            // Show a warning message if not all fields are filled
-            swalError('Warning', 'Please fill in all required fields before proceeding.');
-        }
+        //     var $row = $(this); // Current row
+
+        //     // Find all input values in the current row (including all relevant containers)
+        //     var $valueColumn = $row.find('.value-column');
+
+        //     // Check if the last input in the row is empty
+        //     var $lastInput = $valueColumn.find('input:last');
+
+        //     // If the last input exists and is empty
+        //     if ($lastInput.length > 0 && $lastInput.val().trim() === '') {
+        //         isValid = false; // Set isValid to false if no valid values
+        //         $lastInput.css('border', '1px solid red'); // Highlight empty fields
+        //     } else {
+        //         $lastInput.css('border', ''); // Reset border if filled
+        //     }
+        // });
+
+        // // If all values are valid, proceed to enable button 2
+        // if (isValid) {
+        //     // Change the background color to green for button 1
+        //     $(this).removeClass('btn-primary').addClass('btn-success'); // Use Bootstrap class for green color
+
+        //     // Enable auction_round2
+        //     $('#auction_round2').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
+        // } else {
+        //     // Show a warning message if not all fields are filled
+        //     swalError('Warning', 'Please fill in all required fields before proceeding.');
+        // }
     });
 
     $('#auction_round2').on('click', function (e) {
@@ -602,7 +605,6 @@ $(document).ready(function () {
     
         // Collect table data
         let tableData = [];
-        let isValid = true; // Flag to track if all fields are valid
         let overallMaxValue = -Infinity; // Initialize to the lowest possible value
         let companyValue = null; // Variable to store the Company value
     
@@ -628,45 +630,24 @@ $(document).ready(function () {
                 return; // Skip processing further for the company row
             }
     
-            // Check if values are valid
-            let validValues = values.filter(function (value) {
-                return value !== ''; // Filter out empty values
-            });
-    
-            if (validValues.length === 0) {
-                isValid = false;
-                $(this).find('input[name="cus_value[]"]').css('border', '1px solid red'); // Highlight empty field
-            } else {
-                $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
-            }
-    
-            // If there are valid values for the customer, process them
-            if (validValues.length > 0) {
-                // Convert valid values to numbers and push each one as a separate entry
-                validValues.map(Number).forEach(value => {
-                    tableData.push({
-                        cus_id: cusId, // Customer ID
-                        value: value, // Individual value
-                        group_id: group_id,
-                        date: date,
-                        id: id
-                    });
-    
-                    // Update overall maximum value only if company is not present
-                    overallMaxValue = Math.max(overallMaxValue, value);
+            // Convert all values to numbers and push each one as a separate entry
+            values.map(Number).forEach(value => {
+                tableData.push({
+                    cus_id: cusId, // Customer ID
+                    value: value, // Individual value
+                    group_id: group_id,
+                    date: date,
+                    id: id
                 });
-            }
+    
+                // Update overall maximum value only if company is not present
+                overallMaxValue = Math.max(overallMaxValue, value);
+            });
         });
     
         // If the company is present, use its value as the overall max
         if (companyValue !== null) {
             overallMaxValue = companyValue; // Company value takes precedence
-        }
-    
-        // If any field is invalid, prevent the submission and show an alert
-        if (!isValid) {
-            swalError('Error', 'Please fill in all the values');
-            return; // Stop further execution if validation fails
         }
     
         // Format the max value for display
@@ -680,6 +661,7 @@ $(document).ready(function () {
             { group_id: group_id, date: date, id: id, tableData: tableData }
         );
     });
+    
     function closeAuction(data) {
         $.ajax({
             url: 'api/auction_files/insert_auction_list.php',
