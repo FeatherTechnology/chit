@@ -110,7 +110,7 @@ foreach ($result as $row) {
     $grace_status = $graceperiodSts->updateGraceStatus($row['cus_id'], $row['id']);
 
     // Exclude customers with a 'Paid' status
-    if ($status !== "Paid") {
+  
         $sub_array = array();
         $sub_array[] = $sno++; // Increment the serial number only for 'Payable' customers
         $sub_array[] = isset($row['cus_id']) ? $row['cus_id'] : '';
@@ -133,7 +133,7 @@ foreach ($result as $row) {
         $action = "<button class='btn btn-primary collectionListBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
         $sub_array[] = $action;
         $data[] = $sub_array;
-    }
+    
 }
 
 
