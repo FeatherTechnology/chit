@@ -26,7 +26,9 @@ if ($collection_amount >= $payable) {
 /// Insert the collection record
 $qry = $pdo->query("INSERT INTO collection (cus_mapping_id, auction_id, group_id, cus_id, auction_month, chit_value, chit_amount, pending, payable, coll_status, collection_date, coll_mode, transaction_id, bank_id, collection_amount, insert_login_id, created_on) 
 VALUES ('$cus_mapping_id', '$auction_id', '$group_id', '$cus_id', '$auction_month', '$chit_value', '$chit_amount', '$pending', '$payable', '$status', '$collection_date " . date(' H:i:s') . "', '$coll_mode', '$transaction_id', '$bank_name', '$collection_amount', '$user_id', CURRENT_TIMESTAMP())");
-
+$update_query = $pdo->query("UPDATE group_cus_mapping SET 
+coll_status = '$status'
+WHERE id = '$cus_mapping_id'");
 if ($qry) {
     // Fetch the last inserted collection ID
     $coll_id = $pdo->lastInsertId();
