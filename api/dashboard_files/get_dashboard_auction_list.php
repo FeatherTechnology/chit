@@ -139,12 +139,34 @@ FROM
 ";
 // Add ordering condition
 if (isset($_POST['order'])) {
-    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'creation_date', 'auction_date', 'auction_month', 'branch_name', 'status','id'];
+    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'creation_date', 'auction_date', 'auction_month', 'branch_name', 'status'];
     // Order by column from DataTables request
     $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
 } else {
     // Default ordering by fa.grp_id and fa.auction_date in ascending order
-    $query .= " ORDER BY fa.grp_id ASC, fa.auction_date ASC;";
+    $query .= " ORDER BY 
+    CASE 
+        WHEN status = 1 THEN 0
+        WHEN status = 2 THEN 1
+        ELSE 2
+    END, 
+    -- First, sort by AM/PM (AM before PM)
+     auction_date ASC,
+    CASE ampm 
+        WHEN 'AM' THEN 0
+        WHEN 'PM' THEN 1
+        ELSE 0
+    END ASC,
+    CASE 
+        WHEN hours = '12' AND ampm = 'AM' THEN 0
+        WHEN hours = '12' AND ampm = 'PM' THEN 12
+        ELSE hours
+    END ASC,
+    -- Then, sort by minutes
+    LPAD(minutes, 2, '0') ASC, 
+    -- Finally, order by id
+    id ASC";
+   
 }
 $query1 = '';
 // if (isset($_POST['length']) && $_POST['length'] != -1) {
