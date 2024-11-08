@@ -26,6 +26,7 @@
                             <th>Chit Value</th>
                             <th>Total Month</th>
                             <th>Date</th>
+                            <th>Auction Time</th>
                             <th>Auction Month</th>
                             <th>Branch</th>
                             <th>Status</th>
