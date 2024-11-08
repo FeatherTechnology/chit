@@ -337,7 +337,7 @@ class auctionUploadClass
                 '" . strip_tags($data['gur_id']) . "',
                 '" . strip_tags($data['relationship']) . "',
                 '" . $user_id . "',
-                NOW()
+                  '" . strip_tags($data['settle_date']) . "',
             )";
 
             // Execute the insert query for settlement_info
