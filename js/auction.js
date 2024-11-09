@@ -1001,7 +1001,7 @@ function getCusName(groupId, auction_month) {
         response.forEach(function (val) {
             items.push({
                 value: val.id,
-                label: val.cus_name + ' - ' + val.cus_id,
+                label: val.cus_name + ' - ' + val.place,
                 selected: false
             });
         });
