@@ -100,7 +100,7 @@ foreach ($auctionData as $auctionDetails) {
         } 
         // If chit amount is 0 and pending amount > 0, use previous month's payable amount
         else if ($pending_amount > 0) {
-            $initial_payable_amount = $previous_payable_amount;
+            $initial_payable_amount = '';
         } 
         // If chit amount is 0 and no pending amount, set payable to 0
         else {
