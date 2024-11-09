@@ -274,7 +274,7 @@ class auctionUploadClass
         // Corrected insert query with proper syntax and variable names
         $auction_value = floatval(strip_tags($data['auction_value']));
         if (!empty($auction_value) && $auction_value > 0) {
-        $insert_query2 = "INSERT INTO auction_modal 
+            $insert_query2 = "INSERT INTO auction_modal 
                       (auction_id, group_id, date, cus_name, value, inserted_login_id, created_on) 
                       VALUES (
                           '" . strip_tags($data['auction_id']) . "',
@@ -286,8 +286,8 @@ class auctionUploadClass
                           NOW()
                       )";
 
-        // Execute the query
-        $pdo->query($insert_query2);
+            // Execute the query
+            $pdo->query($insert_query2);
         }
     }
 
@@ -315,9 +315,9 @@ class auctionUploadClass
 
             // Get user ID from session
             $user_id = $_SESSION['user_id'];
-            if (!empty($auction_value) && $auction_value > 0) {
-            // Prepare the insert query for settlement_info table
-            $insert_query2 = "INSERT INTO settlement_info 
+            if (!empty($auction_value) && $auction_value > 0 && !empty($data['settle_date'])) {
+                // Prepare the insert query for settlement_info table
+                $insert_query2 = "INSERT INTO settlement_info 
             (auction_id, settle_date, group_id, cus_name, settle_amount, settle_balance, payment_type, settle_type, bank_id, settle_cash, cheque_no, cheque_val, transaction_id, transaction_val, guarantor_name, guarantor_relationship, insert_login_id, created_on) 
             VALUES (
                 '" . strip_tags($data['auction_id']) . "',
@@ -337,11 +337,11 @@ class auctionUploadClass
                 '" . strip_tags($data['gur_id']) . "',
                 '" . strip_tags($data['relationship']) . "',
                 '" . $user_id . "',
-                  '" . strip_tags($data['settle_date']) . "',
+                  '" . strip_tags($data['settle_date']) . "'
             )";
 
-            // Execute the insert query for settlement_info
-            $pdo->query($insert_query2);
+                // Execute the insert query for settlement_info
+                $pdo->query($insert_query2);
             }
             $auction_value = floatval(strip_tags($data['auction_value']));
 
@@ -355,7 +355,8 @@ class auctionUploadClass
                 ");
 
                 // Prepare and execute the group_cus_mapping update query
-                $group_update = "
+                if (!empty($data['settle_date'])) {
+                    $group_update = "
                     UPDATE group_cus_mapping 
                     SET settle_status = 'Yes' 
                     WHERE grp_creation_id = '" . strip_tags($data['grp_id']) . "' 
@@ -364,7 +365,8 @@ class auctionUploadClass
                     LIMIT 1
                 ";
 
-                $pdo->query($group_update);
+                    $pdo->query($group_update);
+                }
             } else {
                 // Skip execution if auction_value is empty or zero
                 // You can log or handle this case as needed
