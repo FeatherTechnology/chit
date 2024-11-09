@@ -27,10 +27,7 @@ if (isset($_POST['group_id'])) {
                 JOIN group_creation gc ON ad.group_id = gc.grp_id
                 LEFT JOIN customer_creation cc ON ad.cus_name = cc.id
                 WHERE ad.group_id = '$group_id' 
-                AND (
-                    YEAR(ad.date) < $currentYear
-                    OR (YEAR(ad.date) = $currentYear AND MONTH(ad.date) <= $currentMonth)
-                )
+                AND  ad.date <= CURDATE()
                 ORDER BY ad.auction_month DESC";
 
         // Execute the query

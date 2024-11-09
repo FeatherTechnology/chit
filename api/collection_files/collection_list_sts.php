@@ -29,7 +29,7 @@ class CollectStsClass
     
     $groups = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-    $overallStatus = 'Paid'; 
+    $overallStatus = 'Payable'; 
 
     foreach ($groups as $group) {
         $group_id = $group['group_id'];

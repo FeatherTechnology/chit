@@ -6,7 +6,8 @@ $branchId = $_POST['branchId'];
 $response = array();
 
 //Total Paid
-$tot_paid = "SELECT COALESCE(SUM(collection_amount),0) AS total_paid FROM `collection` c JOIN group_creation gc ON c.group_id = gc.grp_id WHERE ";
+$tot_paid = "SELECT COALESCE(SUM(collection_amount),0) AS total_paid FROM `collection` c JOIN group_creation gc ON c.group_id = gc.grp_id WHERE MONTH(c.collection_date) = MONTH(CURDATE()) 
+AND YEAR(c.collection_date) = YEAR(CURDATE())  ";
 
 //Today Paid
 $today_paid = "SELECT COALESCE(SUM(collection_amount),0) AS today_paid FROM `collection` c JOIN group_creation gc ON c.group_id = gc.grp_id WHERE DATE(c.created_on) = CURDATE() ";

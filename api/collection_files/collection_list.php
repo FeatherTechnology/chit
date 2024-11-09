@@ -55,7 +55,7 @@ LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
     JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch) > 0
 WHERE
-    gc.status BETWEEN 3 AND 4
+    gc.status BETWEEN 3 AND 4 AND gcm.coll_status !='Paid'
     AND YEAR(ad.date) = '$currentYear'
     AND MONTH(ad.date) = '$currentMonth'  AND us.id = '$user_id'";
 // Add search condition
@@ -110,7 +110,7 @@ foreach ($result as $row) {
     $grace_status = $graceperiodSts->updateGraceStatus($row['cus_id'], $row['id']);
 
     // Exclude customers with a 'Paid' status
-    if ($status !== "Paid") {
+  
         $sub_array = array();
         $sub_array[] = $sno++; // Increment the serial number only for 'Payable' customers
         $sub_array[] = isset($row['cus_id']) ? $row['cus_id'] : '';
@@ -133,7 +133,7 @@ foreach ($result as $row) {
         $action = "<button class='btn btn-primary collectionListBtn' value='" . $row['id'] . "'>&nbsp;View</button>";
         $sub_array[] = $action;
         $data[] = $sub_array;
-    }
+    
 }
 
 
