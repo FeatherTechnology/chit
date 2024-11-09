@@ -56,7 +56,7 @@ if (isset($_POST['group_id']) && isset($_POST['auction_month'])) {
                 auction_details ad
             WHERE
                 ad.auction_month <= :auction_month 
-                AND ad.group_id = :group_id";
+                AND ad.group_id = :group_id AND ad.status = 3";
 
             // Execute the settleStatusQuery
             $settleStmt = $pdo->prepare($settleStatusQuery);

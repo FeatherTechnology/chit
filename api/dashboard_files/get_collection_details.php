@@ -12,10 +12,10 @@ $tot_paid = "SELECT COALESCE(SUM(collection_amount),0) AS total_paid FROM `colle
 $today_paid = "SELECT COALESCE(SUM(collection_amount),0) AS today_paid FROM `collection` c JOIN group_creation gc ON c.group_id = gc.grp_id WHERE DATE(c.created_on) = CURDATE() ";
 
 if ($branchId != '' && $branchId != '0') {
-    $tot_paid .= " gc.branch = $branchId  AND  c.insert_login_id = '$user_id'";
+    $tot_paid .= " AND gc.branch = $branchId  AND  c.insert_login_id = '$user_id'";
     $today_paid .= " AND gc.branch = $branchId  AND  c.insert_login_id = '$user_id'";
 } else {
-    $tot_paid .= " c.insert_login_id = '$user_id'";
+    $tot_paid .= "AND c.insert_login_id = '$user_id'";
     $today_paid .= " AND c.insert_login_id = '$user_id'";
 }
 
