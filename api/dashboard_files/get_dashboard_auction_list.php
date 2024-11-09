@@ -42,7 +42,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 }
 
 // Main query
-$query = "WITH RankedDates AS (
+$query  = "WITH RankedDates AS (
     SELECT 
         gc.id,
         gc.grp_id,
@@ -67,8 +67,8 @@ $query = "WITH RankedDates AS (
     JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch)
     WHERE 
-        gc.status BETWEEN 2 AND 3 
-        AND ad.status = 1 
+        gc.status BETWEEN 2 AND 3
+        AND (ad.status = 1 OR ad.date >= CURDATE())  -- Include past dates where status is 1
         AND YEAR(ad.date) = '$currentYear'
         AND MONTH(ad.date) = '$currentMonth'
         $searchQuery $branch_id
@@ -78,10 +78,10 @@ UpcomingAuctions AS (
         rd.id,
         rd.grp_id,
         rd.grp_name,
-        rd.chit_value,
-          rd.hours,
+        rd.hours,
         rd.minutes,
         rd.ampm,
+        rd.chit_value,
         rd.total_months,
         rd.creation_date,
         rd.auction_date,
@@ -92,7 +92,7 @@ UpcomingAuctions AS (
     FROM 
         RankedDates rd
     WHERE 
-        rd.auction_date >= CURDATE()
+        (rd.auction_date >= CURDATE() OR (rd.auction_date < CURDATE() AND rd.status = 1)) -- Include past auction dates where status is 1
 ),
 FilteredAuctions AS (
     SELECT 
@@ -119,6 +119,7 @@ FilteredAuctions AS (
             FROM UpcomingAuctions a
             WHERE a.auction_date > CURDATE()
         )
+        OR (ua.auction_date < CURDATE() AND ua.status = 1) -- Ensure that past dates with status 1 are also included
 )
 SELECT DISTINCT
     fa.id,
@@ -190,7 +191,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['grp_name']) ? $row['grp_name'] : '';
     $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
-    $sub_array[] = isset($row['creation_date']) ? $row['creation_date'] : '';
+    $sub_array[] = isset($row['auction_date']) ? date('j', strtotime($row['auction_date'])) : '';
      // Format hours, minutes, and ampm
      $formattedTime = '';
      if (isset($row['hours']) && isset($row['minutes']) && isset($row['ampm'])) {
