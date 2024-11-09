@@ -92,7 +92,7 @@ UpcomingAuctions AS (
     FROM 
         RankedDates rd
     WHERE 
-        (rd.auction_date >= CURDATE() OR (rd.auction_date < CURDATE() AND rd.status = 1)) -- Include past auction dates where status is 1
+        (rd.auction_date >= CURDATE() OR (rd.auction_date < CURDATE() AND rd.status = 1)) -- Include past auction dates with status 1
 ),
 FilteredAuctions AS (
     SELECT 
@@ -113,13 +113,13 @@ FilteredAuctions AS (
     FROM 
         UpcomingAuctions ua
     WHERE 
-        ua.auction_date = CURDATE()
+        (ua.auction_date = CURDATE() AND ua.status != 2) -- Exclude today's auction if status = 2
         OR ua.auction_date = (
             SELECT MIN(a.auction_date)
             FROM UpcomingAuctions a
             WHERE a.auction_date > CURDATE()
         )
-        OR (ua.auction_date < CURDATE() AND ua.status = 1) -- Ensure that past dates with status 1 are also included
+        OR (ua.auction_date < CURDATE() AND ua.status = 1) -- Include past auction dates where status is 1
 )
 SELECT DISTINCT
     fa.id,
