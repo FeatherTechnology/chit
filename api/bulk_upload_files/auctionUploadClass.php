@@ -213,7 +213,9 @@ class auctionUploadClass
                 // If auction_value is empty or zero, skip calculation or handle it accordingly
                 $chit_amount = null; // Or set to a default value if needed
             }
-
+            if (!empty($auction_value) && $auction_value > 0) {
+            $customer_id = !empty($data['aadhar_number']) ? strip_tags($data['cust_id']) : -1;
+            }
             // Get the user ID from the session
             $user_id = $_SESSION['user_id'];
 
@@ -226,7 +228,7 @@ class auctionUploadClass
                               '" . strip_tags($data['low_value']) . "',
                               '" . strip_tags($data['high_value']) . "',
                               1,
-                              '" . strip_tags($data['cust_id']) . "',
+                              '" . $customer_id. "',
                               '" . $auction_value . "',
                               '" . $chit_amount . "',
                               '" . $user_id . "',
@@ -272,15 +274,17 @@ class auctionUploadClass
         $user_id = $_SESSION['user_id']; // Retrieve the user ID from session
 
         // Corrected insert query with proper syntax and variable names
+        
         $auction_value = floatval(strip_tags($data['auction_value']));
         if (!empty($auction_value) && $auction_value > 0) {
+            $customer_id = !empty($data['aadhar_number']) ? strip_tags($data['cust_id']) : -1;
             $insert_query2 = "INSERT INTO auction_modal 
                       (auction_id, group_id, date, cus_name, value, inserted_login_id, created_on) 
                       VALUES (
                           '" . strip_tags($data['auction_id']) . "',
                           '" . strip_tags($data['grp_id']) . "',
                           '" . strip_tags($data['date']) . "',
-                          '" . strip_tags($data['cust_id']) . "',  
+                          '" .  $customer_id . "',  
                           '" . strip_tags($data['auction_value']) . "',
                           '" . $user_id . "',  
                           NOW()
