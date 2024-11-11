@@ -47,24 +47,10 @@ class CollectionStsClass
             if ($amount_collected >= $payable) {
                 $coll_status = 'Paid';
             } else {
-                $due_date = date('Y-m-t', strtotime($auction_month . '-01'));
-                $current_date = date('Y-m-d');
-                if ($current_date > $due_date) {
                     $coll_status = 'Payable';
-                } else {
-                    $coll_status = 'Payable';
-                }
+                
             }
-        } else {
-            $due_date = date('Y-m-t', strtotime($auction_month . '-01'));
-            $current_date = date('Y-m-d');
-
-            if ($current_date > $due_date) {
-                $coll_status = 'Payable';
-            } else {
-                $coll_status = 'Payable';
-            }
-        }
+        } 
 
         
 

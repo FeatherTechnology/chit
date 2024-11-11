@@ -25,7 +25,7 @@ if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
 $month_paid .= "GROUP BY gc.grp_id";
 
 // Initialize the SQL for unpaid amount calculation
-$month_unpaid = "
+ $month_unpaid = "
 SELECT 
     gc.grp_id,
     gc.grp_name,

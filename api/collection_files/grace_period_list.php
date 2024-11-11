@@ -61,7 +61,7 @@ WHERE cc.cus_id = '$cus_id'
         $groups = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$groups) {
-            return $status_color; // Return orange if no groups are found
+            return 'red'; // Return orange if no groups are found
         }
 
         foreach ($groups as $group) {
