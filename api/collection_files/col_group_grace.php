@@ -18,21 +18,33 @@ class GraceperiodClass
         $current_date = date('Y-m-d');
 
         // Query to calculate unpaid amount
-        $qry1 = "SELECT 
-                    COALESCE(SUM(ad.chit_amount), 0) - COALESCE(SUM(c.collection_amount), 0) AS unpaid_amount
-                 FROM 
-                    group_creation gc
-                 JOIN 
-                    auction_details ad ON gc.grp_id = ad.group_id
-                 LEFT JOIN 
-                    collection c ON ad.group_id = c.group_id
-                 WHERE 
-                    c.cus_mapping_id = '$cus_mapping_id' 
-                    AND c.group_id = '$group_id' 
-                    AND ad.status IN (2, 3)
-                    AND YEAR(ad.date) < '$currentYear'
-                    AND MONTH(ad.date) < '$currentMonth'
-                    AND (c.collection_date <= CURRENT_DATE OR c.collection_date IS NULL)";
+        $qry1 = "  SELECT 
+    COALESCE(SUM(ad.chit_amount), 0) AS total_chit_amount,
+    COALESCE(
+        (SELECT SUM(c.collection_amount)
+         FROM collection c
+         WHERE c.cus_mapping_id = '$cus_mapping_id' 
+           AND c.group_id = '$group_id'
+           AND (c.collection_date <= NOW() OR c.collection_date IS NULL)
+        ), 0
+    ) AS total_collection_amount,
+    COALESCE(SUM(ad.chit_amount), 0) - COALESCE(
+        (SELECT SUM(c.collection_amount)
+         FROM collection c
+         WHERE c.cus_mapping_id = '$cus_mapping_id' 
+           AND c.group_id = '$group_id'
+           AND (c.collection_date <= NOW() OR c.collection_date IS NULL)
+        ), 0
+    ) AS unpaid_amount
+FROM 
+    auction_details ad
+WHERE 
+    ad.group_id = '$group_id'
+    AND ad.status IN (2, 3)
+    AND (
+        YEAR(ad.date) < YEAR(CURRENT_DATE) 
+        OR (YEAR(ad.date) = YEAR(CURRENT_DATE) AND MONTH(ad.date) < MONTH(CURRENT_DATE))
+    );";
 
         $result = $this->pdo->query($qry1)->fetch(PDO::FETCH_ASSOC);
         $unpaid_amount = $result['unpaid_amount'] ?? 0;

@@ -99,7 +99,7 @@ foreach ($result as $row) {
     $sub_array[] = $settle_status;
 
     // Update status logic
-    $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $chit_amount);
+    $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['grp_id']);
     $sub_array[] = $status;
     $grace_status = $graceperiodSts->updateGraceStatus($row['cus_mapping_id'],$row['grp_id']);
 
