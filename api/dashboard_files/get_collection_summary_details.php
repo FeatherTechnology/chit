@@ -26,33 +26,21 @@ $month_paid .= "GROUP BY gc.grp_id";
 
 // Initialize the SQL for unpaid amount calculation
 $month_unpaid = "
-SELECT 
+SELECT
     gc.grp_id,
     gc.grp_name,
     (ad.chit_amount * gc.total_members) AS total_chit_amount,
-    COALESCE(SUM(c.collection_amount), 0) AS total_paid_amount,
-    ((ad.chit_amount * gc.total_members) - COALESCE(SUM(c.collection_amount), 0)) AS unpaid_amount
-FROM 
+    COALESCE(SUM(LEAST(c.collection_amount, ad.chit_amount)), 0) AS total_paid_amount,
+    ((ad.chit_amount * gc.total_members) - COALESCE(SUM(LEAST(c.collection_amount, ad.chit_amount)), 0)) AS unpaid_amount
+FROM
     group_creation gc
-LEFT JOIN 
-    auction_details ad 
-ON 
-    gc.grp_id = ad.group_id 
-AND 
-    MONTH(ad.date) = MONTH(CURDATE()) 
-AND 
-    YEAR(ad.date) = YEAR(CURDATE()) 
-AND 
-    ad.status IN(2,3)
-LEFT JOIN 
-    collection c 
-ON 
-    gc.grp_id = c.group_id 
-AND 
-    MONTH(c.collection_date) = MONTH(CURDATE()) 
-AND 
-    YEAR(c.collection_date) = YEAR(CURDATE())
-WHERE  
+    JOIN auction_details ad ON
+    gc.grp_id = ad.group_id
+ LEFT JOIN collection c ON
+    ad.id = c.auction_id 
+WHERE
+  MONTH(ad.date) = MONTH(CURDATE()) 
+    AND YEAR(ad.date) = YEAR(CURDATE()) AND ad.status IN (2, 3) AND
 ";
 
 // Add conditions based on branchId for unpaid amount
@@ -64,7 +52,7 @@ if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
 
 $month_unpaid .= "
 GROUP BY 
-    gc.grp_id, gc.grp_name";
+    gc.grp_id";
     $prev_pen_amount  = "
     SELECT 
     gc.grp_id, 
