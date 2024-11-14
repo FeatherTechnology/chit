@@ -50,15 +50,6 @@ class GraceperiodClass
 
                     // Query to fetch unpaid amounts (chit_amount - collection_amount)
                     $qry1 = "SELECT 
-                                COALESCE(SUM(ad.chit_amount), 0) AS total_chit_amount,
-                                COALESCE(
-                                    (SELECT SUM(c.collection_amount)
-                                     FROM collection c
-                                     WHERE c.cus_mapping_id = '$cus_mapping_id' 
-                                       AND c.group_id = '$group_id'
-                                       AND (c.collection_date <= NOW() OR c.collection_date IS NULL)
-                                    ), 0
-                                ) AS total_collection_amount,
                                 COALESCE(SUM(ad.chit_amount), 0) - COALESCE(
                                     (SELECT SUM(c.collection_amount)
                                      FROM collection c
@@ -84,48 +75,46 @@ class GraceperiodClass
                         break; // No need to check further mappings in this group
                     }
                 }
-            }
-        }
-
-        // If any unpaid amount is found, return 'red'
-        if ($found_unpaid) {
-            return 'red';
-        }
-        if (count($mappings) > 0) {
-        // Step 3: If no unpaid amount, check the grace period
-        foreach ($groups as $group) {
-            $group_id = $group['group_id'];
-
-            // Query to fetch grace period and auction date for the group
-            $qry2 = "SELECT 
-                        gc.grace_period, 
-                        ad.date 
-                    FROM auction_details ad 
-                    LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
-                    WHERE ad.group_id = '$group_id'
-                      AND YEAR(ad.date) = '$currentYear'
-                      AND MONTH(ad.date) = '$currentMonth'";
-
-            $mappings = $this->pdo->query($qry2)->fetchAll(PDO::FETCH_ASSOC);
-
-            // Check if there are any mappings; if not, skip the group
-            if (count($mappings) > 0) {
-                foreach ($mappings as $row) {
-                    $grace_period = $row['grace_period'] ?? 0;
-                    $date = $row['date'] ?? '';
-
-                    if (!empty($date)) {
-                        $grace_end_date = date('Y-m-d', strtotime($date . ' + ' . $grace_period . ' days'));
-
-                        // If the payment is missed after the grace period, return 'red'
-                        if ($grace_end_date < $current_date) {
-                            return 'red';
+                // If any unpaid amount is found, return 'red'
+                if ($found_unpaid) {
+                    return 'red';
+                }
+                // Step 3: If no unpaid amount, check the grace period
+               
+        
+                    // Query to fetch grace period and auction date for the group
+                    $qry2 = "SELECT 
+                                gc.grace_period, 
+                                ad.date 
+                            FROM auction_details ad 
+                            LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
+                            WHERE ad.group_id = '$group_id'
+                              AND YEAR(ad.date) = '$currentYear'
+                              AND MONTH(ad.date) = '$currentMonth'";
+        
+                    $mapped = $this->pdo->query($qry2)->fetchAll(PDO::FETCH_ASSOC);
+        
+                    // Check if there are any mappings; if not, skip the group
+                    if (count($mapped) > 0) {
+                        foreach ($mapped as $row) {
+                            $grace_period = $row['grace_period'] ?? 0;
+                            $date = $row['date'] ?? '';
+        
+                            if (!empty($date)) {
+                                $grace_end_date = date('Y-m-d', strtotime($date . ' + ' . $grace_period . ' days'));
+        
+                                // If the payment is missed after the grace period, return 'red'
+                                if ($grace_end_date < $current_date) {
+                                    return 'red';
+                                }
+                            }
                         }
                     }
-                }
+                
+            
             }
         }
-    }
+
         // If no group is in a red state, return orange (default)
         return $status_color;
     }
