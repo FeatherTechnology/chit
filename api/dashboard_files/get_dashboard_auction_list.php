@@ -181,7 +181,6 @@ $number_filter_row = $stmt->rowCount();
 $stmt = $pdo->prepare($query . $query1);
 $stmt->execute();
 $result = $stmt->fetchAll();
-
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];
 foreach ($result as $row) {
