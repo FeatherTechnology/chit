@@ -128,7 +128,7 @@ foreach ($auctionData as $auctionDetails) {
     WHERE 
         c.group_id = '$groupId' AND
         c.cus_mapping_id = '$cusMappingID'
-        AND c.auction_month = '$auction_month' ORDER BY c.id");
+        AND c.auction_month = '$auction_month' ORDER BY  c.collection_date");
 
     if ($qry2->rowCount() > 0) {
         while ($row = $qry2->fetch(PDO::FETCH_ASSOC)) {
