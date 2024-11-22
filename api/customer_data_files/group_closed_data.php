@@ -45,7 +45,7 @@ if ($statement->rowCount() > 0) {
         // Grace Period Calculation
         $chit_amount = $row['chit_amount'] ?? 0;
         $auction_month = $row['auction_month'] ?? 0;
-        $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['auction_id'], $row['grp_id'], $row['cus_id'], $row['auction_month'], $row['chit_amount']);
+        $status = $collectionSts->updateCollectionStatus($row['cus_mapping_id'], $row['grp_id']);;
         $sub_array['status'] = $status;
 
         // Check payment status for all customers in the group
@@ -56,11 +56,9 @@ if ($statement->rowCount() > 0) {
 
         $all_paid = true;
         foreach ($customer_ids as $cus_id) {
-            $payment_status_query = "SELECT coll_status FROM collection 
-                                     WHERE group_id = '{$row['grp_id']}'
-                                     AND auction_month = '{$row['auction_month']}'
-                                     AND cus_mapping_id = '$cus_id'
-                                     ORDER BY created_on DESC LIMIT 1";
+            $payment_status_query = "SELECT coll_status FROM group_cus_mapping 
+                                     WHERE grp_creation_id = '{$row['grp_id']}'
+                                     AND id = '$cus_id'";
             $payment_status_stmt = $pdo->query($payment_status_query);
             $payment_status = $payment_status_stmt->fetchColumn();
             if ($payment_status !== 'Paid') {

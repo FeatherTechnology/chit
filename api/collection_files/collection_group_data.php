@@ -22,7 +22,8 @@ $column = array(
 );
 
 // First query
-$query = "SELECT
+
+$query =" SELECT
     ad.id AS auction_id,
     cc.id AS customer_id,
     gc.grp_id,
@@ -34,21 +35,22 @@ $query = "SELECT
     gcm.id AS cus_mapping_id,
     cc.cus_id,
     gc.grace_period,
-    gcm.settle_status -- Fetch settle_status directly for all months
+    gcm.settle_status
 FROM
-    auction_details ad
-LEFT JOIN group_creation gc ON ad.group_id = gc.grp_id
-LEFT JOIN group_cus_mapping gcm ON ad.group_id = gcm.grp_creation_id
-LEFT JOIN customer_creation cc ON gcm.cus_id = cc.id
-    JOIN 
-        branch_creation bc ON gc.branch = bc.id
-    JOIN 
-        users us ON FIND_IN_SET(gc.branch, us.branch) > 0
-WHERE
-    gc.status BETWEEN 3 AND 4
-    AND cc.id = '$id'
+    group_creation gc
+LEFT JOIN auction_details ad ON ad.group_id = gc.grp_id 
     AND YEAR(ad.date) = '$currentYear'
-    AND MONTH(ad.date) = '$currentMonth' AND  us.id = '$user_id'";
+    AND MONTH(ad.date) = '$currentMonth'
+LEFT JOIN group_cus_mapping gcm ON gc.grp_id = gcm.grp_creation_id
+LEFT JOIN customer_creation cc ON gcm.cus_id = cc.id
+JOIN branch_creation bc ON gc.branch = bc.id
+JOIN users us ON FIND_IN_SET(gc.branch, us.branch) > 0
+WHERE
+     gc.status IN (3, 4) -- Fetch only groups with status 4
+    AND cc.id = '$id'
+    AND us.id = '$user_id'
+";
+
 
 // Handle search filter
 if (isset($_POST['search']) && $_POST['search'] != "") {
