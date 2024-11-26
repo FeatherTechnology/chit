@@ -408,9 +408,6 @@ class customerUploadClass
         if ($data['first_name'] == '') {
             $errcolumns[] = 'First Name';
         }
-        if ($data['last_name'] == '') {
-            $errcolumns[] = 'Last Name';
-        }
         if ($data['address'] == '') {
             $errcolumns[] = 'Address';
         }
