@@ -94,15 +94,12 @@ if ($statement->rowCount() > 0) {
 
         $all_paid = true;
         foreach ($customer_ids as $cus_id) {
-            $payment_status_query = "SELECT coll_status FROM collection 
-                                     WHERE group_id = :group_id 
-                                     AND auction_month = :auction_month 
-                                     AND cus_mapping_id = :cus_mapping_id 
-                                     ORDER BY created_on DESC LIMIT 1";
+            $payment_status_query = "SELECT coll_status FROM group_cus_mapping 
+                                     WHERE grp_creation_id = :group_id 
+                                     AND id = :cus_mapping_id ";
             $payment_status_stmt = $pdo->prepare($payment_status_query);
             $payment_status_stmt->execute([
                 ':group_id' => $row['grp_id'],
-                ':auction_month' => $row['auction_month'],
                 ':cus_mapping_id' => $cus_id
             ]);
             $payment_status = $payment_status_stmt->fetchColumn();

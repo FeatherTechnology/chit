@@ -170,9 +170,9 @@ if (isset($_POST['order'])) {
    
 }
 $query1 = '';
-// if (isset($_POST['length']) && $_POST['length'] != -1) {
-//     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
-// }
+if (isset($_POST['length']) && $_POST['length'] != -1) {
+    $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
+}
 
 $stmt = $pdo->prepare($query);
 $stmt->execute();
@@ -181,7 +181,6 @@ $number_filter_row = $stmt->rowCount();
 $stmt = $pdo->prepare($query . $query1);
 $stmt->execute();
 $result = $stmt->fetchAll();
-
 $sno = isset($_POST['start']) ? $_POST['start'] + 1 : 1;
 $data = [];
 foreach ($result as $row) {

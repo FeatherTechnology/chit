@@ -59,7 +59,7 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
     $group_id = $row['grp_id'];
     $cus_mapping_id = $row['cus_mapping_id'];
 
-   
+
 
     // Fetch chit amount and auction date for the specific auction ID
     $auctionQry = $pdo->query("
@@ -83,46 +83,54 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
 
     // Get the next auction date
     $nextAuctionQry = $pdo->query("
-        SELECT 
-            ad.date AS auction_date
-        FROM 
-            auction_details ad
-        WHERE 
-            ad.id = (SELECT MIN(id) FROM auction_details WHERE id > '$auction_id' AND group_id = '$group_id')
-        LIMIT 1
-    ");
+    SELECT 
+        ad.date AS auction_date
+    FROM 
+        auction_details ad
+    WHERE 
+        ad.id = (SELECT MIN(id) FROM auction_details WHERE id > '$auction_id' AND group_id = '$group_id')
+    LIMIT 1
+");
 
     $end_date = ($nextAuctionQry->rowCount() > 0)
         ? $nextAuctionQry->fetch(PDO::FETCH_ASSOC)['auction_date']
-        : null;
+        : NULL; // Set end_date to NULL if not found
+
+    // If end_date is not found, use NOW(), otherwise use the fetched end_date
+    $end_date_condition = ($end_date) ? "'$end_date'" : "NOW()";
 
 
-        $qry1 = $pdo->query("
-        SELECT 
-            SUM(c1.collection_amount) AS total_collection 
-        FROM 
-            collection c1 
-        WHERE 
-            c1.cus_mapping_id ='$cus_mapping_id' 
-            AND group_id = '$group_id'
-            AND c1.collection_date BETWEEN '$start_date' AND IFNULL('$end_date', NOW())
-    ");
-    
+
+    $qry1 = $pdo->query("
+    SELECT 
+    SUM(c.payable) as payable_amnt,
+        SUM(c.collection_amount) AS total_collection
+    FROM 
+        collection c
+    WHERE 
+        c.cus_mapping_id = '$cus_mapping_id' 
+        AND group_id = '$group_id'
+        AND c.collection_date AND $siwhere
+");
+
+
     $collection_data = $qry1->fetch(PDO::FETCH_ASSOC);
     $collection_amount = $collection_data['total_collection'] ?: 0; // Get total collection or default to 0 
-    
+    $payable = $collection_data['payable_amnt'] ?: 0; // Get total collection or default to 0 
+
     // Make sure all values are cast as float or int for correct arithmetic operations
     $collection_amount = (float) $collection_amount; // Cast collection_amount to float
     $chit_value = (float) $row['chit_value'];        // Cast chit_value to float
     $commission = (float) $row['commission'];        // Cast commission percentage to float
-    
+
     // Calculate commission based on the chit value and commission percentage
     $commission_value = ($chit_value * $commission) / 100; // Commission calculation
     $total_chit = (float) $chit_amount - $commission_value; // Cast chit_amount and calculate total chit
-    
+
     // Now safely perform subtraction
     $difference = $collection_amount - $total_chit; // Subtract after casting
-    
+
+    // echo "Group ID: $group_id, Cus Mapping ID: $cus_mapping_id, Collection Amount: $collection_amount, Total Chit: $total_chit, Commission Value: $commission_value, Difference: $difference";
 
     if ($total_chit >= $collection_amount) {
         // Add current auction ID to the excluded customers list along with the group_id
@@ -136,18 +144,19 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
             'group_id' => $group_id
         );
     } else {
-        // Conditions met, proceed with benefit calculation
         if ($commission_value >= $difference) {
             $finl_val = 0; // No additional value if commission fully covers the difference
         } else {
             $finl_val = $difference - $commission_value;
         }
+        // Proceed with benefit calculation only if final value is greater than 0
 
-        // Check if total members is greater than zero to avoid division by zero
-        if ($row['total_members'] > 0) {
-            // Calculate benefit per group
-            $benefit_per_group = ($commission_value / $row['total_members']) * $row['total_paid_members'];
-            $benefit += $benefit_per_group;
+        if ($collection_amount == $payable) {
+            if ($row['total_members'] > 0) {
+                // Calculate benefit per group
+                $benefit_per_group = ($commission_value / $row['total_members']) * $row['total_paid_members'];
+                $benefit += $benefit_per_group;
+            }
         }
     }
 
@@ -164,8 +173,8 @@ while ($row = $qry->fetch(PDO::FETCH_ASSOC)) {
 foreach ($prev_auction_queries as $query) {
     $auction_id = $query['auction_id'];
     $group_id = $query['group_id'];
-    $cus_mapping_id =$query['cus_mapping_id']; // Convert to a comma-separated string
-   
+    $cus_mapping_id = $query['cus_mapping_id']; // Convert to a comma-separated string
+
     $prevAuctionQry = $pdo->query("
         SELECT 
             ad.id AS previous_auction_id,
@@ -190,6 +199,7 @@ foreach ($prev_auction_queries as $query) {
         while ($prevAuctionRow = $prevAuctionQry->fetch(PDO::FETCH_ASSOC)) {
             $previous_auction_id = $prevAuctionRow['previous_auction_id']; // Get the ID of the previous auction
             $prev_chit_amount = $prevAuctionRow['prev_chit_amount']; // Get previous chit amount
+
             $qry2 = $pdo->query("
             SELECT SUM(c1.collection_amount) AS prev_total_collect 
             FROM collection c1 
@@ -205,6 +215,7 @@ foreach ($prev_auction_queries as $query) {
             // $prev_total_collect += $benefit_from_next_auction;
 
             // Query to find commission value for this auction
+
             $qry3 = $pdo->query("
             SELECT 
                 gc.chit_value, 
@@ -228,13 +239,12 @@ foreach ($prev_auction_queries as $query) {
                 $total_chit_prev = $prev_chit_amount - $commission_value; // Adjust total chit based on commission
                 $difference = $prev_total_collect - $total_chit;
 
-                // Check if total chit amount is greater or equal to collected amount
                 if ($total_chit_prev >= $prev_total_collect) {
                     // Add current auction ID to the excluded customers list
                     if (!isset($excluded_customers[$cus_mapping_id])) {
                         $excluded_customers[$cus_mapping_id] = []; // Initialize the array for this customer
                     }
-
+                   
                     $excluded_customers[$cus_mapping_id][] = [
                         'auction_id' => $previous_auction_id,
                         'group_id' => $group_id
@@ -321,7 +331,7 @@ foreach ($prev_auction_queries as $query) {
                 if (!isset($excluded_cus[$cus_mapping_id])) {
                     $excluded_cus[$cus_mapping_id] = []; // Initialize the array for this customer
                 }
-
+             
                 $excluded_cus[$cus_mapping_id][] = [
                     'auction_id' => $last_previous_auction,
                     'group_id' => $group_id
@@ -330,7 +340,7 @@ foreach ($prev_auction_queries as $query) {
                 if (!isset($excluded_customers[$cus_mapping_id])) {
                     $excluded_customers[$cus_mapping_id] = []; // Initialize the array for this customer
                 }
-
+              
                 // Add to $excluded_customers
                 $excluded_customers[$cus_mapping_id][] = [
                     'auction_id' => $last_previous_auction,
@@ -363,6 +373,7 @@ foreach ($prev_auction_queries as $query) {
         }
     }
 }
+
 
 //print_r($excluded_customers);
 // Check conditions for excluded customers after the while loop
@@ -442,20 +453,20 @@ foreach ($excluded_customers as $cus_mapping_id => $auction_data) {
                         'group_id' => $group_id
                     );
                 } else {
-                    // Conditions met, proceed with benefit calculation
                     if ($commission_value >= $difference) {
                         $finl_val = 0; // No additional value if commission fully covers the difference
                     } else {
                         $finl_val = $difference - $commission_value;
                     }
-                    // Check if total members is greater than zero to avoid division by zero
-                    if ($row['total_paid_members'] > 0) {
-                        // Calculate benefit per group
-                        $benefit_per_group = ($commission_value / $row['total_members']) * $row['total_paid_members'];
-                        $benefit += $benefit_per_group;
-                    }
 
-                    // Get previous auction ID
+                    if ($commission_value == $difference) {
+                        // Proceed with benefit calculation only if final value is greater than 0
+                        if ($row['total_members'] > 0) {
+                            // Calculate benefit per group
+                            $benefit_per_group = ($commission_value / $row['total_members']) * $row['total_paid_members'];
+                            $benefit += $benefit_per_group;
+                        }
+                    }
                 }
             }
         }
