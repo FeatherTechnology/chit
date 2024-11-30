@@ -19,14 +19,13 @@ $column = array(
 );
 
 // Base query with JOIN
-$query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branch_name, gc.status, ad.auction_month,ad.id as auction_id
+ $query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branch_name, gc.status, ad.auction_month,ad.id as auction_id
           FROM group_creation gc 
           JOIN branch_creation bc ON gc.branch = bc.id 
           LEFT JOIN auction_details ad ON gc.grp_id = ad.group_id
            JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch) > 0
-          WHERE gc.status BETWEEN 4 AND 5 AND
-          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth) AND us.id = '$user_id'";
+          WHERE gc.status BETWEEN 4 AND 5 AND us.id = '$user_id' group by gc.id";
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {
@@ -39,8 +38,18 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
                     OR gc.status LIKE :search)";
 }
 
-// Add ordering condition
-$query .= " ORDER BY gc.grp_id"; // Order by group ID
+if (isset($_POST['order'])) {
+    $columnIndex = $_POST['order'][0]['column'];  // Index of the column to be sorted
+    $sortDirection = $_POST['order'][0]['dir'];  // Sort direction (asc/desc)
+    
+    if (isset($column[$columnIndex])) {
+        // Apply sorting using the column and direction provided
+        $query .= " ORDER BY " . $column[$columnIndex] . " " . $sortDirection;
+    }
+} else {
+    // Default sorting (if no sorting is applied from frontend)
+    $query .= " ORDER BY gc.grp_id"; // Order by group ID
+}
 
 // Add pagination
 $query1 = '';

@@ -1,7 +1,7 @@
 <?php
 require "../../ajaxconfig.php";
 $result =array();
-$qry=$pdo->query("SELECT id, first_name, last_name FROM customer_creation");
+$qry=$pdo->query("SELECT cc.id,cc.cus_id, cc.first_name, cc.last_name ,pl.place FROM customer_creation cc JOIN place pl ON cc.place = pl.id ");
 if($qry->rowCount()>0){
     $result = $qry->fetchAll(PDO::FETCH_ASSOC);
 }

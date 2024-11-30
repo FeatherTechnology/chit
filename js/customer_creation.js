@@ -496,21 +496,7 @@ $(document).ready(function () {
                 isValid = false;
             }
         });
-        if (pic === undefined && per_pic === '') {
-            let isUploadValid = validateField('', 'pic');
-            let isHiddenValid = validateField('', 'per_pic');
-            if (!isUploadValid || !isHiddenValid) {
-                isValid = false;
-            }
-            else {
-                $('#pic').css('border', '1px solid #cecece');
-                $('#per_pic').css('border', '1px solid #cecece');
-            }
-        }
-        else {
-            $('#pic').css('border', '1px solid #cecece');
-            $('#per_pic').css('border', '1px solid #cecece');
-        }
+       
         if (isValid) {
             if (source_create === 0 || famInfoRowCount === 0 || guar_info_table === 0) {
                 swalError('Warning', 'Please Fill out Source Info ,Family Info and Guarantor Info!');

@@ -110,6 +110,7 @@ $(document).ready(function () {
             let pendingAmount = Math.round(parseFloat($('#pending_amt').val().replace(/,/g, '')));
             let payableAmount = Math.round(parseFloat($('#payable_amnt').val().replace(/,/g, ''))); // Round off payable amount
             let chitAmount = Math.round(parseFloat($('#chit_amt').val().replace(/,/g, ''))); // Round off chit amount
+            let chit_value = $('#chit_value').val().replace(/,/g, ''); // Round off chit amount
 
             let isValid = true; 
             // Validate the collection amount field
@@ -154,7 +155,7 @@ $(document).ready(function () {
                         auction_id: auctionId,
                         cus_mapping_id: cusMappingID, // Pass cus_mapping_id
                         auction_month: $('#auction_month').val(),
-                        chit_value: $('#chit_value').val(),
+                        chit_value: chit_value,
                         chit_amount: chitAmount, // Use rounded chit amount
                         pending_amt: pendingAmount,
                         payable_amnt: payableAmount, // Use rounded payable amount

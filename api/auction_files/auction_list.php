@@ -11,6 +11,7 @@ $column = array(
     'gc.chit_value',
     'gc.total_months',
     'gc.date',
+    'gc.hours',
     'ad.auction_month',
     'bc.branch_name',
     'ad.status',
@@ -27,6 +28,9 @@ $query = "SELECT * FROM (
         gc.chit_value,
         gc.total_months,
         gc.date,
+        gc.hours,
+        gc.minutes,
+        gc.ampm,
         ad.auction_month,
         bc.branch_name,
         ad.status,
@@ -75,13 +79,35 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 }
 
 // Order by status and id
-$query .= " ORDER BY 
-CASE 
-    WHEN status = 1 THEN 0
-    WHEN status = 2 THEN 1
-    ELSE 2
-END, 
-id " . ($_POST['order']['0']['dir'] ?? 'ASC'); // Default to ASC if not set
+if (isset($_POST['order'])) {
+    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'date','hours','minutes','ampm', 'auction_month', 'branch_name', 'status','id'];
+    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+} else {
+    // Default ordering by status and id
+    $query .= " ORDER BY 
+    CASE 
+        WHEN status = 1 THEN 0
+        WHEN status = 2 THEN 1
+        ELSE 2
+    END, 
+    -- First, sort by AM/PM (AM before PM)
+     date ASC,
+    CASE ampm 
+        WHEN 'AM' THEN 0
+        WHEN 'PM' THEN 1
+        ELSE 0
+    END ASC,
+    CASE 
+        WHEN hours = '12' AND ampm = 'AM' THEN 0
+        WHEN hours = '12' AND ampm = 'PM' THEN 12
+        ELSE hours
+    END ASC,
+    -- Then, sort by minutes
+    LPAD(minutes, 2, '0') ASC, 
+    -- Finally, order by id
+    id ASC";
+
+}
 
 // Pagination
 $query1 = '';
@@ -109,6 +135,11 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
     $sub_array[] = isset($row['date']) ? $row['date'] : '';
+    $formattedTime = '';
+     if (isset($row['hours']) && isset($row['minutes']) && isset($row['ampm'])) {
+         $formattedTime = sprintf("%02d:%02d %s", (int)$row['hours'], (int)$row['minutes'], strtoupper($row['ampm']));
+     }
+     $sub_array[] = $formattedTime;
     $sub_array[] = isset($row['auction_month']) ? $row['auction_month'] : '';
     $sub_array[] = isset($row['branch_name']) ? $row['branch_name'] : '';
 

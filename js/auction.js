@@ -62,36 +62,39 @@ $(document).ready(function () {
         e.preventDefault();
         let isValid = true; // Flag to track if all fields are valid
 
-        // Iterate through each row of the customer mapping table
-        $('#cus_mapping_table tbody tr').each(function () {
-            var $row = $(this); // Current row
-
-            // Find all input values in the current row (including all relevant containers)
-            var $valueColumn = $row.find('.value-column');
-
-            // Check if the last input in the row is empty
-            var $lastInput = $valueColumn.find('input:last');
-
-            // If the last input exists and is empty
-            if ($lastInput.length > 0 && $lastInput.val().trim() === '') {
-                isValid = false; // Set isValid to false if no valid values
-                $lastInput.css('border', '1px solid red'); // Highlight empty fields
-            } else {
-                $lastInput.css('border', ''); // Reset border if filled
-            }
-        });
-
-        // If all values are valid, proceed to enable button 2
-        if (isValid) {
-            // Change the background color to green for button 1
+       
             $(this).removeClass('btn-primary').addClass('btn-success'); // Use Bootstrap class for green color
 
             // Enable auction_round2
             $('#auction_round2').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
-        } else {
-            // Show a warning message if not all fields are filled
-            swalError('Warning', 'Please fill in all required fields before proceeding.');
-        }
+        //     var $row = $(this); // Current row
+
+        //     // Find all input values in the current row (including all relevant containers)
+        //     var $valueColumn = $row.find('.value-column');
+
+        //     // Check if the last input in the row is empty
+        //     var $lastInput = $valueColumn.find('input:last');
+
+        //     // If the last input exists and is empty
+        //     if ($lastInput.length > 0 && $lastInput.val().trim() === '') {
+        //         isValid = false; // Set isValid to false if no valid values
+        //         $lastInput.css('border', '1px solid red'); // Highlight empty fields
+        //     } else {
+        //         $lastInput.css('border', ''); // Reset border if filled
+        //     }
+        // });
+
+        // // If all values are valid, proceed to enable button 2
+        // if (isValid) {
+        //     // Change the background color to green for button 1
+        //     $(this).removeClass('btn-primary').addClass('btn-success'); // Use Bootstrap class for green color
+
+        //     // Enable auction_round2
+        //     $('#auction_round2').prop('disabled', false).removeClass('d-none'); // Remove d-none class to show the button
+        // } else {
+        //     // Show a warning message if not all fields are filled
+        //     swalError('Warning', 'Please fill in all required fields before proceeding.');
+        // }
     });
 
     $('#auction_round2').on('click', function (e) {
@@ -150,80 +153,94 @@ $(document).ready(function () {
     ///////////////////////////////////////////////////////Auction Modal Start/////////////////////////////////////////////////////////////////  
     $(document).on('click', '.auctionBtn', function (event) {
         event.preventDefault();
-
+    
         var uniqueMonth = $(this).data('value');
         var [groupId, auction_month] = uniqueMonth.split('_');
-
-        // Fetch the auction details and validate date and time
+    
+        // Fetch the auction details and validate date
         $.post('api/auction_files/validate_auction_date.php', { group_id: groupId, auction_month: auction_month }, function (response) {
-            if (response.is_valid) {
-                // If date and time match, open modal
-                $('#pageHeaderName').text(` - Auction`);
-                $('#add_cus_map_modal').show();
-                $('.auction_detail_content').hide();
-                $('#back_to_list').show();
-                $('.back_btn').hide();
-
-                var auctionDetail = response.auction_detail; // assuming auction details are returned
-                var [date, id, low_value, high_value, group_name, chit_value, branch_name] = [
-                    auctionDetail.date,
-                    auctionDetail.id,
-                    auctionDetail.low_value,
-                    auctionDetail.high_value,
-                    auctionDetail.group_name,
-                    auctionDetail.chit_value,
-                    auctionDetail.branch_name,
-                ];
-
-                // Convert date to dd-mm-yyyy format
-                var formattedDate = formatDate(date); // Call the function to format the date
-
-                // Set attributes for submission
-                $('#submit_cus_map').attr('data-group_id', groupId);
-                $('#submit_cus_map').attr('data-id', id);
-                $('#submit_cus_map').attr('data-date', formattedDate); // Use formatted date
-                $('#submit_cus_map').attr('data-high_value', high_value);
-                $('#submit_cus_map').attr('data-low_value', low_value);
-
-                // Set the values in the modal form fields
-                $('#group_id').val(groupId); // Assuming you want to display the group ID
-                $('#grp_name').val(group_name); // Populate group name
-                $('#branch_name').val(branch_name); // Populate group name
-                $('#ch_value').val(chit_value); // Populate group name
-                var moneyChitVal = moneyFormatIndia(chit_value)
-                $('#chit_val').val(moneyChitVal);
-                $('#auction_date').val(formattedDate); // Populate auction date in dd-mm-yyyy format
-                var auctionTime = `${auctionDetail.hours}:${auctionDetail.minutes < 10 ? '0' + auctionDetail.minutes : auctionDetail.minutes} ${auctionDetail.ampm}`;
-                $('#auction_time').val(auctionTime); // Populate auction time in the field 
-                $('#grp_month').val(auction_month); // Populate auction month
-                var formattedLowValue = moneyFormatIndia(low_value);
-                var formattedHighValue = moneyFormatIndia(high_value);
-                $('#low_value').val(formattedLowValue); // Populate low value
-                $('#high_value').val(formattedHighValue); // Populate high value
-
-                // Set attributes for auction close button
-                $('.auction_close').attr('data-group_id', groupId);
-                $('.auction_close').attr('data-date', formattedDate); // Use formatted date
-                $('.auction_close').attr('data-id', id);
-
-                // Fetch customer names based on groupId
-                getCusName(groupId, auction_month);
-                // allowDeleteClick = false;
-                auctionStarted = false;
-                $('#auction_round1').prop('disabled', true)
-                $('.auction_close').prop('disabled', true)
-                $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
-                $('#auction_start').prop('disabled', false);
+    
+            if (response.is_valid && response.auction_detail) {
+                var auctionDetail = response.auction_detail;
+                var auctionDate = auctionDetail.date; // Fetch auction date from response
+                
+                // Get current date and format both auctionDate and currentDate to YYYY-MM-DD
+                var currentDate = new Date();
+                var currentDateString = currentDate.toISOString().split('T')[0]; // Extract YYYY-MM-DD part of current date
+                var auctionDateString = new Date(auctionDate).toISOString().split('T')[0]; // Convert auction date to YYYY-MM-DD
+    
+                // Compare only the date parts
+                if (auctionDateString < currentDateString) {
+                    // Auction date has passed, show warning
+                    swalError('Expired Auction', 'Please Reschedule the Auction Date.');
+                    return; // Exit, no further action
+                } else {
+                    // Continue with showing the modal and auction details
+    
+                    $('#pageHeaderName').text(` - Auction`);
+                    $('#add_cus_map_modal').show();
+                    $('.auction_detail_content').hide();
+                    $('#back_to_list').show();
+                    $('.back_btn').hide();
+    
+                    var [date, id, low_value, high_value, group_name, chit_value, branch_name] = [
+                        auctionDetail.date,
+                        auctionDetail.id,
+                        auctionDetail.low_value,
+                        auctionDetail.high_value,
+                        auctionDetail.group_name,
+                        auctionDetail.chit_value,
+                        auctionDetail.branch_name,
+                    ];
+    
+                    // Convert date to dd-mm-yyyy format
+                    var formattedDate = formatDate(date);
+    
+                    // Set attributes for submission
+                    $('#submit_cus_map').attr('data-group_id', groupId);
+                    $('#submit_cus_map').attr('data-id', id);
+                    $('#submit_cus_map').attr('data-date', formattedDate);
+                    $('#submit_cus_map').attr('data-high_value', high_value);
+                    $('#submit_cus_map').attr('data-low_value', low_value);
+    
+                    // Set the values in the modal form fields
+                    $('#group_id').val(groupId);
+                    $('#grp_name').val(group_name);
+                    $('#branch_name').val(branch_name);
+                    $('#ch_value').val(chit_value);
+                    var moneyChitVal = moneyFormatIndia(chit_value);
+                    $('#chit_val').val(moneyChitVal);
+                    $('#auction_date').val(formattedDate);
+                    var auctionTime = `${auctionDetail.hours}:${auctionDetail.minutes < 10 ? '0' + auctionDetail.minutes : auctionDetail.minutes} ${auctionDetail.ampm}`;
+                    $('#auction_time').val(auctionTime);
+                    $('#grp_month').val(auction_month);
+                    $('#low_value').val(moneyFormatIndia(low_value));
+                    $('#high_value').val(moneyFormatIndia(high_value));
+    
+                    // Set attributes for auction close button
+                    $('.auction_close').attr('data-group_id', groupId);
+                    $('.auction_close').attr('data-date', formattedDate);
+                    $('.auction_close').attr('data-id', id);
+    
+                    // Fetch customer names based on groupId
+                    getCusName(groupId, auction_month);
+    
+                    $('#auction_round1').prop('disabled', true);
+                    $('.auction_close').prop('disabled', true);
+                    $('#auction_start').prop('disabled', false);
+                }
             }
         }, 'json');
-
+    
         // Function to format date to dd-mm-yyyy
         function formatDate(dateString) {
-            if (!dateString) return 'N/A'; // Handle cases where date is undefined or null
+            if (!dateString) return 'N/A';
             var dateParts = dateString.split('-'); // Assuming input format is 'yyyy-mm-dd'
             return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; // Return as 'dd-mm-yyyy'
         }
     });
+    
+    
     // Global flag to track whether the auction has started
     // Global flag to track whether the auction has started
     let auctionStarted = false;
@@ -602,7 +619,6 @@ $(document).ready(function () {
     
         // Collect table data
         let tableData = [];
-        let isValid = true; // Flag to track if all fields are valid
         let overallMaxValue = -Infinity; // Initialize to the lowest possible value
         let companyValue = null; // Variable to store the Company value
     
@@ -628,45 +644,24 @@ $(document).ready(function () {
                 return; // Skip processing further for the company row
             }
     
-            // Check if values are valid
-            let validValues = values.filter(function (value) {
-                return value !== ''; // Filter out empty values
-            });
-    
-            if (validValues.length === 0) {
-                isValid = false;
-                $(this).find('input[name="cus_value[]"]').css('border', '1px solid red'); // Highlight empty field
-            } else {
-                $(this).find('input[name="cus_value[]"]').css('border', ''); // Reset border if filled
-            }
-    
-            // If there are valid values for the customer, process them
-            if (validValues.length > 0) {
-                // Convert valid values to numbers and push each one as a separate entry
-                validValues.map(Number).forEach(value => {
-                    tableData.push({
-                        cus_id: cusId, // Customer ID
-                        value: value, // Individual value
-                        group_id: group_id,
-                        date: date,
-                        id: id
-                    });
-    
-                    // Update overall maximum value only if company is not present
-                    overallMaxValue = Math.max(overallMaxValue, value);
+            // Convert all values to numbers and push each one as a separate entry
+            values.map(Number).forEach(value => {
+                tableData.push({
+                    cus_id: cusId, // Customer ID
+                    value: value, // Individual value
+                    group_id: group_id,
+                    date: date,
+                    id: id
                 });
-            }
+    
+                // Update overall maximum value only if company is not present
+                overallMaxValue = Math.max(overallMaxValue, value);
+            });
         });
     
         // If the company is present, use its value as the overall max
         if (companyValue !== null) {
             overallMaxValue = companyValue; // Company value takes precedence
-        }
-    
-        // If any field is invalid, prevent the submission and show an alert
-        if (!isValid) {
-            swalError('Error', 'Please fill in all the values');
-            return; // Stop further execution if validation fails
         }
     
         // Format the max value for display
@@ -680,6 +675,7 @@ $(document).ready(function () {
             { group_id: group_id, date: date, id: id, tableData: tableData }
         );
     });
+    
     function closeAuction(data) {
         $.ajax({
             url: 'api/auction_files/insert_auction_list.php',
@@ -1019,7 +1015,7 @@ function getCusName(groupId, auction_month) {
         response.forEach(function (val) {
             items.push({
                 value: val.id,
-                label: val.cus_name,
+                label: val.cus_name + ' - ' + val.place +' - ' + val.cus_id,
                 selected: false
             });
         });

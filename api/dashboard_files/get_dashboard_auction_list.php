@@ -42,7 +42,7 @@ if (isset($_POST['search']) && $_POST['search'] != "") {
 }
 
 // Main query
-$query = "WITH RankedDates AS (
+$query  = "WITH RankedDates AS (
     SELECT 
         gc.id,
         gc.grp_id,
@@ -67,8 +67,8 @@ $query = "WITH RankedDates AS (
     JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch)
     WHERE 
-        gc.status BETWEEN 2 AND 3 
-        AND ad.status = 1 
+        gc.status BETWEEN 2 AND 3
+        AND (ad.status = 1 OR ad.date >= CURDATE())  -- Include past dates where status is 1
         AND YEAR(ad.date) = '$currentYear'
         AND MONTH(ad.date) = '$currentMonth'
         $searchQuery $branch_id
@@ -78,10 +78,10 @@ UpcomingAuctions AS (
         rd.id,
         rd.grp_id,
         rd.grp_name,
-        rd.chit_value,
-          rd.hours,
+        rd.hours,
         rd.minutes,
         rd.ampm,
+        rd.chit_value,
         rd.total_months,
         rd.creation_date,
         rd.auction_date,
@@ -92,7 +92,7 @@ UpcomingAuctions AS (
     FROM 
         RankedDates rd
     WHERE 
-        rd.auction_date >= CURDATE()
+        (rd.auction_date >= CURDATE() OR (rd.auction_date < CURDATE() AND rd.status = 1)) -- Include past auction dates with status 1
 ),
 FilteredAuctions AS (
     SELECT 
@@ -113,12 +113,13 @@ FilteredAuctions AS (
     FROM 
         UpcomingAuctions ua
     WHERE 
-        ua.auction_date = CURDATE()
+        (ua.auction_date = CURDATE() AND ua.status != 2) -- Exclude today's auction if status = 2
         OR ua.auction_date = (
             SELECT MIN(a.auction_date)
             FROM UpcomingAuctions a
             WHERE a.auction_date > CURDATE()
         )
+        OR (ua.auction_date < CURDATE() AND ua.status = 1) -- Include past auction dates where status is 1
 )
 SELECT DISTINCT
     fa.id,
@@ -136,9 +137,38 @@ SELECT DISTINCT
     fa.status
 FROM 
     FilteredAuctions fa
-ORDER BY 
-    fa.grp_id, fa.auction_date ASC;";
-
+";
+// Add ordering condition
+if (isset($_POST['order'])) {
+    $column = ['id', 'grp_id', 'grp_name', 'chit_value', 'total_months', 'creation_date', 'auction_date', 'auction_month', 'branch_name', 'status'];
+    // Order by column from DataTables request
+    $query .= " ORDER BY " . $column[$_POST['order']['0']['column']] . ' ' . $_POST['order']['0']['dir'];
+} else {
+    // Default ordering by fa.grp_id and fa.auction_date in ascending order
+    $query .= " ORDER BY 
+    CASE 
+        WHEN status = 1 THEN 0
+        WHEN status = 2 THEN 1
+        ELSE 2
+    END, 
+    -- First, sort by AM/PM (AM before PM)
+     auction_date ASC,
+    CASE ampm 
+        WHEN 'AM' THEN 0
+        WHEN 'PM' THEN 1
+        ELSE 0
+    END ASC,
+    CASE 
+        WHEN hours = '12' AND ampm = 'AM' THEN 0
+        WHEN hours = '12' AND ampm = 'PM' THEN 12
+        ELSE hours
+    END ASC,
+    -- Then, sort by minutes
+    LPAD(minutes, 2, '0') ASC, 
+    -- Finally, order by id
+    id ASC";
+   
+}
 $query1 = '';
 // if (isset($_POST['length']) && $_POST['length'] != -1) {
 //     $query1 = ' LIMIT ' . intval($_POST['start']) . ', ' . intval($_POST['length']);
@@ -161,7 +191,7 @@ foreach ($result as $row) {
     $sub_array[] = isset($row['grp_name']) ? $row['grp_name'] : '';
     $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']) : ''; // Apply formatting here
     $sub_array[] = isset($row['total_months']) ? $row['total_months'] : '';
-    $sub_array[] = isset($row['creation_date']) ? $row['creation_date'] : '';
+    $sub_array[] = isset($row['auction_date']) ? date('j', strtotime($row['auction_date'])) : '';
      // Format hours, minutes, and ampm
      $formattedTime = '';
      if (isset($row['hours']) && isset($row['minutes']) && isset($row['ampm'])) {

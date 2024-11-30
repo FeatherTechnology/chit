@@ -31,9 +31,11 @@ if (isset($group_id) && !empty($group_id) && isset($auction_month) && !empty($au
     
     $qry = "
         SELECT 
+        cc.cus_id,
             cc.first_name, 
             cc.last_name, 
             cc.id, 
+            pl.place,
             CONCAT(cc.first_name, ' ', cc.last_name) AS cus_name,
             gcm.joining_month,
             (SELECT COUNT(*) FROM group_cus_mapping WHERE cus_id = gcm.cus_id AND grp_creation_id = '$group_id') AS chit_count
@@ -41,6 +43,7 @@ if (isset($group_id) && !empty($group_id) && isset($auction_month) && !empty($au
             group_cus_mapping gcm
         JOIN 
             customer_creation cc ON gcm.cus_id = cc.id
+            JOIN place pl ON cc.place = pl.id 
         WHERE 
             gcm.grp_creation_id = '$group_id'
             AND gcm.joining_month <= '$auction_month'

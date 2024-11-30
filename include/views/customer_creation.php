@@ -200,7 +200,7 @@
                                 <div class="row">
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
                                         <div class="form-group">
-                                            <label for="pic"> Photo</label><span class="text-danger">*</span><br>
+                                            <label for="pic"> Photo</label><br>
                                             <img id='imgshow' class="img_show" src='img\avatar.png' />
                                             <input type="file" class="form-control  personal_info_disble" id="pic" name="pic" tabindex="20">
                                             <input type="hidden" class="personal_info_disble" id="per_pic">

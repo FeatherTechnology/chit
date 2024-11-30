@@ -36,7 +36,7 @@ $data = [];
 foreach ($result as $row) {
     $sub_array = array();
     $sub_array[] = $sno++;
-    $sub_array[] = isset($row['chit_value']) ? $row['chit_value'] : '';
+    $sub_array[] = isset($row['chit_value']) ? moneyFormatIndia($row['chit_value']): '';
     $sub_array[] = isset($row['total_month']) ? $row['total_month'] : '';
     $action = "<span class='icon-border_color enquiryActionBtn' value='" . $row['id'] . "'></span>&nbsp;&nbsp;&nbsp;<span class='icon-delete enquiryDeleteBtn' value='" . $row['id'] . "'></span>";
     $sub_array[] = $action;
@@ -62,5 +62,25 @@ $output = array(
 echo json_encode($output);
 
 
-
+function moneyFormatIndia($num) {
+    $explrestunits = "";
+    if(strlen($num) > 3) {
+        $lastthree = substr($num, strlen($num) - 3, strlen($num));
+        $restunits = substr($num, 0, strlen($num) - 3); // extracts the last three digits
+        $restunits = (strlen($restunits) % 2 == 1) ? "0" . $restunits : $restunits; 
+        $expunit = str_split($restunits, 2);
+        for($i = 0; $i < sizeof($expunit); $i++) {
+            // creates each of the 2 unit pairs, adds a comma
+            if($i == 0) {
+                $explrestunits .= (int)$expunit[$i] . ","; // if first value , convert into integer
+            } else {
+                $explrestunits .= $expunit[$i] . ",";
+            }
+        }
+        $thecash = $explrestunits . $lastthree;
+    } else {
+        $thecash = $num;
+    }
+    return $thecash;
+}
 ?>
