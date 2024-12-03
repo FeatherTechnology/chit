@@ -478,13 +478,13 @@ function getDueChart(cusDataVal) {
                 var auctionDate = item.auction_date;
 
                 // Format the values using moneyFormatIndia
-                var chitAmount = item.chit_share ? moneyFormatIndia(Math.round(item.chit_share)) : '';
+                var chitAmount = item.chit_amount ? moneyFormatIndia(Math.round(item.chit_amount)) : '';
               //  var payable = item.payable ? moneyFormatIndia(item.payable) : '';
                 var collectionDate = item.collection_date ? item.collection_date : '';
                 var collectionAmount = item.collection_amount ? moneyFormatIndia(item.collection_amount) : '';
                 //  var pending = item.pending;
                 var pending = item.pending !== null && item.pending !== undefined ? moneyFormatIndia(item.pending) : '';
-              var initialPayableAmount = item.initial_payable_amount ? moneyFormatIndia(item.initial_payable_amount) : '';
+                var initialPayableAmount = item.initial_payable_amount ? moneyFormatIndia(item.initial_payable_amount) : '';
                 var action = item.action ? item.action : '';
 
                 var row = '<tr>' +
