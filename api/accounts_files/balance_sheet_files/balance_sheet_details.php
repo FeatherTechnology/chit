@@ -87,6 +87,7 @@ if ($qry5->rowCount() > 0) {
     $contradr = $qry5->fetch(PDO::FETCH_ASSOC)['contra_dr'];
 } 
 
+echo "SELECT COALESCE(SUM(settle_cash) + SUM(cheque_val) + SUM(transaction_val),0) AS sttle_dr FROM `settlement_info` WHERE $where ";
 $qry6 = $pdo->query("SELECT COALESCE(SUM(settle_cash) + SUM(cheque_val) + SUM(transaction_val),0) AS sttle_dr FROM `settlement_info` WHERE $where "); //Loan Advance 
 if ($qry6->rowCount() > 0) {
     $sttledr = $qry6->fetch(PDO::FETCH_ASSOC)['sttle_dr'];
