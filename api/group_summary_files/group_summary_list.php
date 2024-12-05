@@ -26,8 +26,7 @@ $query = "SELECT gc.id, gc.grp_id, gc.grp_name, gc.chit_value, gc.date, bc.branc
           LEFT JOIN auction_details ad ON gc.grp_id = ad.group_id
           JOIN 
         users us ON FIND_IN_SET(gc.branch, us.branch) > 0
-          WHERE gc.status = 3 AND
-          (YEAR(ad.date) = $currentYear AND MONTH(ad.date) = $currentMonth) AND us.id = '$user_id'";
+          WHERE gc.status = 3  AND us.id = '$user_id' GROUP BY gc.id";
 
 // Add search condition if search term is provided
 if (isset($_POST['search']) && $_POST['search'] != "") {
@@ -125,6 +124,7 @@ foreach ($result as $row) {
         <div class='dropdown-content'>
             <a href='#' class='auction_chart' data-value='{$row['grp_id']}_{$row['auction_month']}'>Auction Chart</a>
             <a href='#' class='settle_chart' data-value='{$row['grp_id']}_{$row['auction_id']}'>Settlement Chart</a>
+            <a href='#' class='ledger_view_chart' data-value='{$row['grp_id']}'>Ledger View Chart</a>
         </div>
     </div>";
     // Action button
