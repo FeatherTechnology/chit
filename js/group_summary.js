@@ -120,7 +120,7 @@ $(document).on('click', '#due_chart', function (event) {
                         </tr>
                         <tr>
                             <td><strong>Customer Name</strong></td>
-                            <td>${row.cus_name}</td>
+                            <td><b> ${row.cus_name} </b></td>
                         </tr>
                         <tr>
                             <td><strong>Auction Month</strong></td>
@@ -140,7 +140,7 @@ $(document).on('click', '#due_chart', function (event) {
                         </tr>
                         <tr>
                             <td><strong>Collection Amount</strong></td>
-                            <td>${moneyFormatIndia(row.collection_amount)}</td>
+                            <td><b> ${moneyFormatIndia(row.collection_amount)} </b></td>
                         </tr>
                         <tr>
                             <td><strong>Pending</strong></td>
@@ -148,13 +148,13 @@ $(document).on('click', '#due_chart', function (event) {
                         </tr>
                     `).join('');
 
+                    // HTML Content with consistent alignment and styling
                     const content = `
-                        <div id="print_content" style="text-align: center;">
-                            <h2 style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                               <img src="img/bg_none_eng_logo.png" style="width:150px; height: 100px;">
-                                
+                        <div id="print_content" style="text-align: center; font-size: 13px;">
+                            <h2 style="margin-bottom: 20px;">
+                                <img src="img/bg_none_eng_logo.png" style="width: 150px; height: 100px;" />
                             </h2>
-                            <table style="margin: 0 auto; border-collapse: collapse; width: 50%; border: none;">
+                            <table style="margin: 0 auto; border-collapse: collapse; width: 90%; text-align: left; border: none;">
                                 ${rows}
                             </table>
                         </div>
@@ -167,10 +167,34 @@ $(document).on('click', '#due_chart', function (event) {
                         <head>
                             <title>Print Collection Details</title>
                             <style>
-                                body { font-family: Arial, sans-serif; text-align: center; }
-                                table { margin: 0 auto; border-collapse: collapse; width: 50%; border: none; }
-                                td { padding: 8px; }
-                                strong { font-weight: bold; }
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    margin: 0;
+                                    padding: 0;
+                                    text-align: center;
+                                }
+                                table {
+                                    width: 90%;
+                                    margin: 0 auto;
+                                    border-collapse: collapse;
+                                    table-layout: fixed; /* Ensures equal column widths */
+                                    border: none;
+                                }
+                                td {
+                                    padding: 4px;
+                                    border: none;
+                                    font-size: 13px;
+                                    word-wrap: break-word;
+                                }
+                                .label {
+                                    font-weight: bold;
+                                    text-align: right;
+                                    width: 40%;
+                                }
+                                h2 img {
+                                    display: block;
+                                    margin: 0 auto;
+                                }
                             </style>
                         </head>
                         <body>
