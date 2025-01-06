@@ -104,16 +104,41 @@ $customer_details = $qry->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $cus_info['cus_name']; ?></td>
                     <td><?php echo $cus_info['settle_status']; ?></td>
 
-                    <?php 
-                    foreach($auction_details AS $row){
-                        $qry = $pdo->query("SELECT SUM(collection_amount) AS coll_amnt FROM collection WHERE group_id = '$group_id' AND cus_mapping_id = '". $cus_info['cus_mapping_id']. "' AND auction_month = '". $row['auction_month'] ."' ");
-                        $row = $qry->fetch();
+                       <?php
+                $qry = $pdo->query("SELECT SUM(collection_amount) AS coll_amnt FROM collection WHERE group_id = '$group_id' AND cus_mapping_id = '" . $cus_info['cus_mapping_id'] . "'");
+                $row = $qry->fetch();
+                $overall_collection_amount = $row['coll_amnt'];
 
-                    ?>
-                        <td><?php echo $row['coll_amnt']; ?></td>
-                    <?php
-                    } //second foreach end
-                    ?>
+                // Initialize the remaining collection amount
+                $remaining_collection_amount = $overall_collection_amount;
+
+                // Fetch auction details and chit share for each auction month
+                foreach ($auction_details as $auction_row) {
+                    // Calculate the chit share for each auction month
+                    $qry1 = $pdo->query("SELECT (ad.chit_amount) AS chit_share
+                   FROM auction_details ad
+                   LEFT JOIN group_cus_mapping gs ON ad.group_id = gs.grp_creation_id
+                   WHERE ad.group_id = '$group_id'
+                   AND gs.id = '" . $cus_info['cus_mapping_id'] . "'
+                   AND ad.auction_month = '" . $auction_row['auction_month'] . "'");
+                    $share_info = $qry1->fetch();
+
+                    // Print the chit share amount for the corresponding auction month
+                    if ($share_info) {
+                        $chit_share = $share_info['chit_share'];
+                        $collection_amount = min($chit_share, $remaining_collection_amount);
+                        if ($collection_amount == 0) {
+                            echo "<td></td>"; // Display empty space if collection amount is 0
+                        } else {
+                            echo "<td>{$collection_amount}</td>"; // Display the collection amount if it's not 0
+                        }
+                        $remaining_collection_amount -= (float)$collection_amount; // or (int)$collection_amount if you expect integer values
+
+                    } else {
+                        echo "<td></td>"; // Display empty space instead of 0
+                    }
+                }
+                ?>
                     <td> <input type="button" class="btn btn-primary" id="due_chart" value="Due Chart" 
                     data-value='<?php echo json_encode(['group_id' => $group_id,
                     'cus_mapping_id' => $cus_info['cus_mapping_id'],
