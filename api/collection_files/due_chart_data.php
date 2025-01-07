@@ -50,15 +50,15 @@ ORDER BY
 
 $previous_statement = $pdo->query($previous_auction_query);
 
-// Initialize pending amount
-$pending_amount = 0;
-
-// Calculate pending amount
+// Initialize pending amounts for each month
+$pending_amounts = [];
 while ($previous_row = $previous_statement->fetch(PDO::FETCH_ASSOC)) {
     $previous_collection_amount = (int)$previous_row['collection_amount'];
     $previous_chit_amount = (int)$previous_row['chit_amount'];
-    $pending_amount += max(0, $previous_chit_amount - $previous_collection_amount);
+    $pending_amount = max(0, $previous_chit_amount - $previous_collection_amount);
+    $pending_amounts[$previous_row['auction_month']] = $pending_amount;
 }
+
 $lastAuctionMonth = null;
 $lastAuctionDate = null;
 
@@ -92,10 +92,20 @@ foreach ($auctionData as $auctionDetails) {
         $auction_date = $date->format('d-m-Y');
     }
 
+    // Carry over pending amounts from previous months
+    $cumulative_pending = 0;
+    foreach ($pending_amounts as $pending_month => $pending_value) {
+        if ($pending_month < $auction_month) {
+            $cumulative_pending += $pending_value;
+        }
+    }
+
+    // Calculate the payable amount (current month chit amount + any pending amount)
+    $initial_payable_amount = $chit_amount + $cumulative_pending;
     if ($auction_month == $auction_month_current) {
         // If chit amount > 0, add pending amount
         if ($chit_amount > 0) {
-            $initial_payable_amount = $chit_amount + $pending_amount;
+            $initial_payable_amount = $chit_amount + $cumulative_pending;
            
         } 
         // If chit amount is 0 and pending amount > 0, use previous month's payable amount
@@ -106,12 +116,21 @@ foreach ($auctionData as $auctionDetails) {
         else {
             $initial_payable_amount = '';
         }
-    } else {
+    }else if ($auction_month < $auction_month_current) {
+        if ($cumulative_pending > 0) {
+            $initial_payable_amount = $chit_amount + $cumulative_pending;
+        } else{
+            $initial_payable_amount = $chit_amount;
+        }
+       
+    } 
+    else {
         // For previous months, just use the chit amount and store it as the previous payable amount
+    
         $initial_payable_amount = $chit_amount;
         $previous_payable_amount = $initial_payable_amount;  // Store this for future use
+        
     }
-
     // Fetch collection details for the auction month
     $qry2 = $pdo->query("SELECT 
         c.chit_amount,
@@ -128,7 +147,7 @@ foreach ($auctionData as $auctionDetails) {
     WHERE 
         c.group_id = '$groupId' AND
         c.cus_mapping_id = '$cusMappingID'
-        AND c.auction_month = '$auction_month' ORDER BY  c.collection_date");
+        AND c.auction_month = '$auction_month' ORDER BY c.collection_date");
 
     if ($qry2->rowCount() > 0) {
         while ($row = $qry2->fetch(PDO::FETCH_ASSOC)) {
@@ -139,14 +158,12 @@ foreach ($auctionData as $auctionDetails) {
             $payable = (int)$row['payable'];
             $collection_amount = (int)$row['collection_amount'];
             $pending = $payable - $collection_amount;
-            $initial_payable_amount =$payable;
-            // Ensure pending is not negative
-            $pending = max($pending, 0);
-            // Add auction_month and auction_date to the row
+
+            // Add the payable and pending details
+            $row['initial_payable_amount'] = $payable;
+            $row['pending'] = max($pending, 0);
             $row['auction_month'] = !in_array($auction_month, $auctionMonthUsed) ? $auction_month : '';
             $row['auction_date'] = $auction_date;
-            $row['initial_payable_amount'] = $initial_payable_amount;
-            $row['pending'] = $pending;
             $row['action'] = "<a class='print_due_coll' id='" . $row['coll_id'] . "'> <i class='fa fa-print' aria-hidden='true'></i> </a>";
 
             $due_list_arr[$i] = $row;
@@ -156,7 +173,7 @@ foreach ($auctionData as $auctionDetails) {
             $auctionMonthUsed[] = $auction_month;
         }
     } else {
-        // No data found, create a default entry 
+        // No collection data found, create a default entry 
         $due_list_arr[$i] = array(
             'auction_month' => !in_array($auction_month, $auctionMonthUsed) ? $auction_month : '',
             'auction_date' => $auction_date,
@@ -171,11 +188,12 @@ foreach ($auctionData as $auctionDetails) {
         $i++;
     }
 }
+
+// Add future collection dates
 $collectionDatesQuery = "SELECT collection_date FROM collection WHERE collection_date > '" . $lastAuctionDate->format('Y-m-d') . "' AND group_id ='$groupId' AND cus_mapping_id= '$cusMappingID'";
 $collectionDatesStmt = $pdo->query($collectionDatesQuery);
 $collectionDates = $collectionDatesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Add future collection dates to $due_list_arr
 foreach ($collectionDates as $collectionDate) {
     $collectionDateFormatted = date('d-m-Y', strtotime($collectionDate['collection_date']));
     $auction_month_future = date('m', strtotime($collectionDate['collection_date']));
@@ -192,7 +210,7 @@ foreach ($collectionDates as $collectionDate) {
             'id' => '',
             'action' => ''
         );
-        $auctionMonthUsed[] = $auction_month_future; // Mark this future auction month as used
+        $auctionMonthUsed[] = $auction_month_future;
     }
 }
 
