@@ -158,7 +158,11 @@ foreach ($auctionData as $auctionDetails) {
             $payable = (int)$row['payable'];
             $collection_amount = (int)$row['collection_amount'];
             $pending = $payable - $collection_amount;
-
+            if ($row['chit_amount'] == 0 ) {
+                $row['chit_amount'] = $chit_amount;
+            }else{
+                $row['chit_amount'] = $chit_amount;
+            }
             // Add the payable and pending details
             $row['initial_payable_amount'] = $payable;
             $row['pending'] = max($pending, 0);

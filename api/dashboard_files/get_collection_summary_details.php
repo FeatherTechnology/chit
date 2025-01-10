@@ -16,9 +16,9 @@ $month_paid = "SELECT COALESCE(SUM(c.collection_amount), 0) AS month_paid
 
 // Add conditions based on branchId
 if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
-    $month_paid .= " AND gc.branch = '$branchId' AND  gc.insert_login_id = '$user_id' ";
+    $month_paid .= " AND gc.branch = '$branchId' AND  c.insert_login_id = '$user_id' ";
 } else {
-    $month_paid .= " AND gc.insert_login_id = '$user_id' ";
+    $month_paid .= " AND c.insert_login_id = '$user_id' ";
 }
 $month_paid .= "GROUP BY gc.grp_id";
 
@@ -100,7 +100,7 @@ if ($branchId !== null && $branchId !== '' && $branchId !== '0') {
 } else {
     $prev_pen_amount .= " gc.insert_login_id = '$user_id' ";
 }
-$qryCount = "SELECT
+  $qryCount = "SELECT
     gs.id, 
     COALESCE((la.chit_amount), 0) AS total_chit_amount,
     la.last_auction_month
@@ -164,15 +164,23 @@ foreach ($mappings as $mapping) {
     $previous_amount = $total_chit_amount - $total_collection_amount;  // Calculate previous amount
 
     // Now, calculate the pending amount for the current date
-    $qry2 = "SELECT 
-    COALESCE(LEAST($previous_amount, COALESCE(SUM(c.collection_amount), 0)), 0) AS total_amount
-FROM 
-    collection c
-WHERE 
-    c.cus_mapping_id = '$map_id'
-    AND MONTH(c.collection_date) = MONTH('$current_date')
-    AND YEAR(c.collection_date) = YEAR('$current_date');
-";
+    $qry2 = "
+    SELECT 
+        COALESCE(
+            LEAST(
+                $previous_amount, 
+                COALESCE(SUM(IF(c.chit_amount = 0, 0, c.collection_amount)), 0)
+            ), 
+            0
+        ) AS total_amount
+    FROM 
+        collection c
+    WHERE 
+        c.cus_mapping_id = '$map_id'
+        AND MONTH(c.collection_date) = MONTH('$current_date')
+        AND YEAR(c.collection_date) = YEAR('$current_date');
+    ";
+    
 
     // Directly execute the query using query()
     $stmt2 = $pdo->query($qry2);
@@ -185,8 +193,6 @@ WHERE
         $total_amount += $result5['total_amount'];  // Sum total amounts
     }
 }
-
-
 
 // Now, $total_pending_amount contains the total pending amount for all mappings
 
