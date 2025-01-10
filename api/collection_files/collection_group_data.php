@@ -36,11 +36,19 @@ $query =" SELECT
     cc.cus_id,
     gc.grace_period,
     gcm.settle_status
-FROM
+FROM 
     group_creation gc
-LEFT JOIN auction_details ad ON ad.group_id = gc.grp_id 
-    AND YEAR(ad.date) = '$currentYear'
-    AND MONTH(ad.date) = '$currentMonth'
+    LEFT JOIN auction_details ad 
+        ON ad.group_id = gc.grp_id 
+        AND YEAR(ad.date) = '$currentYear' 
+        AND MONTH(ad.date) = '$currentMonth'
+    LEFT JOIN auction_details last_ad 
+        ON last_ad.group_id = gc.grp_id 
+        AND last_ad.date = (
+            SELECT MAX(ad2.date) 
+            FROM auction_details ad2 
+            WHERE ad2.group_id = gc.grp_id
+        )
 LEFT JOIN group_cus_mapping gcm ON gc.grp_id = gcm.grp_creation_id
 LEFT JOIN customer_creation cc ON gcm.cus_id = cc.id
 JOIN branch_creation bc ON gc.branch = bc.id
